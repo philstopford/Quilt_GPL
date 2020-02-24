@@ -1,0 +1,188 @@
+Changelog for Quilt (formerly Paisley). A pattern generator.
+
+1.0.6
+
+	- Major performance boost.
+	 - Employ additional multithreading in pipeline.
+	 - Results are still consistent with previous releases.
+
+1.0.5
+
+	- Added bookmark to viewport.
+	- Viewport context menu wasn't updating with user actions.
+	- Added option to show 'subshape' inputs rather than the output.
+	 - Output is unaffected.
+	- Viewport refinements.
+	- Documentation integrated into help menu.
+
+1.0.4
+
+	- Various small fixes and adjustments.
+	 - UI adjustments.
+	 - Preference-related fixes.
+	 - Licensing/activation user experience cleaned up.
+
+1.0.3
+
+	- Table UIs finalized.
+	- Mac and GTK versions finalized.
+	 - Dark mode on Mac supported.
+	! Discontinued WinForms.
+
+1.0.2
+
+	- Large performance boost in Quilt build.
+	 - 70x speed-up in quilt build peformance due to new strategy for duplicate pattern filtering.
+	  - Approach is single-core dominated, but the performance gain in this new strategy is dramatic.
+	  - From 710 s for 225k patterns to 10 s.
+	- UI performance optimizations.
+	 - Work to prevent needless UI updates by better event filtering.
+	- Work on the adaptive UI.
+	 - GTK2 has issues with the existing UI so working to make this behave well by changing the layout approach.
+
+1.0.1
+
+	- Refactoring.
+	- Licensing overhaul.
+	- Minor fix to the polygon output in geoCore, no user impact.
+
+1.0.0
+
+	- Allowed quilt build to be suspended; exporting in this situation will force a build.
+	- Revised internals of geoCore to permit faster export (1000x faster), through multithreading and optimizations.
+	- Obfuscator.
+	- CSV file contains pattern summary.
+
+0.9.0
+
+	- Validated system with 255,000 pattern generation and export.
+	 - Quilt build time 730 seconds on i7 6700K (4 threads). Runtime is ~ O^2, this suggests.
+	 - Memory post-build was ~1 GB.
+	 - Oasis export yielded a 16 MB, valid file with all patterns correct.
+	  - Optimized export pipeline based on this test, removing the pre-export quilt build step, also avoiding excess resource allocation.
+	  - UI is now updated with progress during save. Export can be lengthy, however.
+	- Report quilt build time.
+	- Removed constraint on element name being unique.
+	- Fixed text box not being cleared after element is added.
+	- Numeric gadgets for viewport zoom, and viewport position.
+	- Report total number of patterns in quilt.
+
+0.8.0
+
+	- First pass preferences implementation.
+	 - Colors, AA, OpenGL mode, etc.
+	- Moving UI to tabs, to accommodate preferences settings.
+	- Documentation.
+	- Fixed error in the subshape 2 offset limits for X-shape.
+	- Performance work across the internals of the Quilt system.
+	 - Project loading has seen a massive speed-up with new approach.
+	 - Evaluating the quilt is now faster still, and the UI now shows the status of the build.
+	  - Multi-element patterns indicate which level is being evaluated.
+	  - No more indeterminate spinners : the system now reports its actual progress, for each stage of the build.
+	- Internal refactoring / clean-ups.
+	- Reliability work to prevent unplanned exit.
+	- Licensing systems.
+	- Export CSV file for ease of DOE set up in Variance 3.5.1 (Variance has a corresponding update for this feature).
+
+0.7.0
+
+	- UI lockout during various operations, preventing cascadeded updates.
+	- Added multithreading to quilt to massively speed-up pattern screening (which was the bottleneck).
+
+0.6.0
+
+	- Made UI update during long-running tasks (viewport generation / file export).
+
+0.5.0
+
+	- Fixed serious bug in Oasis writer for >= 128 cell refs (patterns).
+
+0.4.0
+
+	- Menu bar addition to UI.
+	- Storage implementation.
+	 - Leveraging Variance implementation for this system. Load and save from XML project files.
+	- Copy/paste of settings between elements.
+
+0.3.0
+
+	- Padding.
+	 - Absolute spacing, applied in both X and Y directions as a gap between the patterns in the quilt.
+	- Added progress bar for draw event and also for export to file.
+	- Experimental solution for exception if parameters changed during redraw.
+	 - Freeze the UI until the redraw is done.
+	- Tidied up UI.
+	- Dimensional variation of subshapes.
+	 - Added clamping code to the pattern element class to try and ensure that subshape variations do not break the shape type of the element.
+	 - Added increment and step controls for H/V length/offset fields for each subshape.
+	 - Screening of patterns implemented to avoid duplication.
+	  - Dimensional variation of subshapes can cause identical patterns, also due to subshape clamping.
+	 - Implemented colinear vertices removal, to ensure compatibility with Variance.
+	- Improved filter on file dialog for export.
+	- Fixed layer numbering starting at 0 on export.
+
+0.2.0
+
+	- geoCore output.
+	 - Using latest geoCore package from Variance.
+	 - Make use of the geoCore integration to actually save Oasis and GDS files to disk.
+
+0.0.5
+
+	- Merge geoCore from Variance.
+	 - Multitude of bug fixes and updates for Paisley.
+	- Incremental viewport to give feedback during large quilt build-out.
+
+0.0.4
+
+	- Moved variant generation down to element level. This is a push-down of detail into the relevant class, after prototyping at the quilt level.
+	- Quilt generation validated with this approach.
+	- Fixed pattern bounding box code in quilt:
+	 - Get overall min/max values in X and Y for overall bounding box.
+	 - Calculate width/height as final step.
+	- Added hashing to avoid adding duplicate pattern definitions in the quilt.
+	- Fixed variant code to handle '0' step increment value.
+	- Fixed bugs that prevented position in subshape and subshape reference properties being correctly handled.
+
+0.0.3
+
+	- Fixed a bunch of bugs related to linked properties and UI misfires stemming from recent activity.
+	- Quilt now provides overall 'view' of the system to users. Need to make appropriate changes.
+	 - Moved pattern element base definition and names into quilt.
+	 - Added method to update Quilt instance.
+	 - Make Pattern accept a set of patternelements in its constructor.
+	  - Allow elements in a pattern to be queried, etc.
+	  - Each Pattern generates its own PreviewShapes for the pattern. Quilt then collects these.
+	   - Added code to allow each pattern to calculate and expose bounding box information for its contents, to allow Quilt to efficiently generate the grid.
+	 - Quilt creates factorial of all positioning variations by mapping out the design space from all positional parameters.
+	- Relative positioning hooked-up and validated.
+
+0.0.2
+
+	- Positioning with regard to subshape index and position within subshape.
+	- Adding in relative positioning support.
+	 - X and Y against a different pattern element (or world origin)
+	 - UI elements are working and the changes are tracked.
+	 - Min/Max values for positioning in X and Y.
+	 - Implemented relative positioning calculation system that hopefully wrangles nested relationships.
+
+0.0.1
+
+	- Prototyping.
+	 - Taking infrastructure from Variance project as needed.
+	 - Preliminary UI.
+	  - Listbox to list elements in pattern.
+	   - Selecting an element shows its properties.
+	   - Like Variance, changing values immediately registers those values with the pattern element.
+	 - Shape system from Variance.
+	  - Stripped out contouring as the patterns will use basic primitives.
+	  - Pattern elements can be based on rectangle, T, L, X, U or S.
+	  - Subshape characteristics will be varied within the element (min/max with steps)
+	 - Preliminary architecture:
+	  - Quilt is top-level and will deliver output to viewport, etc. when queried.
+	  - Quilt will hold a list of Patterns and can determine the best layout grid for the list of patterns based on the maximum size.
+	  - Quilt also has the hierarchical information to optimally generate the output from the patterns.
+	  - Each Pattern is a set of one or more PatternElements, arranged per the pattern definition with variations in size and relative positioning.
+	   - Each Pattern takes care of arranging its PatternElements.
+	  - PatternElements are delivered by the ShapeLibrary, each with its own variations based on user defined values.
+

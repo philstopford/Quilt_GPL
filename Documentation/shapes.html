@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="overview_patternElement_shapeTypes"></a>
+<h1 class="western">Shape Types</h1>
+  <p class="western" style=" line-height: 100%">Each shape type has its own available inputs. Note that inputs not applicable to the current shape type are unavailable for direct input (such as vertical offset for subshape 2 in the L case, but this becomes available in the T case). Note also that certain inputs will have their input ranges limited based on the expectations of the shape type. The 'text' shape type is a special case - it is derived from the rectangle shape, but also places text at the center of the rectangle. This is intended for pin placement for circuit analysis. The text comes from the name of the pattern element - the text is not displayed in the viewport, but both the rectangle (which is displayed) and the text will be present in the generated layout file.</p>
+
+      <a name="rect"></a>
+      <table>
+        <tr>
+          <td = width="50%">
+      <img src="images/box_40x30.png" size="100%" alt="Box"/>
+          </td>
+          <td>
+      <img src="images/box_40x30_out.png" size="100%" alt="L"/>
+          </td>
+        </tr>
+      </table>
+      <a name="L"></a>
+      <table>
+        <tr>
+          <td = width="50%">
+      <img src="images/Lshape.png" size="100%" alt="Box"/>
+          </td>
+          <td>
+      <img src="images/Lshape_out.png" size="100%" alt="L"/>
+          </td>
+        </tr>
+      </table>
+      <a name="T"></a>
+      <table>
+        <tr>
+          <td = width="50%">
+      <img src="images/Tshape.png" size="100%" alt="T"/>
+          </td>
+          <td>
+      <img src="images/Tshape_out.png" size="100%" alt="X"/>
+          </td>
+        </tr>
+      </table>
+      <a name="X"></a>
+      <table>
+        <tr>
+          <td = width="50%">
+      <img src="images/Xshape.png" size="100%" alt="T"/>
+          </td>
+          <td>
+      <img src="images/Xshape_out.png" size="100%" alt="X"/>
+          </td>
+        </tr>
+      </table>
+      <a name="U"></a>
+      <table>
+        <tr>
+          <td = width="50%">
+      <img src="images/Ushape.png" size="100%" alt="U"/>
+          </td>
+          <td>
+      <img src="images/Ushape_out.png" size="100%" alt="S"/>
+          </td>
+        </tr>
+      </table>
+      <a name="S"></a>
+      <table>
+        <tr>
+          <td = width="50%">
+      <img src="images/Sshape.png" size="100%" alt="U"/>
+          </td>
+          <td>
+      <img src="images/Sshape_out.png" size="100%" alt="S"/>
+          </td>
+        </tr>
+      </table>
+</body>
+</html>

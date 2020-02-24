@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="overview_patternElement"></a>
+<h1 class="western">Pattern Element</h1>
+  <p class="western" style=" line-height: 100%">Each pattern element has several properties that need to be set. These properties fall into two categories, suggested by the user interface grouping. One group pertains to the shape; the other group relates to placement. For those familiar with Variance, the controls may look familiar.</p>
+  <p style="page-break-before: always"><img src="images/box_blank.png" size="100%" alt=""/></p>
+
+  <p class="western" style=" line-height: 100%">Each pattern element is assigned a shape type. The choices will be reviewed later in this section. The shape definition for a pattern element is constructed using subshapes (quadrangles), which each have their own vertical and horizontal dimensions. For each such dimension, there is a minimum value, an increment value and a number of steps. These last two fields are what quilt uses to construct the range of patterns that encompass all unique results from the variations across all pattern elements. You can see this in the images below, where some padding has also been defined to more clearly separate the patterns.</p>
+  <p class="western" style=" line-height: 100%">In this case, there are 5 L instances that each have a different vertical length of the second component of the shape. These 5 instances (steps) correspond to the minimum value case, and then 4 increments of 5 units. The final 'L' is rectangular because the 20 nm minimum vertical length + (4 steps of 5 nm each) equals the 40 nm vertical length of the first component of the L.</p>
+  <p style="page-break-before: always"><img src="images/quilt_demo.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">Asking for more steps in this situation, as below, will not yield more patterns in the quilt, for two reasons. First, the L shape prohibits the vertical length of the second component exceeding that of the first. The second reason is that quilt ensures that it does not contain duplicate patterns - due to the L shape already having provided the rectangle from the maximum case, there is no further unique pattern available for this shape within the parameters that have been set.</p>
+  <p style="page-break-before: always"><img src="images/quilt_demo_2.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">Quilt always generates a full factorial of the variations in the defined pattern elements, both for the shape parameters and also for placement parameters. The system will also make a best effort to establish a grid layout - this does mean that the location of a specific pattern in the grid will change as the number of patterns changes.</p>
+  <p style="page-break-before: always"><img src="images/quilt_demo_3.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">In the image below, you can also see the viewport highlight of the selected element within the patterns.</p>
+  <p style="page-break-before: always"><img src="images/quilt_demo_4.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">By default, to aid setup, the subshape inputs to the pattern element are drawn. If 'Inputs' is deselected, the final output is drawn instead.</p>
+  <p style="page-break-before: always"><img src="images/quilt_demo_4_final.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">In the preferences tab, the opacity of the active and background pattern elements can be adjusted, to improve clarity as needed.</p>
+  <p style="page-break-before: always"><img src="images/quilt_demo_4_opacity.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">In the preferences tab, the fill option can be enabled to draw solid shapes instead of wireframes for the output. Input is always drawn using wires.</p>
+  <p style="page-break-before: always"><img src="images/quilt_demo_4_fill.png" size="100%" alt=""/></p>
+
+</body>
+</html>

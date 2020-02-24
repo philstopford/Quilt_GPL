@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="array"></a>
+<h1 class="western">Array</h1>
+<p class="western" style=" line-height: 100%">An array can be constructed within a pattern element, with a defined instance count and pitch in each of X and Y. The array is constructed using the shape defined within the element itself. Note that the array is constructed after all other transformations to the shape are applied (e.g. rotation).</p>
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_1.png" size="100%" alt="Box"/>
+        </td>
+        <td>
+    <img src="images/array_2.png" size="100%" alt="L"/>
+        </td>
+      </tr>
+    </table>
+<p class="western" style=" line-height: 100%">The array itself can be rotated around its centerpoint (the center of the array's bounding box). In each of X and Y, counts and spacing can be defined. This rotation can be relative to other pattern elements and also take into account array rotation from other elements.</p>
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_3.png" size="100%" alt="Box"/>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_rel_rot_1.png" size="100%" alt="Array rotated by other pattern element"/>
+        </td>
+        <td>
+    <img src="images/array_rel_rot_2.png" size="100%" alt="Element used as rotation reference"/>
+        </td>
+      </tr>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_rel_rot_3.png" size="100%" alt="Using the reference pivot point for the relative array rotation"/>
+        </td>
+        <td>
+    <img src="images/array_rel_rot_4.png" size="100%" alt="Using the reference pivot point for the relative array rotation, then applying local array rotation."/>
+        </td>
+      </tr>
+    </table>
+<p class="western" style=" line-height: 100%">The placement of other elements in the pattern can be relative to the array bounding box or to subshapes of the element - if the reference element has an array definition, it will be available in the subshape drop-down.</p>
+<p class="western" style=" line-height: 100%">To allow for consistent arrays to be constructed across multiple elements, a relative array definition can be set. The X and Y pitch (the pitch being the sum of the respective cell dimension and spacing), and instance counts, will come from the reference array element.</p>
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_rel.png" size="100%" alt="Box"/>
+        </td>
+        <td>
+        </td>
+      </tr>
+    </table>
+<p class="western" style=" line-height: 100%">Element and array rotations can also be referenced across elements. As noted before, you can use the 'Ref Pivot' controls to configure the rotation.</p>
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_element_rot_1.png" size="100%" alt="Box"/>
+        </td>
+        <td>
+    <img src="images/array_element_refRot_1.png" size="100%" alt="Box"/>
+        </td>
+      </tr>
+    </table>
+
+</body>
+</html>

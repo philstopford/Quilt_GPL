@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="overview_patternElement_flip"></a>
+<h1 class="western">Flip</h1>
+  <p class="western" style=" line-height: 100%">Pattern elements can also be flipped (horizontally and/or vertically), with the flipped geometry optionally being realigned to the original midpoint in either or both X and Y. Note that the flip settings are not variation sources - all instances of the pattern element will be flipped in the quilt.</p>
+  <p class="western" style=" line-height: 100%">As can be seen below, positioning of dependent shapes is evaluated after the flip has been performed, to avoid confusion from the transposition of top/bottom, left/right features.</p>
+      <table>
+        <tr>
+          <td = width="50%">
+      <img src="images/flip_1.png" size="100%" alt="Aligned vertical flip"/>
+          </td>
+          <td>
+      <img src="images/flip_2.png" size="100%" alt="Review of the relative positioning of the second shape"/>
+          </td>
+        </tr>
+        <tr>
+          <td = width="50%">
+      <img src="images/flip_3.png" size="100%" alt="Vertial flip, not aligned"/>
+          </td>
+          <td>
+      <img src="images/flip_4.png" size="100%" alt="Horizontal and vertical flip, neither aligned."/>
+          </td>
+        </tr>
+      </table>
+
+
+</body>
+</html>

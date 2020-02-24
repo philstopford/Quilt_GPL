@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+p.western {
+    font-family: "Calibri", serif;
+    font-size: 10pt;
+  color: #aaaaaa;
+    so-language: en-US
+}
+p.cjk {
+    font-family: "Calibri";
+    font-size: 10pt;
+    so-language: en-US
+}
+p.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA
+}
+h1 {
+    direction: ltr;
+    color: #365f91;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h1.western {
+    font-family: "Cambria", serif;
+    font-size: 13pt;
+    so-language: en-US
+}
+h1.cjk {
+    font-family: "宋体";
+    font-size: 13pt;
+    so-language: en-US
+}
+h1.ctl {
+font-family:;
+    font-size: 13pt;
+    so-language: ar-SA
+}
+h2 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h2.western {
+    font-family: "Cambria", serif;
+    font-size: 12pt;
+    so-language: en-US
+}
+h2.cjk {
+    font-family: "宋体";
+    font-size: 12pt;
+    so-language: en-US
+}
+h2.ctl {
+font-family:;
+    font-size: 12pt;
+    so-language: ar-SA
+}
+h3 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h3.western {
+    font-family: "Cambria", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+h3.cjk {
+    font-family: "宋体";
+    font-size: 10pt;
+    so-language: en-US
+}
+h3.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA
+}
+h4 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h4.western {
+    font-family: "Cambria", serif;
+    font-size: 10pt;
+    so-language: en-US;
+    font-style: italic
+}
+h4.cjk {
+    font-family: "宋体";
+    font-size: 10pt;
+    so-language: en-US;
+    font-style: italic
+}
+h4.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA;
+    font-style: italic
+}
+a:link {
+    color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {   font-family: "Cambria", serif;
+    font-size: 13pt;
+    so-language: en-US
+}
+p.western1 {    font-family: "Calibri", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+h2.western1 {   font-family: "Cambria", serif;
+    font-size: 12pt;
+    so-language: en-US
+}
+p.western2 {    font-family: "Calibri", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100%;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+#menu {
+position: fixed;
+left: 0;
+top: 5em;
+width: 3em;
+margin: -2.5em 0 0 0;
+z-index: 5;
+background: rgba(40, 40, 40, 0.9);
+color: #ccc;
+font-weight: normal;
+font-size: 12px;
+text-align: left;
+border: solid rgba(40, 40, 40, 0.5);
+border-left: none;
+padding: 0.5em 0.5em 0.5em 2.5em;
+box-shadow: 0 1px 3px black;
+/*border-radius: 3em 0.5em 0.5em 3em;*/
+}
+#menu li { margin: 0 }
+#menu a { color: inherit }
+
+/* Make menu absolute, not fixed, on IE 5 & 6 */
+#menu { position: absolute }
+*>#menu { position: fixed }
+
+</style>
+</head>
+
+  <ul id=menu>
+    <li><a href="#releases_220">2.2</a>
+    <li><a href="#releases_211">2.1.1</a>
+    <li><a href="#releases_210">2.1</a>
+    <li><a href="#releases_200">2.0</a>
+  </ul>
+
+
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<blockquote>
+    <a name="releases"></a>
+    <h1 class="western">Quilt Release History</h1>
+
+    <blockquote>
+      <a name="releases_220"></a>
+      <h2 class="western">New to 2.2 (TBD)</h2>
+      <blockquote>
+        <ul>
+          <li>Arrays can be constructed within pattern elements.</li>
+          <ul>
+            <li>Each entry in the array comes from the underlying pattern element for the pattern.</li>
+            <li>Array placement can be cross-referenced between elements.</li>
+            <li>The array be be rotated around its bounding box pivot, or that of a reference.</li>
+          </ul>
+          <li>Runs on .NET Core 3.1 across all platforms. No longer requires Mono framework.</li>
+          <li>Relative rotations can be performed around the reference element's pivot point.</li>
+          <li>Flipped shapes can now be aligned on either or both of X and Y. Previously, only 'all' was available.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+    <blockquote>
+      <a name="releases_211"></a>
+      <h2 class="western">New to 2.1.1 (Dec 30 2019)</h2>
+      <blockquote>
+        <ul>
+          <li>Support argument to set viewport mode (--graphicsMode x), where x is one of:</li>
+          <ul>
+            <li>d3d11 : D3D 11</li>
+            <li>vulkan : Vulkan</li>
+            <li>opengl : OpenGL</li>
+            <li>metal : Metal</li>
+          </ul>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+    <blockquote>
+      <a name="releases_210"></a>
+      <h2 class="western">New to 2.1 (Nov 20 2019)</h2>
+      <blockquote>
+        <ul>
+          <li>Bounding box pattern element.</li>
+          <li>Permit negative values across more of the system.</li>
+          <li>Performance tuning : 225k build time on an ultrabook went from 11 seconds to 7.8 seconds with this release.</li>
+          <li>Modern viewport.</li>
+          <ul>
+            <li>Faster, and automatically works with the best implementation on each platform (Vulkan, OpenGL, Direct3D11, Metal)</li>
+          </ul>
+          <li>Moved to newer .NET framework (4.7.2) and .NET standard 2.0 libraries.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+    <blockquote>
+      <a name="releases_200"></a>
+      <h2 class="western">New to 2.0 (Sep 23 2019)</h2>
+      <blockquote>
+        <ul>
+          <li>Relative positioning in X and Y can now use independent subshape references within the reference element.</li>
+          <li>Rotation support, including relative rotations.</li>
+          <li>Flip support support.</li>
+          <li>Text annotation support.</li>
+          <li>Robustness work.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+
+</blockquote>
+
+</body>
+</html>

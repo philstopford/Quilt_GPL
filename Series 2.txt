@@ -1,0 +1,111 @@
+Changelog for Quilt. A pattern generator.
+
+2.2b2
+
+	- Added 'B' control that sets whether the bounding box should be calculated after rotation is applied (checked) or before (unchecked).
+	- Performance work.
+	 - More multi-threading usage in pattern pipeline.
+
+2.2b1
+
+	- Shake-down.
+	 - Multiple UI fixes.
+	 - Fixed bug preventing rotation of non-drawn case (deferred evaluation related).
+	- Added support for rotating around pivot point of reference element. Default is to rotate around element's bounding box.
+	- Added support for independent aligning of flipped shapes in X and Y.
+
+2.2a2
+
+	- UI adjustments to work better in various ways.
+	- Aligned Veldrid code with upstream.
+	- Implemented relative positioning for pattern elements using relative array definition.
+	- Avoid offering array controls for bounding elements.
+	- Rotation review.
+	 - Added UI elements and internal setting related code for array-relative vs shape-relative rotation.
+	 - Implemented rotation handling relative to shape/array for shape construction.
+	  - Initial QA looks promising. Need to review pivot point handling, but results look reasonable in current system.
+	- Fixed some internal weakpoints for background tasks that get cancelled. Reliability/robustness work.	 
+
+2.2a1
+
+	- Array definitions can be referenced from other elements, if desired, to keep placement of elements consistent in arrays.
+	- Array shapes continue to offer relative reference to subshape elements, in addition to the array.
+	- Added a special array rotation that works to rotate the array (if applicable) around its pivot point. The other rotation will rotate the element from which the array is built.
+	- Refactored rotation and flip handling due to the requirements of the array system when combined with pattern elements using relative transformations.
+	- Added an array option to the pattern element.
+	 - Allows for X and Y duplication of the element shape within the pattern element.
+	- Moving to .NET Core 3.1 based on Eto updates.
+
+2.1.1
+
+	- Added graphicsMode switch in launch args.
+	 - d3d11 : D3D 11
+	 - vulkan : Vulkan
+	 - opengl : OpenGL
+	 - metal : Metal
+
+2.1
+
+	- Viewport optimization.
+
+2.1b1
+
+	- Prohibit references to bounding box elements; they are intended to derive from final pattern extents, so elements cannot depend on them.
+	- Fixed UI bugs from bounding box implementation.
+	- Ensure deferred bounding box generation captures all relevant properties.
+	- Allow negative increment values where appropriate (dimension increments, bounding box margins).
+
+2.1a3
+
+	- Eto Veldrid updates.
+	- Boundary shape type.
+	 - Late addition to development plan, but allows for enclosure/overlap pattern boundary evaluations.
+
+2.1a2
+
+	- GTK3 prototype port added.
+	- Performance tuning : on an ultrabook, build time for 225k test case went from 11 seconds to 7.8 seconds.
+	- Re-enabled obfuscation.
+	- Fixed packaging issues lingering from changes.
+
+2.1a1
+
+	- Moving libraries to .NET standard 2.0.
+	- Veldrid viewport.
+
+2.0b4
+
+	- Added 'text' shape type. This is an extension of the rectangle type, where a text label is added to the exported layout. This makes RC set-ups easier to use.
+
+2.0b3
+
+	- Flip implementation.
+	 - H, V, align.
+	 - Reference sides are kept consistent with flipped shape, for ease of understanding.
+	 - Not a variation source - all element instances are flipped according to the settings.
+	- Oasis export highlighted a bug. Fixed.
+
+2.0b2
+
+	- Migrated to Eto.OpenTK for etoViewport infrastructure.
+	- Relative rotation implementation.
+
+2.0b1
+
+	- Restore tessellation optimization that was disabled in a2 for debug work.
+	- Fixed potential escapes from duplicate screening procedure.
+	 ! This may cause a change in the output from 1.x because there was potential for duplicates (due to escapes).
+	- Simplified subshape relative positioning UI.
+	- Fixed X-shape relative positioning.
+	- Refined and fixed up the internal codepaths to address bugs from the relative positioning code.
+	- Rotation of elements within the pattern.
+
+2.0a2
+
+	- Completed the spec for the subshape-relative positioning feature. Testing needed to ensure things work well.
+
+2.0a1
+
+	- Refinements to UI updates for multi-threading evaluation.
+	- Subshape-specific relative positioning (X/Y).
+	 - Also using positioning in subshape.

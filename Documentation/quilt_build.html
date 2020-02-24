@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="overview_quilt"></a>
+<h1 class="western">Quilt</h1>
+
+  <p class="western" style=" line-height: 100%">Quilt displays a live view of the quilt in the viewport, updating it with each change. This process is a multi-stage calculation. In the first phase, the full factorial of patterns is computed and any duplicate patterns are screened out. The largest bounding box is established from the set of patterns, to give the X and Y pitch values. If padding is defined, this is used to increase the pitch in both directions. Finally, the quilt is constructed by stitching the patterns together into a best-effort grid layout, using the X and Y pitch values.</p>
+
+  <p style="page-break-before: always"><img src="images/quilt_build.png" size="100%" alt=""/></p>
+
+  <p class="western" style=" line-height: 100%">If you are working on a slow system, or with a very large number of patterns, the quilt build process might be disruptive (on a 6700K, 225,000 patterns take around 10 seconds to evaluate). To that end, you can use the 'Suspend Build' checkbox to avoid rebuilding the quilt with changes in the interface. If 'Suspend Build' is active when you click 'Export', the quilt will be built during the export process.</p>
+
+
+  <p class="western" style=" line-height: 100%">If you have 'points' displayed (available in the preferences), when inputs are not displayed, the midpoints of each edge is marked with a point, as well as the corners. The midpoint vertices are a display convenience, and are not part of the export - colinear vertices are removed automatically during the export process, to give clean geometry in the output file.</p>
+
+</body>
+</html>

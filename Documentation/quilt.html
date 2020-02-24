@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="overview"></a>
+<h1 class="western">Overview of Quilt</h1>
+  <p class="western" style=" line-height: 100%">Quilt is a single window application, that can be resized to make the viewport larger.</p>
+  <p style="page-break-before: always"><img src="images/main_gui.png" size="100%" alt=""/></p>
+
+  <p class="western" style=" line-height: 100%">Quilt generates a grid of patterns. Each pattern in the grid is unique (no duplicates), and derives from the base configuration of pattern elements that you have defined. Patterns within the quilt never overlap each other - they are placed according to the X and Y dimensions of the largest pattern in the quilt. The user can also define a padding value that will insert a fixed-width gap between each pattern in the quilt, in both X and Y.</p>
+
+  <p class="western" style=" line-height: 100%">To edit the properties for an existing pattern element, simply select it in the list on the left of the interface. The properties will be shown, and can then be edited. With a pattern element selected, the quilt preview in the viewport will emphasize the shapes coming from that element.</p>
+
+  <p class="western" style=" line-height: 100%">To add a new pattern element to the list, enter a name into the text box just below the listing. Then use the 'Add' button.</p>
+
+  <p class="western" style=" line-height: 100%">To remove a pattern element from the list, select it in the list and use the 'Remove' button.</p>
+
+  <p class="western" style=" line-height: 100%">The camera zoom is shown in the marked numeric field. It can be manually set, and also updates as the mouse wheel is used over the viewport to change the zoom.</p>
+
+  <p class="western" style=" line-height: 100%">The camera position is changed with the two numeric 'Position' inputs, for X and Y respectively. The values are updated as the viewport is navigated, and can be be manually entered to move to a specific location.</p>
+
+  <p class="western" style=" line-height: 100%">The padding control increases the placement interval in both X and Y of the patterns in the quilt.</p>
+
+  <p class="western" style=" line-height: 100%">The '#' control moves the viewport to the lower left corner of the pattern number that is entered. The position fields will update to indicate the exact location.</p>
+
+  <p class="western" style=" line-height: 100%">To remove a pattern element from the list, select it in the list and use the 'Remove' button.</p>
+
+  <p class="western" style=" line-height: 100%">The 'Edit' menu offers copy/paste commands for copying a pattern element definition from/to the selected pattern element.</p>
+
+  <p class="western" style=" line-height: 100%">Quilt internally supports a minimum value of 0.01 units, which corresponds to 0.01 nm in the Oasis / GDSII layout files.</p>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Configurations>Debug;Release;Release_obf</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <StartAction>Project</StartAction>
+    <ExternalConsole>false</ExternalConsole>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_obf|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Eto.Platform.Gtk" Version="2.5.0-rc.6" />
+    <PackageReference Include="OpenTK" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DesignLibs_GPL\Eto\Eto.Veldrid.Gtk\Eto.Veldrid.Gtk.csproj" />
+    <ProjectReference Include="..\..\DesignLibs_GPL\Eto\Eto.VeldridSurface\Eto.VeldridSurface.csproj" />
+    <ProjectReference Include="..\Quilt\Quilt.csproj" />
+  </ItemGroup>
+  
+</Project>
