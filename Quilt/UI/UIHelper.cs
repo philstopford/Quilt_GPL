@@ -32,24 +32,34 @@ namespace Quilt
         public static PointF[] myPointFArrayToPointFArray(GeoLibPointF[] sourceArray)
         {
             PointF[] returnArray = new PointF[sourceArray.Length];
+#if QUILTMT
             Parallel.For(0, returnArray.Length, (i) =>
-            // for (int i = 0; i < returnArray.Length; i++)
+#else
+            for (int i = 0; i < returnArray.Length; i++)
+#endif
             {
                 returnArray[i] = myPointFToPointF(sourceArray[i]);
-            });
-
+            }
+#if QUILTMT
+            );
+#endif
             return returnArray;
         }
 
         public static GeoLibPointF[] pointFArrayTomyPointFArray(PointF[] sourceArray)
         {
             GeoLibPointF[] returnArray = new GeoLibPointF[sourceArray.Length];
+#if QUILTMT
             Parallel.For(0, returnArray.Length, (i) =>
-            // for (int i = 0; i < returnArray.Length; i++)
+#else
+            for (int i = 0; i < returnArray.Length; i++)
+#endif
             {
                 returnArray[i] = pointFTomyPointF(sourceArray[i]);
-            });
-
+            }
+#if QUILTMT
+            );
+#endif
             return returnArray;
         }
     }

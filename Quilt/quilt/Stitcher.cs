@@ -504,8 +504,11 @@ namespace Quilt
             */
 
             // We need to adjust any other elements in the pattern that have references to the element being removed.
+#if QUILTMT
             Parallel.For(0, patternElements.Count, (i) =>
-            // for (int i = 0; i < patternElements.Count; i++)
+#else
+            for (int i = 0; i < patternElements.Count; i++)
+#endif
             {
                 if (i != index)
                 {
@@ -549,8 +552,10 @@ namespace Quilt
                         patternElements[i].setInt(PatternElement.properties_i.yPosSubShapeRef, ySSRef - 1); // decrement the reference as the reference layer below this point is being removed.
                     }
                 }
-            });
-
+            }
+#if QUILTMT
+            );
+#endif
             patternElementNames.RemoveAt(index);
             patternElements.RemoveAt(index);
             pUpdateQuilt();

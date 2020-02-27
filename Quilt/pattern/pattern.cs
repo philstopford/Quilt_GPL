@@ -684,20 +684,28 @@ namespace Quilt
             // We need to apply the relative transforms.
             // We need to keep these separate until we're done, to avoid trouble.
             decimal[,] positions = new decimal[patternElements.Count, 2];
-
+#if QUILTMT
             Parallel.For(0, patternElements.Count, (i) =>
-            // for (int i = 0; i < patternElements.Count; i++)
+#else
+            for (int i = 0; i < patternElements.Count; i++)
+#endif
             {
                 decimal x_ = doX(i);
                 decimal y_ = doY(i);
 
                 positions[i, 0] = x_;
                 positions[i, 1] = y_;
-            });
+            }
+#if QUILTMT
+            );
+#endif
 
             // Set our positions
+#if QUILTMT
             Parallel.For(0, patternElements.Count, (i) =>
-            // for (int i = 0; i < patternElements.Count; i++)
+#else
+            for (int i = 0; i < patternElements.Count; i++)
+#endif
             {
                 decimal x1_ = patternElements[i].getDecimal(PatternElement.properties_decimal.xPos) + positions[i, 0];
                 int xRef = patternElements[i].getInt(PatternElement.properties_i.xPosRef) - 1;
@@ -734,7 +742,10 @@ namespace Quilt
                 }
                 patternElements[i].setDecimal(PatternElement.properties_decimal.xPos, x1_);
                 patternElements[i].setDecimal(PatternElement.properties_decimal.yPos, y1_);
-            });
+            }
+#if QUILTMT
+            );
+#endif
         }
 
         public bool equivalence(Pattern pattern)

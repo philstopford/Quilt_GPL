@@ -57,18 +57,30 @@ namespace Quilt
 
             int ptStart = Math.Max(startPtIndex, 0);
 
+#if QUILTMT
             Parallel.For(polyStart, polyEnd, (poly) =>
-            // for (int poly = polyStart; poly < polyEnd; poly++)
+#else
+            for (int poly = polyStart; poly < polyEnd; poly++)
+#endif
             {
                 int ptEnd = Math.Max(startPtIndex, previewPoints[poly].Count());
 
+#if QUILTMT
                 Parallel.For(ptStart, ptEnd, (pt) =>
-                // for (int pt = ptStart; pt < ptEnd; pt++)
+#else
+                for (int pt = ptStart; pt < ptEnd; pt++)
+#endif
                 {
                     previewPoints[poly][pt].X += x;
                     previewPoints[poly][pt].Y += y;
-                });
-            });
+                }
+#if QUILTMT
+                );
+#endif
+            }
+#if QUILTMT
+            );
+#endif
         }
 
         public void addPoints(GeoLibPointF[] poly)
@@ -813,13 +825,18 @@ namespace Quilt
                 tempArray[4] = new GeoLibPointF(tempArray[0]);
 
                 // Apply our deltas
+#if QUILTMT
                 Parallel.For(0, 5, (i) =>
-                // for (Int32 i = 0; i < 5; i++)
+#else
+                for (Int32 i = 0; i < 5; i++)
+#endif
                 {
                     tempArray[i].X += xOffset;
                     tempArray[i].Y += yOffset;
-                });
-
+                }
+#if QUILTMT
+                );
+#endif
                 decimal bottom_leftX_2 = 0;
                 decimal bottom_leftY_2 = 0;
                 decimal top_leftX_2 = 0;
@@ -839,13 +856,18 @@ namespace Quilt
                 tempArray[5 + 4] = new GeoLibPointF(tempArray[5 + 0]);
 
                 // Apply our deltas
+#if QUILTMT
                 Parallel.For(0, 5, (i) =>
-                // for (Int32 i = 0; i < 5; i++)
+#else
+                for (Int32 i = 0; i < 5; i++)
+#endif
                 {
                     tempArray[5 + i].X += xOffset;
                     tempArray[5 + i].Y += yOffset;
-                });
-
+                }
+#if QUILTMT
+                );
+#endif
                 decimal bottom_leftX_3 = 0;
                 decimal bottom_leftY_3 = 0;
                 decimal top_leftX_3 = 0;
@@ -869,12 +891,18 @@ namespace Quilt
                 tempArray[10 + 4] = new GeoLibPointF(tempArray[10 + 0]);
 
                 // Apply our deltas
+#if QUILTMT
                 Parallel.For(0, 5, (i) =>
-                // for (Int32 i = 0; i < 5; i++)
+#else
+                for (Int32 i = 0; i < 5; i++)
+#endif
                 {
                     tempArray[10 + i].X += xOffset;
                     tempArray[10 + i].Y += yOffset;
-                });
+                }
+#if QUILTMT
+                );
+#endif
             }
             else
             {
@@ -889,11 +917,17 @@ namespace Quilt
                 tempArray[2] = new GeoLibPointF((double)right, (double)top);
                 tempArray[3] = new GeoLibPointF((double)right, (double)bottom);
 
+#if QUILTMT
                 Parallel.For(0, tempArray.Length, (i) =>
-                // for (int i = 4; i < tempArray.Length; i++)
+#else
+                for (int i = 4; i < tempArray.Length; i++)
+#endif
                 {
                     tempArray[i] = new GeoLibPointF(tempArray[0]);
-                });
+                }
+#if QUILTMT
+                );
+#endif
             }
 
             return pTransformed(tempArray, pattern, index, doRotation: doRotation);
@@ -1245,8 +1279,11 @@ namespace Quilt
                 {
                     textEntity.Add(textShape); // To track for output to layout.
                     int pCount = previewPoints[poly].Count();
+#if QUILTMT
                     Parallel.For(0, pCount, (point) =>
-                    // for (Int32 point = 0; point < pCount; point++)
+#else
+                    for (Int32 point = 0; point < pCount; point++)
+#endif
                     {
                         double px = previewPoints[poly][point].X + xOffset;
                         double py = previewPoints[poly][point].Y - yOffset;
@@ -1257,7 +1294,10 @@ namespace Quilt
                             py += drawnOffset.Y;
                         }
                         previewPoints[poly][point] = new GeoLibPointF(px, py);
-                    });
+                    }
+#if QUILTMT
+                    );
+#endif
                     if ((previewPoints[poly][0].X != previewPoints[poly][previewPoints[poly].Count() - 1].X) ||
                         (previewPoints[poly][0].Y != previewPoints[poly][previewPoints[poly].Count() - 1].Y))
                     {
