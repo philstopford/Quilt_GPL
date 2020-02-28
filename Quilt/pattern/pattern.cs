@@ -684,7 +684,7 @@ namespace Quilt
             // We need to apply the relative transforms.
             // We need to keep these separate until we're done, to avoid trouble.
             decimal[,] positions = new decimal[patternElements.Count, 2];
-#if QUILTMT
+#if QUILTTHREADED
             Parallel.For(0, patternElements.Count, (i) =>
 #else
             for (int i = 0; i < patternElements.Count; i++)
@@ -696,12 +696,12 @@ namespace Quilt
                 positions[i, 0] = x_;
                 positions[i, 1] = y_;
             }
-#if QUILTMT
+#if QUILTTHREADED
             );
 #endif
 
             // Set our positions
-#if QUILTMT
+#if QUILTTHREADED
             Parallel.For(0, patternElements.Count, (i) =>
 #else
             for (int i = 0; i < patternElements.Count; i++)
@@ -743,7 +743,7 @@ namespace Quilt
                 patternElements[i].setDecimal(PatternElement.properties_decimal.xPos, x1_);
                 patternElements[i].setDecimal(PatternElement.properties_decimal.yPos, y1_);
             }
-#if QUILTMT
+#if QUILTTHREADED
             );
 #endif
         }

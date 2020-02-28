@@ -1,5 +1,14 @@
 Changelog for Quilt. A pattern generator.
 
+2.2b3
+
+	- Minor refactoring to use common infrastructure in some geometric operations.
+	- Aggressive multithreading seems to overwhelm some systems. Moving to preprocessor switches to find best balance:
+	 - GEOLIBTHREADED : GeoLib
+	 - GWTHREADED : GeoWrangler.
+	 - QUILTTHREADED : Variance
+	 - SHAPELIBTHREADED : ShapeLibrary
+
 2.2b2
 
 	- Added 'B' control that sets whether the bounding box should be calculated after rotation is applied (checked) or before (unchecked).

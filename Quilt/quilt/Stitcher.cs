@@ -504,7 +504,7 @@ namespace Quilt
             */
 
             // We need to adjust any other elements in the pattern that have references to the element being removed.
-#if QUILTMT
+#if QUILTTHREADED
             Parallel.For(0, patternElements.Count, (i) =>
 #else
             for (int i = 0; i < patternElements.Count; i++)
@@ -553,7 +553,7 @@ namespace Quilt
                     }
                 }
             }
-#if QUILTMT
+#if QUILTTHREADED
             );
 #endif
             patternElementNames.RemoveAt(index);
@@ -950,12 +950,7 @@ namespace Quilt
                             // No drawn polygons desired.
                             if (!previewShapes[i][element].getDrawnPoly(poly))
                             {
-                                GeoLibPoint[] ePoly = new GeoLibPoint[polys[poly].Length];
-                                // for (int pt = 0; pt < polys[poly].Length; pt++)
-                                Parallel.For(0, polys[poly].Length, po, (pt, loopState3) =>
-                                {
-                                    ePoly[pt] = new GeoLibPoint((int)((polys[poly][pt].X - loc.X) * scale), (int)((polys[poly][pt].Y - loc.Y) * scale));
-                                });
+                                GeoLibPoint[] ePoly = GeoWrangler.resize_to_int(polys[poly], scale);
 
                                 ePoly = GeoWrangler.simplify(ePoly);
 

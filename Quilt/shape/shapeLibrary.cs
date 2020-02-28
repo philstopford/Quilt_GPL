@@ -48,7 +48,7 @@ namespace Quilt
         {
             int limit = Vertex.Length - 1;
             GeoLibPointF[] t = new GeoLibPointF[limit]; // closed shape, we don't need the final point
-#if SLPARALLEL
+#if SHAPELIBTHREADED
             Parallel.For(0, limit, (i) =>
 #else
             for (int i = 0; i < t.Length; i++)
@@ -56,7 +56,7 @@ namespace Quilt
             {
                 t[i] = new GeoLibPointF(Vertex[i].X, Vertex[i].Y);
             }
-#if SLPARALLEL
+#if SHAPELIBTHREADED
             );
 #endif
             GeoLibPointF pivot = GeoWrangler.midPoint(t);
@@ -192,14 +192,20 @@ namespace Quilt
             int limit = (Int32)vertexCount;
             Vertex = new MyVertex[limit];
             tips = new Boolean[limit];
+#if SHAPELIBTHREADED
             Parallel.For(0, limit, (i) =>
-            // for (Int32 i = 0; i < limit; i++)
+#else
+            for (Int32 i = 0; i < limit; i++)
+#endif
             {
                 tips[i] = false;
-            });
+            }
+#if SHAPELIBTHREADED
+            );
+#endif
             limit = (Int32)Math.Floor(vertexCount / 2) + 1;
             round1 = new MyRound[limit];
-#if SLPARALLEL
+#if SHAPELIBTHREADED
             Parallel.For(0, limit, (i) =>
 #else
             for (Int32 i = 0; i < limit; i++)
@@ -207,7 +213,7 @@ namespace Quilt
             {
                 round1[i] = new MyRound();
             }
-#if SLPARALLEL
+#if SHAPELIBTHREADED
             );
 #endif
         }

@@ -52,7 +52,7 @@ namespace Quilt
             round1 = shape.round1;
 
             // Iterate the corners to apply the bias from the edges.
-#if QUILTMT
+#if QUILTTHREADED
             Parallel.For(0, round1.Count(), (corner) =>
 #else
             for (Int32 corner = 0; corner < round1.Count(); corner++)
@@ -61,7 +61,7 @@ namespace Quilt
                 Vertex[round1[corner].index].X = Vertex[round1[corner].verFace].X;
                 Vertex[round1[corner].index].Y = Vertex[round1[corner].horFace].Y;
             }
-#if QUILTMT
+#if QUILTTHREADED
             );
 #endif
             Vertex[Vertex.Count() - 1] = Vertex[0]; // close the shape.
@@ -211,18 +211,8 @@ namespace Quilt
             xOverlayVal = Convert.ToDouble(patternElements[settingsIndex].getDecimal(PatternElement.properties_decimal.xPos));
             yOverlayVal = Convert.ToDouble(patternElements[settingsIndex].getDecimal(PatternElement.properties_decimal.yPos));
 
-#if QUILTMT
-            Parallel.For(0, mcPoints.Count, (pt) =>
-#else
-            for (int pt = 0; pt < mcPoints.Count; pt++)
-#endif
-            {
-                mcPoints[pt].X += xOverlayVal + xOffset;
-                mcPoints[pt].Y += yOverlayVal + yOffset;
-            }
-#if QUILTMT
-            );
-#endif
+            mcPoints = GeoWrangler.move(mcPoints, xOverlayVal + xOffset, yOverlayVal + yOffset);
+
             // Error handling (failSafe) for no points or no subshape  - safety measure.
             if (mcPoints.Count() == 0)
             {
