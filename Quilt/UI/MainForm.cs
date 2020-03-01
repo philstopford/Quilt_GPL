@@ -309,29 +309,13 @@ namespace Quilt
 
         void pMainForm(ref bool doPrompts, QuiltContext _quiltContext)
         {
-#if (!LICENSEDISABLED)
-            if (_quiltContext.licenceName == "")
-            {
-                MessageBox.Show("Please activate your license.", "License is missing", MessageBoxButtons.OK, MessageBoxType.Error);
+            doPrompts = true;
 
-                QLicense.Eto.Controls.ActivationForm a = new QLicense.Eto.Controls.ActivationForm(_quiltContext.licenseLocation, "Quilt", "2", Environment.UserName, typeof(Quilt2License.Quilt2Lic), _quiltContext._certPubicKeyData);
-                a.quit = q;
-                doPrompts = false;
-                Content = a;
-                Width = 400;
-                Height = 400;
-            }
-            else
-#endif
-            {
-                doPrompts = true;
+            // string basePath = AppContext.BaseDirectory; // Disabled this as release builds do not seem to populate this field. Use the above complex approach instead.
+            helpPath = Path.Combine(EtoEnvironment.GetFolderPath(EtoSpecialFolder.ApplicationResources), "Documentation", "index.html");
+            helpAvailable = File.Exists(helpPath);
 
-                // string basePath = AppContext.BaseDirectory; // Disabled this as release builds do not seem to populate this field. Use the above complex approach instead.
-                helpPath = Path.Combine(EtoEnvironment.GetFolderPath(EtoSpecialFolder.ApplicationResources), "Documentation", "index.html");
-                helpAvailable = File.Exists(helpPath);
-
-                UI(_quiltContext);
-            }
+            UI(_quiltContext);
         }
 
         void q()
