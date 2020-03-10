@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+2.2b4
+
+	- UI fix to disable array for bounding box.
+
 2.2b3
 
 	- Minor refactoring to use common infrastructure in some geometric operations.

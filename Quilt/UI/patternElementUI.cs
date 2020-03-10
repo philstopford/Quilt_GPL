@@ -356,48 +356,43 @@ namespace Quilt
 
         void updatePatternElementUI_array(int index)
         {
-            bool arrayParamsEnabled;
-            bool relAffected_arrayParamsEnabled;
+            bool isArray = false;
+            bool isRelativeArray = false;
 
             // Prevent any array offerings for bounding elements.
-            if (commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.shapeIndex) == (int)CommonVars.shapeNames.bounding)
+            if (commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.bounding)
             {
-                arrayParamsEnabled = false;
-                relAffected_arrayParamsEnabled = false;
+                isArray = (commonVars.stitcher.getPatternElement(patternIndex: 0, index).isXArray() || commonVars.stitcher.getPatternElement(patternIndex: 0, index).isYArray());
+
+                if (!isArray)
+                {
+                    isRelativeArray = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRef) > 0;
+                }
             }
-            else
-            {
-                arrayParamsEnabled = (commonVars.stitcher.getPatternElement(patternIndex: 0, index).isXArray() || commonVars.stitcher.getPatternElement(patternIndex: 0, index).isYArray());
-                // Disable if we have a relative array definition.
-                relAffected_arrayParamsEnabled = (commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRef) > 0);
-            }
+
+            num_arrayXCount.Enabled = !isRelativeArray;
+            num_arrayYCount.Enabled = !isRelativeArray;
+            num_arrayXSpace.Enabled = !isRelativeArray;
+            num_arrayYSpace.Enabled = !isRelativeArray;
 
             // Register the relative array status with the pattern element.
-            commonVars.stitcher.getPatternElement(patternIndex: 0, index).setInt(PatternElement.properties_i.relativeArray, relAffected_arrayParamsEnabled ? 1 : 0);
+            commonVars.stitcher.getPatternElement(patternIndex: 0, index).setInt(PatternElement.properties_i.relativeArray, isRelativeArray ? 1 : 0);
+
+            num_minArrayRot.Enabled = isArray || isRelativeArray;
+            num_incArrayRot.Enabled = isArray || isRelativeArray;
+            num_stepsArrayRot.Enabled = isArray || isRelativeArray;
+            comboBox_arrayRotRef.Enabled = isArray || isRelativeArray;
+            checkBox_refArrayPivot.Enabled = isArray || isRelativeArray;
 
             num_arrayXCount.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayXCount);
-            num_arrayXCount.Enabled = !relAffected_arrayParamsEnabled;
             num_arrayYCount.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayYCount);
-            num_arrayYCount.Enabled = !relAffected_arrayParamsEnabled;
-
             num_arrayXSpace.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayXSpace));
-            num_arrayXSpace.Enabled = !relAffected_arrayParamsEnabled;
             num_arrayYSpace.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayYSpace));
-            num_arrayYSpace.Enabled = !relAffected_arrayParamsEnabled;
-
             comboBox_arrayRef.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRef);
-
             num_minArrayRot.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.minArrayRotation));
-            num_minArrayRot.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-
             num_incArrayRot.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayRotationInc));
-            num_incArrayRot.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-
             num_stepsArrayRot.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRotationSteps));
-            num_stepsArrayRot.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-
             comboBox_arrayRotRef.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRotationRef);
-            comboBox_arrayRotRef.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
 
             int arrayRotRef = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRotationRef) - 1;
             bool rArrayRef = false;
@@ -2632,35 +2627,33 @@ namespace Quilt
 
         void doPatternElementUI_array(int pattern, int index, string shapeString)
         {
-            bool arrayParamsEnabled;
-            bool relAffected_arrayParamsEnabled;
+            bool isArray = false;
+            bool isRelativeArray = false;
 
             // Prevent any array offerings for bounding elements.
-            if (shapeString == "bounding")
+            if (shapeString != "bounding")
             {
-                arrayParamsEnabled = false;
-                relAffected_arrayParamsEnabled = false;
+                isArray = (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).isXArray() || commonVars.stitcher.getPatternElement(patternIndex: pattern, index).isYArray());
+
+                if (!isArray)
+                {
+                    isRelativeArray = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRef) > 0;
+                }
             }
-            else
-            {
-                arrayParamsEnabled = (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).isXArray() || commonVars.stitcher.getPatternElement(patternIndex: pattern, index).isYArray());
-                // Enable if we have a relative array definition.
-                relAffected_arrayParamsEnabled = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRef) > 0;
-            }
+
+            num_arrayXCount.Enabled = !isRelativeArray;
+            num_arrayYCount.Enabled = !isRelativeArray;
+            num_arrayXSpace.Enabled = !isRelativeArray;
+            num_arrayYSpace.Enabled = !isRelativeArray;
 
             // Register the relative array status with the pattern element.
-            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.relativeArray, relAffected_arrayParamsEnabled ? 1 : 0);
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.relativeArray, isRelativeArray ? 1 : 0);
 
-            num_minArrayRot.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-            num_incArrayRot.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-            num_stepsArrayRot.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-            comboBox_arrayRotRef.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-            checkBox_refArrayPivot.Enabled = arrayParamsEnabled || relAffected_arrayParamsEnabled;
-
-            num_arrayXCount.Enabled = !relAffected_arrayParamsEnabled;
-            num_arrayYCount.Enabled = !relAffected_arrayParamsEnabled;
-            num_arrayXSpace.Enabled = !relAffected_arrayParamsEnabled;
-            num_arrayYSpace.Enabled = !relAffected_arrayParamsEnabled;
+            num_minArrayRot.Enabled = isArray || isRelativeArray;
+            num_incArrayRot.Enabled = isArray || isRelativeArray;
+            num_stepsArrayRot.Enabled = isArray || isRelativeArray;
+            comboBox_arrayRotRef.Enabled = isArray || isRelativeArray;
+            checkBox_refArrayPivot.Enabled = isArray || isRelativeArray;
 
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayXCount, Convert.ToInt32(num_arrayXCount.Value));
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayYCount, Convert.ToInt32(num_arrayYCount.Value));
