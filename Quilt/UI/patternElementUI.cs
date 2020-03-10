@@ -359,8 +359,10 @@ namespace Quilt
             bool isArray = false;
             bool isRelativeArray = false;
 
+            bool bounding = (commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.shapeIndex) == (int)CommonVars.shapeNames.bounding);
+
             // Prevent any array offerings for bounding elements.
-            if (commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.bounding)
+            if (!bounding)
             {
                 isArray = (commonVars.stitcher.getPatternElement(patternIndex: 0, index).isXArray() || commonVars.stitcher.getPatternElement(patternIndex: 0, index).isYArray());
 
@@ -370,10 +372,10 @@ namespace Quilt
                 }
             }
 
-            num_arrayXCount.Enabled = !isRelativeArray;
-            num_arrayYCount.Enabled = !isRelativeArray;
-            num_arrayXSpace.Enabled = !isRelativeArray;
-            num_arrayYSpace.Enabled = !isRelativeArray;
+            num_arrayXCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSpace.Enabled = bounding ? false : !isRelativeArray;
 
             // Register the relative array status with the pattern element.
             commonVars.stitcher.getPatternElement(patternIndex: 0, index).setInt(PatternElement.properties_i.relativeArray, isRelativeArray ? 1 : 0);
@@ -2630,21 +2632,23 @@ namespace Quilt
             bool isArray = false;
             bool isRelativeArray = false;
 
+            bool bounding = (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getInt(PatternElement.properties_i.shapeIndex) == (int)CommonVars.shapeNames.bounding);
+
             // Prevent any array offerings for bounding elements.
-            if (shapeString != "bounding")
+            if (!bounding)
             {
                 isArray = (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).isXArray() || commonVars.stitcher.getPatternElement(patternIndex: pattern, index).isYArray());
 
                 if (!isArray)
                 {
-                    isRelativeArray = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRef) > 0;
+                    isRelativeArray = commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getInt(PatternElement.properties_i.arrayRef) > 0;
                 }
             }
 
-            num_arrayXCount.Enabled = !isRelativeArray;
-            num_arrayYCount.Enabled = !isRelativeArray;
-            num_arrayXSpace.Enabled = !isRelativeArray;
-            num_arrayYSpace.Enabled = !isRelativeArray;
+            num_arrayXCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSpace.Enabled = bounding ? false : !isRelativeArray;
 
             // Register the relative array status with the pattern element.
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.relativeArray, isRelativeArray ? 1 : 0);
