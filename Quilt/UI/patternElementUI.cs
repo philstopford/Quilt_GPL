@@ -312,9 +312,16 @@ namespace Quilt
             checkBox_refPivot.Enabled = rRef;
             checkBox_refPivot.Checked = rRef;
 
-            checkBox_refBoundsAfterRotation.Enabled = rRef;
-            checkBox_refBoundsAfterRotation.Checked = rRef;
-
+            if ((commonVars.stitcher.getPatternElement(patternIndex:0, index).getInt(PatternElement.properties_i.relativeArray) == 1) || (commonVars.stitcher.getPatternElement(patternIndex: 0, index).isXArray()) || (commonVars.stitcher.getPatternElement(patternIndex: 0, index).isYArray()))
+            {
+                checkBox_refBoundsAfterRotation.Enabled = false;
+                checkBox_refBoundsAfterRotation.Checked = true;
+            }
+            else
+            {
+                checkBox_refBoundsAfterRotation.Enabled = rRef;
+                checkBox_refBoundsAfterRotation.Checked = rRef;
+            }
             if (rotRef >= 0)
             {
                 checkBox_refPivot.Enabled = true;
