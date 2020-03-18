@@ -314,8 +314,8 @@ namespace Quilt
 
             if ((commonVars.stitcher.getPatternElement(patternIndex:0, index).getInt(PatternElement.properties_i.relativeArray) == 1) || (commonVars.stitcher.getPatternElement(patternIndex: 0, index).isXArray()) || (commonVars.stitcher.getPatternElement(patternIndex: 0, index).isYArray()))
             {
-                checkBox_refBoundsAfterRotation.Enabled = false;
-                checkBox_refBoundsAfterRotation.Checked = true;
+                checkBox_refBoundsAfterRotation.Enabled = true;
+                checkBox_refBoundsAfterRotation.Checked = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.refBoundsAfterRotation) == 1;
             }
             else
             {

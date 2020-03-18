@@ -1,5 +1,10 @@
 Changelog for Quilt. A pattern generator.
 
+2.2b5
+
+	- Ongoing QA for array:
+	 - Enable 'bounds after rotation' for array case, to control overlap within the array.
+
 2.2b4
 
 	- UI fix to disable array for bounding box.
