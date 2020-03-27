@@ -2561,8 +2561,10 @@ namespace Quilt
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.subShapeIndex, comboBox_subShapeRef.SelectedIndex);
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.posIndex, comboBox_posSubShape.SelectedIndex);
 
-            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.xPosRef, comboBox_xPosRef.SelectedIndex);
-            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.yPosRef, comboBox_yPosRef.SelectedIndex);
+            int tmp = comboBox_xPosRef.SelectedIndex;
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.xPosRef, tmp);
+            tmp = comboBox_yPosRef.SelectedIndex;
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.yPosRef, tmp);
 
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.xPosSubShapeRef, comboBox_xPos_subShapeRef.SelectedIndex);
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.yPosSubShapeRef, comboBox_yPos_subShapeRef.SelectedIndex);

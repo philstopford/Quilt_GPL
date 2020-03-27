@@ -1014,7 +1014,7 @@ namespace Quilt
 
             if (rotRef >= index)
             {
-                rotRef++; // The reduction below caused our reference to land 
+                rotRef++; // Offset as per above.
             }
 
             int rotRefUseArray = patternElement.getInt(PatternElement.properties_i.rotRefUseArray);

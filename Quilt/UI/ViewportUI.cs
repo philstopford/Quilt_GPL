@@ -156,7 +156,7 @@ namespace Quilt
                 progressBar.ToolTip = "";
                 progressBar.Value = 0;
                 setUI(true);
-                doPatternElementUI(0, updateUI: false, doPreview: false);
+                //doPatternElementUI(0, updateUI: false, doPreview: false);
             });
         }
 

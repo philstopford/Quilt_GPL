@@ -259,7 +259,7 @@ namespace Quilt
 
             while (cRotRef >= 0 && !rotCyclical)
             {
-                cRotRef = pGetPatternElement(cRotRef).getInt(PatternElement.properties_i.yPosRef) - 1;
+                cRotRef = pGetPatternElement(cRotRef).getInt(PatternElement.properties_i.rotationRef) - 1;
                 if (rotRefs.IndexOf(cRotRef) == -1)
                 {
                     rotRefs.Add(cRotRef);
@@ -411,6 +411,25 @@ namespace Quilt
             // Here things get slightly tricky - we have 'world origin' injected at the 0-index, so we need to compensate for the layer look-ups.
             int xRef = patternElements[i].getInt(PatternElement.properties_i.xPosRef) - 1;
 
+            /* Above, xRef == 0 means the world reference. We decrement the value by 1 to compensate.
+
+             However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+             Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+             Decrementing the index means we have :
+             -1 => world
+              0 => 0
+              1 => 2
+              2 => 3
+              3 => 4
+
+             To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+             */
+            if (xRef >= i)
+            {
+                xRef++; // offset for missing layer
+            }
+
             int sRef = patternElements[i].getInt(PatternElement.properties_i.xPosSubShapeRef);
 
             int sPosRef = patternElements[i].getInt(PatternElement.properties_i.xPosSubShapeRefPos);
@@ -539,7 +558,27 @@ namespace Quilt
                     }
                 }
 
-                xRef = patternElements[xRef].getInt(PatternElement.properties_i.xPosRef) - 1;
+                int tmp = patternElements[xRef].getInt(PatternElement.properties_i.xPosRef) - 1;
+
+                /* Above, tmp == 0 means the world reference. We decrement the value by 1 to compensate.
+
+                 However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+                 Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+                 Decrementing the index means we have :
+                 -1 => world
+                  0 => 0
+                  1 => 2
+                  2 => 3
+                  3 => 4
+
+                 To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+                 */
+                if (tmp >= xRef)
+                {
+                    tmp++; // offset due to missing layer.
+                }
+                xRef = tmp;
             }
 
             return x_;
@@ -551,6 +590,25 @@ namespace Quilt
 
             // Here things get slightly tricky - we have 'world origin' injected at the 0-index, so we need to compensate for the layer look-ups.
             int yRef = patternElements[i].getInt(PatternElement.properties_i.yPosRef) - 1;
+
+            /* Above, yRef == 0 means the world reference. We decrement the value by 1 to compensate.
+
+             However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+             Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+             Decrementing the index means we have :
+             -1 => world
+              0 => 0
+              1 => 2
+              2 => 3
+              3 => 4
+
+             To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+             */
+            if (yRef >= i)
+            {
+                yRef++; // offset for missing layer
+            }
 
             int sRef = patternElements[i].getInt(PatternElement.properties_i.yPosSubShapeRef);
 
@@ -672,7 +730,27 @@ namespace Quilt
                     }
                 }
 
-                yRef = patternElements[yRef].getInt(PatternElement.properties_i.yPosRef) - 1;
+                int tmp = patternElements[yRef].getInt(PatternElement.properties_i.yPosRef) - 1;
+
+                /* Above, tmp == 0 means the world reference. We decrement the value by 1 to compensate.
+
+                 However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+                 Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+                 Decrementing the index means we have :
+                 -1 => world
+                  0 => 0
+                  1 => 2
+                  2 => 3
+                  3 => 4
+
+                 To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+                 */
+                if (tmp >= yRef)
+                {
+                    tmp++; // offset for missing layer
+                }
+                yRef = tmp;
             }
 
             return y_;
@@ -712,6 +790,26 @@ namespace Quilt
 
                 if (xRef >= 0)
                 {
+                    // We need to be careful here. The reference needs to be bumped in case it is equal to, or higher than, our current layer.
+
+                    /* Above, xRef == 0 means the world reference. We decrement the value by 1 to compensate.
+
+                     However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+                     Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+                     Decrementing the index means we have :
+                     -1 => world
+                      0 => 0
+                      1 => 2
+                      2 => 3
+                      3 => 4
+
+                     To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+                     */
+                    if (xRef >= i)
+                    {
+                        xRef++;
+                    }
                     bool xCyclical = pXCyclicalCheck(xRef);
 
                     if (!xCyclical)
@@ -719,7 +817,27 @@ namespace Quilt
                         while (xRef >= 0)
                         {
                             x1_ += positions[xRef, 0];
-                            xRef = patternElements[xRef].getInt(PatternElement.properties_i.xPosRef) - 1;
+                            int tmp = patternElements[xRef].getInt(PatternElement.properties_i.xPosRef) - 1;
+
+                            /* Above, tmp == 0 means the world reference. We decrement the value by 1 to compensate.
+
+                             However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+                             Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+                             Decrementing the index means we have :
+                             -1 => world
+                              0 => 0
+                              1 => 2
+                              2 => 3
+                              3 => 4
+
+                             To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+                             */
+                            if (tmp >= xRef)
+                            {
+                                tmp++;
+                            }
+                            xRef = tmp;
                         }
                     }
                 }
@@ -729,6 +847,26 @@ namespace Quilt
 
                 if (yRef >= 0)
                 {
+                    // We need to be careful here. The reference needs to be bumped in case it is equal to, or higher than, our current layer.
+
+                    /* Above, yRef == 0 means the world reference. We decrement the value by 1 to compensate.
+
+                     However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+                     Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+                     Decrementing the index means we have :
+                     -1 => world
+                      0 => 0
+                      1 => 2
+                      2 => 3
+                      3 => 4
+
+                     To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+                     */
+                    if (yRef >= i)
+                    {
+                        yRef++;
+                    }
                     bool yCyclical = pYCyclicalCheck(yRef);
 
                     if (!yCyclical)
@@ -736,7 +874,26 @@ namespace Quilt
                         while (yRef >= 0)
                         {
                             y1_ += positions[yRef, 1];
-                            yRef = patternElements[yRef].getInt(PatternElement.properties_i.yPosRef) - 1;
+                            int tmp = patternElements[yRef].getInt(PatternElement.properties_i.yPosRef) - 1;
+                            /* Above, tmp == 0 means the world reference. We decrement the value by 1 to compensate.
+
+                             However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
+                             Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
+
+                             Decrementing the index means we have :
+                             -1 => world
+                              0 => 0
+                              1 => 2
+                              2 => 3
+                              3 => 4
+
+                             To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
+                             */
+                            if (tmp >= yRef)
+                            {
+                                tmp++;
+                            }
+                            yRef = tmp;
                         }
                     }
                 }
