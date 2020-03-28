@@ -7,18 +7,25 @@ namespace Quilt
 {
     public class CreditsScreen : Form
     {
-        // public System.Diagnostics.Process p = new System.Diagnostics.Process();
-
         RichTextArea textBox_credits;
 
         public CreditsScreen(Form parent, string textToDisplay)
         {
             Title = CentralProperties.productName + " " + CentralProperties.version;
-            PixelLayout content = new PixelLayout();
+            TableLayout content = new TableLayout();
             Content = content;
 
             Size = new Size(600, 430);
 
+            Panel imageHolder = new Panel();
+            ImageView image = new ImageView();
+            image.Image = resources.images.quiltImage();
+            imageHolder.Size = new Size((int)(image.Image.Width * 0.4f), (int)(image.Image.Height * 0.4f));
+            imageHolder.Content = image;
+            content.Rows.Add(new TableRow());
+            content.Rows[0].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(imageHolder, centered: true) });
+
+            content.Rows.Add(new TableRow());
             textBox_credits = new RichTextArea();
             try
             {
@@ -28,15 +35,13 @@ namespace Quilt
             {
 
             }
-            textBox_credits.Size = new Size(550, 253);
+            textBox_credits.Size = new Size(550, 260);
             textBox_credits.Wrap = true;
             textBox_credits.ReadOnly = true;
             textBox_credits.Text = textToDisplay;
+            textBox_credits.CaretIndex = 0;
 
-            Panel textArea = new Panel();
-            textArea.Size = textBox_credits.Size;
-            textArea.Content = textBox_credits;
-            content.Add(textArea, 15, 15);
+            content.Rows[1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(textBox_credits, centered: true) });
 
             Resizable = false;
             Maximizable = false;

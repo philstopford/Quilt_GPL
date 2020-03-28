@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="quilt.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="quilt.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Eto.Forms" Version="2.5.0" />
+  </ItemGroup>
+
+</Project>

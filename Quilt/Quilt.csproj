@@ -40,6 +40,7 @@
     <ProjectReference Include="..\..\DesignLibs_GPL\Common\geoWrangler\geoWrangler.csproj" />
     <ProjectReference Include="..\..\DesignLibs_GPL\Eto\errorReporter\errorReporter.csproj" />
     <ProjectReference Include="..\..\DesignLibs_GPL\Eto\Eto.VeldridSurface\Eto.VeldridSurface.csproj" />
+    <ProjectReference Include="..\resources\resources.csproj" />
   </ItemGroup>
 
 </Project>
