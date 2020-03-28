@@ -1059,7 +1059,7 @@ namespace Quilt
                                 // The bounds evaluation has transforms applied (e.g. rotation) if the below is true. This can be a problem.
                                 bool boundsAfterRotation = pattern.getPatternElement(index).getInt(PatternElement.properties_i.refArrayBoundsAfterRotation) == 1;
 
-                                if (pattern.getPatternElement(index).getInt(PatternElement.properties_i.refArrayPivot) == 1)
+                                if (refPivot)
                                 {
                                     // We need to actually figure out our reference array midpoint now in order to use it.
                                     GeoLibPointF[] sbounds = ShapeLibrary.getBoundingBox(pattern.getPatternElement(rotRef));
