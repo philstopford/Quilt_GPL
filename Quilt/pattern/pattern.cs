@@ -259,7 +259,7 @@ namespace Quilt
 
             while (cRotRef >= 0 && !rotCyclical)
             {
-                cRotRef = pGetPatternElement(cRotRef).getInt(PatternElement.properties_i.rotationRef) - 1;
+                cRotRef = pGetRef(cRotRef, PatternElement.properties_i.rotationRef);
                 if (rotRefs.IndexOf(cRotRef) == -1)
                 {
                     rotRefs.Add(cRotRef);
@@ -332,7 +332,7 @@ namespace Quilt
 
             while ((cXRef >= 0) && !xCyclical)
             {
-                cXRef = patternElements[cXRef].getInt(PatternElement.properties_i.xPosRef) - 1;
+                cXRef = pGetRef(cXRef, PatternElement.properties_i.xPosRef);
                 if (xRefs.IndexOf(cXRef) == -1)
                 {
                     xRefs.Add(cXRef);
@@ -743,6 +743,11 @@ namespace Quilt
 #if QUILTTHREADED
             );
 #endif
+        }
+
+        public int getRef(int layer, PatternElement.properties_i prop)
+        {
+            return pGetRef(layer, prop);
         }
 
         int pGetRef(int layer, PatternElement.properties_i prop)

@@ -995,27 +995,8 @@ namespace Quilt
             {
                 rotAngle = 0.0f;
             }
-            int rotRef = patternElement.getInt(PatternElement.properties_i.rotationRef) - 1;
 
-            /* Above, rotRef == 0 means the world reference. We decrement the value by 1 to compensate.
-
-             However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
-             Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
-
-             Decrementing the index means we have :
-             -1 => world
-              0 => 0
-              1 => 2
-              2 => 3
-              3 => 4
-
-             To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
-             */
-
-            if (rotRef >= index)
-            {
-                rotRef++; // Offset as per above.
-            }
+            int rotRef = pattern.getRef(index, PatternElement.properties_i.rotationRef);
 
             int rotRefUseArray = patternElement.getInt(PatternElement.properties_i.rotRefUseArray);
 
@@ -1111,29 +1092,7 @@ namespace Quilt
 
                         transformed = GeoWrangler.Rotate(r_pivot, transformed, rotAngle);
 
-                        int oldRotRef = rotRef;
-
-                        rotRef = pattern.getPatternElement(rotRef).getInt(PatternElement.properties_i.rotationRef) - 1;
-
-                        /* Above, rotRef == 0 means the world reference. We decrement the value by 1 to compensate.
-
-                            However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
-                            Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
-
-                            Decrementing the index means we have :
-                            -1 => world
-                            0 => 0
-                            1 => 2
-                            2 => 3
-                            3 => 4
-
-                            To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
-                            */
-
-                        if (rotRef >= oldRotRef)
-                        {
-                            rotRef++; // The reduction below caused our reference to land 
-                        }
+                        rotRef = pattern.getRef(rotRef, PatternElement.properties_i.rotationRef);
                     }
                 }
             }
