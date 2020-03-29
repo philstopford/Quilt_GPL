@@ -147,6 +147,7 @@ namespace Quilt
 
         void pAddPattern(Pattern pattern)
         {
+            // Screen approach by mode.
             switch (mode)
             {
                 case 0:
@@ -160,17 +161,22 @@ namespace Quilt
 
         void pCleanup()
         {
-            switch (mode)
+            // Alternative methods to screen patterns; open to comment about which is best (performance / robustness)
+            int m = 2;
+            switch (m)
             {
                 case 0:
                     break;
                 case 1:
+                    // This seems to be slow (2 seconds for the 10k test case
                     pCleanup_parallelFor();
                     break;
                 case 2:
+                    // Faster than 1 - less than 1 second for the 10k test case
                     pCleanup_distinct();
                     break;
                 case 3:
+                    // This gets stuck
                     pCleanup_distinctParallel();
                     break;
             }
@@ -192,11 +198,12 @@ namespace Quilt
             }
             else
             {
+                // Might actually not have a duplicate. Let's check. This will be slow.
                 bool add = true;
                 ParallelOptions pco = new ParallelOptions();
                 // Attempt at parallelism.
                 CancellationTokenSource pcs = new CancellationTokenSource();
-                CancellationToken pct = pcs.Token;                // Might actually not have a duplicate. Let's check. This will be slow.
+                CancellationToken pct = pcs.Token;                
                 // Try to thread it for best possible performance.
                 Parallel.For(0, patterns.Count(), pco, (p, loopState) =>
                 {
@@ -257,7 +264,9 @@ namespace Quilt
         void pCleanup_distinctParallel()
         {
             indeterminateQuiltUI?.Invoke("Clean-up", "Clean-up");
-            var clean_ = patterns.Distinct(new PatternComparer()).AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism).WithDegreeOfParallelism(8);
+            ParallelOptions po = new ParallelOptions();
+            int threads = po.MaxDegreeOfParallelism;
+            var clean_ = patterns.Distinct(new PatternComparer()).AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism).WithDegreeOfParallelism(threads);
             patterns = clean_.ToList();
         }
 
