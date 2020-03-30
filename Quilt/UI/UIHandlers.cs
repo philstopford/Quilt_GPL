@@ -251,8 +251,6 @@ namespace Quilt
             {
                 string creditText = "Version " + CentralProperties.version + ", " +
                 "© " + CentralProperties.author + " 2018-2020" + "\r\n\r\n";
-                creditText += quiltContext.licenceName;
-                creditText += "\r\n";
                 creditText += "Licence: GPLv3";
                 creditText += "\r\n\r\n";
                 creditText += "Libraries used:\r\n";
