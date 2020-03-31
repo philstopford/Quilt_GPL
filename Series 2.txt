@@ -2,6 +2,7 @@ Changelog for Quilt. A pattern generator.
 
 2.2b5
 
+	- Accidentally had the clean-up (pattern duplicate screening) stage disabled; fixed.
 	- Various fixes and clean-ups for the relative reference system. This approach is more centralized and robust.
 	- Ongoing QA for array:
 	 - Enable 'bounds after rotation' for array case, to control overlap within the array.

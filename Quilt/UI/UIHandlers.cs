@@ -251,7 +251,7 @@ namespace Quilt
             {
                 string creditText = "Version " + CentralProperties.version + ", " +
                 "© " + CentralProperties.author + " 2018-2020" + "\r\n\r\n";
-                creditText += quiltContext.licenceName;
+                creditText += "Licence: GPLv3";
                 creditText += "\r\n\r\n";
                 creditText += "Libraries used:\r\n";
                 creditText += "  Eto.Forms : UI framework\r\n\thttps://github.com/picoe/Eto/wiki\r\n";
