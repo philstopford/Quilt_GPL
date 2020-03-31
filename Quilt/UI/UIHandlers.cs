@@ -252,14 +252,13 @@ namespace Quilt
                 string creditText = "Version " + CentralProperties.version + ", " +
                 "© " + CentralProperties.author + " 2018-2020" + "\r\n\r\n";
                 creditText += quiltContext.licenceName;
-                creditText += "\r\n";
-                creditText += "Licence: GPLv3";
                 creditText += "\r\n\r\n";
                 creditText += "Libraries used:\r\n";
                 creditText += "  Eto.Forms : UI framework\r\n\thttps://github.com/picoe/Eto/wiki\r\n";
-                creditText += "  Eto.OpenTK : Eto OpenGL viewport\r\n\thttps://github.com/picoe/Eto.OpenTK\r\n";
+                creditText += "  Eto.Veldrid : Eto Veldrid viewport\r\n\thttps://github.com/philstopford/Eto.Veldrid\r\n";
+                creditText += "  DesignLibs : Design libraries\r\n\thttps://github.com/philstopford/DesignLibs_GPL\r\n";
                 creditText += "  clipperLib : geometry processing, area, SVG output reference\r\n\thttp://sourceforge.net/projects/polyclipping/\r\n";
-                creditText += "  LibTessDotNet : for Delauney triangulation (viepwort related)\r\n\thttps://github.com/speps/LibTessDotNet\r\n";
+                creditText += "  LibTessDotNet : for Delauney triangulation (tone inversion of n polygons)\r\n\thttps://github.com/speps/LibTessDotNet\r\n";
                 creditText += "  MiscUtil : \r\n\thttp://yoda.arachsys.com/csharp/miscutil/\r\n";
                 aboutBox = new CreditsScreen(this, creditText);
             }
