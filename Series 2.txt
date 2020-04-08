@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+2.2
+
+	- Library updates.
+
 2.2b5
 
 	- Accidentally had the clean-up (pattern duplicate screening) stage disabled; fixed.
