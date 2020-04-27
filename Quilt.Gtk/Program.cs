@@ -26,13 +26,6 @@ namespace Quilt.Gtk
                         case "opengl":
                             graphicsMode = (int)GraphicsBackend.OpenGL;
                             break;
-                        case "metal":
-                            graphicsMode = (int)GraphicsBackend.Metal;
-                            break;
-                        case "d3d11":
-                            graphicsMode = (int)GraphicsBackend.Direct3D11;
-                            break;
-                        case "vulkan":
                         default:
                             graphicsMode = (int)GraphicsBackend.Vulkan;
                             break;
@@ -80,7 +73,7 @@ namespace Quilt.Gtk
             }
 
             var platform = new Eto.GtkSharp.Platform();
-            platform.Add<VeldridSurface.IHandler>(() => new GtkVeldridSurfaceHandler());
+            platform.Add<VeldridSurface.IOpenGL>(() => new GtkVeldridSurfaceHandler());
 
             QuiltContext quiltContext = new QuiltContext(xmlFile, backend);
             // run application with our main form

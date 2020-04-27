@@ -23,16 +23,9 @@ namespace Quilt.WPF
                 {
                     switch (args[graphicsModeIndex + 1].ToLower())
                     {
-                        case "opengl":
-                            graphicsMode = (int)GraphicsBackend.OpenGL;
-                            break;
-                        case "metal":
-                            graphicsMode = (int)GraphicsBackend.Metal;
-                            break;
                         case "d3d11":
                             graphicsMode = (int)GraphicsBackend.Direct3D11;
                             break;
-                        case "vulkan":
                         default:
                             graphicsMode = (int)GraphicsBackend.Vulkan;
                             break;
