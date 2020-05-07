@@ -30,7 +30,6 @@
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="4.7.0" />
     <PackageReference Include="System.Security.SecureString" Version="4.3.0" />
-    <PackageReference Include="Veldrid" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
