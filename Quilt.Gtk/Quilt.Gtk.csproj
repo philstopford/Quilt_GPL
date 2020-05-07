@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DesignLibs_GPL\Eto\Eto.Veldrid.Gtk\Eto.Veldrid.Gtk.csproj" />
     <ProjectReference Include="..\..\DesignLibs_GPL\Eto\Eto.VeldridSurface\Eto.VeldridSurface.csproj" />
     <ProjectReference Include="..\Quilt\Quilt.csproj" />
   </ItemGroup>

@@ -1,7 +1,6 @@
 ﻿using Eto.Forms;
 using Eto.Veldrid;
 using Eto.Veldrid.Gtk;
-using OpenTK;
 using Quilt;
 using System;
 using System.IO;
@@ -65,11 +64,6 @@ namespace Quilt.Gtk
                 {
                     // avoid changing the backend from the preferred case.
                 }
-            }
-
-            if (backend == GraphicsBackend.OpenGL)
-            {
-                Toolkit.Init(new ToolkitOptions { Backend = PlatformBackend.PreferNative });
             }
 
             var platform = new Eto.GtkSharp.Platform();
