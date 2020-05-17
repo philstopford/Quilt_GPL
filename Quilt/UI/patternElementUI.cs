@@ -1247,7 +1247,7 @@ namespace Quilt
             comboBox_xPosRef = new DropDown();
             comboBox_xPosRef.DataContext = DataContext;
             comboBox_xPosRef.BindDataContext(c => c.DataStore, (UIStringLists m) => m.patternElementNames_filtered);
-            comboBox_xPosRef.SelectedIndex = (int)CommonVars.subShapeLocations.BL;
+            // comboBox_xPosRef.SelectedIndex = (int)CommonVars.subShapeLocations.BL;
             comboBox_xPosRef.ToolTip = "Position in X relative to this pattern element";
 
             TableCell tr3_1 = new TableCell();
