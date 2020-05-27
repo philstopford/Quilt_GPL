@@ -899,7 +899,7 @@ namespace Quilt
         void patternSettingsUI()
         {
             settings = new Panel();
-            settings.Size = new Size(525, 270);
+            settings.Size = new Size(540, 270);
             Panel p = new Panel();
             TableLayout p_tl = new TableLayout();
             p.Content = p_tl;

@@ -7,7 +7,7 @@ namespace Quilt
     public partial class MainForm : Form
     {
         int listBox_entries_Width = 200;
-        int viewportSize = 740;
+        int viewportSize = 752;
 
         ListBox listBox_entries;
         TextBox text_patternElement;

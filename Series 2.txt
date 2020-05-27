@@ -2,6 +2,7 @@ Changelog for Quilt. A pattern generator.
 
 2.2.1
 
+	- Minor UI tweaks.
 	- Veldrid viewport updates to use new nugets from Eto.Veldrid upstream project.
 	 - OpenGL is problematic under .NET Core on non-Windows systems due to library issues.
 	 - Upstream OpenTK dropped its platform support; upstream Eto.Veldrid has responded.
