@@ -255,7 +255,7 @@ namespace Quilt
                 creditText += "\r\n\r\n";
                 creditText += "Libraries used:\r\n";
                 creditText += "  Eto.Forms : UI framework\r\n\thttps://github.com/picoe/Eto/wiki\r\n";
-                creditText += "  Eto.Veldrid : Eto Veldrid viewport\r\n\thttps://github.com/philstopford/Eto.Veldrid\r\n";
+                creditText += "  Eto.Veldrid : Eto Veldrid viewport\r\n\thttps://github.com/picoe/Eto.Veldrid\r\n";
                 creditText += "  DesignLibs : Design libraries\r\n\thttps://github.com/philstopford/DesignLibs_GPL\r\n";
                 creditText += "  clipperLib : geometry processing, area, SVG output reference\r\n\thttp://sourceforge.net/projects/polyclipping/\r\n";
                 creditText += "  LibTessDotNet : for Delauney triangulation (tone inversion of n polygons)\r\n\thttps://github.com/speps/LibTessDotNet\r\n";
