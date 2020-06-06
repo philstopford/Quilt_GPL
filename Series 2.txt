@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+2.2.2
+
+	- Forms update to resolve Gtk issue.
+
 2.2.1
 
 	- Minor UI tweaks.
