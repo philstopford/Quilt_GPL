@@ -491,6 +491,11 @@ namespace Quilt
 
             vp_tl.Rows[0].Cells.Add(new TableCell() { Control = vSurface });
 
+            if (quiltContext.xmlFileArg != "")
+            {
+                doLoad(quiltContext.xmlFileArg);
+            }
+
             //updateViewport();
         }
 

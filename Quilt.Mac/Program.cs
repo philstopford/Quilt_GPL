@@ -37,12 +37,11 @@ namespace Quilt.Mac
 
                 for (int i = 0; i < args.Length; i++)
                 {
-                    // Extract XML file.
-                    string extension = args[i].Substring(args[i].Length - 3, 3).ToUpper();
+                    string[] tokens = args[i].Split(new char[] { '.' });
+                    string extension = tokens[tokens.Length - 1];
                     if ((extension.ToUpper() == "QUILT") || (extension.ToUpper() == "XML"))
                     {
                         xmlFile = args[i];
-                        break;
                     }
                 }
             }
