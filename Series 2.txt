@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+2.2.3
+
+	- Viewport enhancements
+
 2.2.2
 
 	- Workaround for intel/Vulkan crashes in Veldrid.
