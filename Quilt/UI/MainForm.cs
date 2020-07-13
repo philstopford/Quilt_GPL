@@ -496,8 +496,14 @@ namespace Quilt
                 doLoad(quiltContext.xmlFileArg);
             }
 
+            tabControl.DragEnter += dragEvent;
+            tabControl.DragOver += dragEvent;
+
+            tabControl.DragDrop += dragAndDrop;
+
             //updateViewport();
         }
+
 
         void interfaceUpdate(object sender, EventArgs e)
         {
