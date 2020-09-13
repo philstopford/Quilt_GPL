@@ -832,7 +832,7 @@ namespace Quilt
                     {
                         previewShapes[entry][ps].move(x, y);
                     });
-                    patterns[entry].setPos(x, y);
+                    // patterns[entry].setPos(x, y);
                     Interlocked.Increment(ref counter);
                     /*
                     if ((c % progressChunk) == 0)

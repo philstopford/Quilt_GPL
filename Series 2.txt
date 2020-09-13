@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+2.2.4
+
+	- Bug fix for pattern placement.
+
 2.2.3
 
 	- Viewport enhancements

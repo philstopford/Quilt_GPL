@@ -6,7 +6,7 @@ namespace Quilt
     {
         public const string productName = "Quilt";
         public const string author = "Phil Stopford";
-        public const string version = "2.2.3";
+        public const string version = "2.2.4";
         public enum typeShapes { none, rectangle, L, T, X, U, S, text, bounding };
 
         public const Int32 scaleFactorForOperation = 1000;
