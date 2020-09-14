@@ -1064,10 +1064,6 @@ namespace Quilt
             out_ += bottom.ToString() + ",";
             out_ += width.ToString() + ",";
             out_ += height.ToString() + ",";
-            if (cols > 0)
-            {
-                rows++; // due to a floor earlier, we need to bump this value up.
-            }
             out_ += rows.ToString() + ",";
             out_ += cols.ToString();
 
