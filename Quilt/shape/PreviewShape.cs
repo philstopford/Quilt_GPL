@@ -814,6 +814,9 @@ namespace Quilt
                 double _xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorOffset));
                 double _yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerOffset));
 
+                double x = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.xPos));
+                double y = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.yPos));
+
                 xOffset = _xOffset;
                 yOffset = _yOffset;
 
@@ -831,8 +834,8 @@ namespace Quilt
                 for (Int32 i = 0; i < 5; i++)
 #endif
                 {
-                    tempArray[i].X += xOffset;
-                    tempArray[i].Y += yOffset;
+                    tempArray[i].X += xOffset + x;
+                    tempArray[i].Y += yOffset + y;
                 }
 #if QUILTTHREADED
                 );
@@ -862,8 +865,8 @@ namespace Quilt
                 for (Int32 i = 0; i < 5; i++)
 #endif
                 {
-                    tempArray[5 + i].X += xOffset;
-                    tempArray[5 + i].Y += yOffset;
+                    tempArray[5 + i].X += xOffset + x;
+                    tempArray[5 + i].Y += yOffset + y;
                 }
 #if QUILTTHREADED
                 );
@@ -897,8 +900,8 @@ namespace Quilt
                 for (Int32 i = 0; i < 5; i++)
 #endif
                 {
-                    tempArray[10 + i].X += xOffset;
-                    tempArray[10 + i].Y += yOffset;
+                    tempArray[10 + i].X += xOffset + x;
+                    tempArray[10 + i].Y += yOffset + y;
                 }
 #if QUILTTHREADED
                 );
@@ -985,11 +988,6 @@ namespace Quilt
         {
             PatternElement patternElement = pattern.getPatternElement(index);
 
-            if (bb == null)
-            {
-                bb = GeoWrangler.midPoint(tempArray);
-            }
-
             double rotAngle = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.rotation));
             if (!doRotation)
             {
@@ -1014,6 +1012,11 @@ namespace Quilt
         GeoLibPointF[] pTransformed(GeoLibPointF[] tempArray, Pattern pattern, int index, GeoLibPointF bb, double rotAngle, int rotRef, int rotRefUseArray, bool flipH, bool flipV, bool alignX, bool alignY, bool refPivot, bool doRotation)
         {
             GeoLibPointF[] transformed = tempArray.ToArray();
+
+            if (bb == null)
+            {
+                bb = GeoWrangler.midPoint(tempArray);
+            }
 
             GeoLibPointF pivot = new GeoLibPointF(bb.X, bb.Y);
 
@@ -1086,9 +1089,6 @@ namespace Quilt
                         {
                             rotAngle = Convert.ToDouble(pattern.getPatternElement(rotRef).getDecimal(PatternElement.properties_decimal.rotation));
                         }
-
-                        r_pivot.X += Convert.ToDouble(pattern.getPatternElement(rotRef).getDecimal(PatternElement.properties_decimal.xPos));
-                        r_pivot.Y += Convert.ToDouble(pattern.getPatternElement(rotRef).getDecimal(PatternElement.properties_decimal.yPos));
 
                         transformed = GeoWrangler.Rotate(r_pivot, transformed, rotAngle);
 
@@ -1247,11 +1247,6 @@ namespace Quilt
                         double px = previewPoints[poly][point].X + xOffset;
                         double py = previewPoints[poly][point].Y - yOffset;
 
-                        if (drawnPoly[poly])
-                        {
-                            px += drawnOffset.X;
-                            py += drawnOffset.Y;
-                        }
                         previewPoints[poly][point] = new GeoLibPointF(px, py);
                     }
 #if QUILTTHREADED

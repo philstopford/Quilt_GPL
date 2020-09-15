@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+2.2.5
+
+	- Reworked the transformation pipeline to resolve issues around relative rotation combined with relative and offset positions.
+
 2.2.4
 
 	- Bug fix for pattern placement.
