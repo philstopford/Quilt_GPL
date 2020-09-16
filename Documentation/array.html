@@ -185,14 +185,25 @@ img {
 
 <a name="array"></a>
 <h1 class="western">Array</h1>
-<p class="western" style=" line-height: 100%">An array can be constructed within a pattern element, with a defined instance count and pitch in each of X and Y. The array is constructed using the shape defined within the element itself. Note that the array is constructed after all other transformations to the shape are applied (e.g. rotation).</p>
+<p class="western" style=" line-height: 100%">An array can be constructed within a pattern element, with a defined instance count and pitch in each of X and Y. The array is constructed using the shape defined within the element itself.</p>
     <table>
       <tr>
         <td = width="50%">
-    <img src="images/array_1.png" size="100%" alt="Box"/>
+    <img src="images/array_1.png" size="100%" alt="Array"/>
         </td>
         <td>
-    <img src="images/array_2.png" size="100%" alt="L"/>
+    <img src="images/array_2.png" size="100%" alt="Array before rotation"/>
+        </td>
+      </tr>
+    </table>
+<p class="western" style=" line-height: 100%">Setting 'bounds after rotation' will defer array construction until after rotations are applied. This can be useful in avoiding overlaps from rotations.</p>
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_2_bounds_before_rotation.png" size="100%" alt="Array before rotation"/>
+        </td>
+        <td>
+    <img src="images/array_2_bounds_after_rotation.png" size="100%" alt="Array after rotation"/>
         </td>
       </tr>
     </table>
