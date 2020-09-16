@@ -1,9 +1,10 @@
 Changelog for Quilt. A pattern generator.
 
-2.3a1
+2.3
 
+	- Fix for crash related to toggling filled polygon display.
 	- Fixed duplicate patterns showing up for rotations in the Quilt.
-	- (Backport) Implement pattern extent drawing.
+	- Implement pattern extent drawing.
 	 - Configurable color and whether it draws at all.
 
 2.2.5
