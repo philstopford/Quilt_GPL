@@ -65,8 +65,8 @@ namespace Quilt
         HashSet<int> hashes;
         List<PatternElement> patternElements; // our pattern elements from which patterns will be constructed.
         public List<PreviewShape>[] previewShapes { get; set; }
+        public PreviewShape[] backgroundShapes { get; set; }
         QuiltContext quiltContext;
-
         PatternElement copyBuffer;
 
         System.Timers.Timer timer;
@@ -743,6 +743,7 @@ namespace Quilt
 
                 // Generate the preview shapes
                 previewShapes = new List<PreviewShape>[0];
+                backgroundShapes = new PreviewShape[0];
                 if (patterns.Count == 0)
                 {
                     doneQuiltUI?.Invoke("");
@@ -784,6 +785,7 @@ namespace Quilt
                 updateUIStatus?.Invoke("Weaving");
 
                 previewShapes = new List<PreviewShape>[patternCount];
+                backgroundShapes = new PreviewShape[patternCount];
 
                 ParallelOptions po = new ParallelOptions();
 
@@ -810,6 +812,12 @@ namespace Quilt
                 );
                 timer.Stop();
 
+                bb[0] = new GeoLibPointF(left, bottom);
+                bb[1] = new GeoLibPointF(left, top);
+                bb[2] = new GeoLibPointF(right, top);
+                bb[3] = new GeoLibPointF(right, bottom);
+                GeoWrangler.close(bb);
+
                 width = Math.Abs(right - left) + padding;
                 height = Math.Abs(top - bottom) + padding;
 
@@ -833,7 +841,9 @@ namespace Quilt
                         previewShapes[entry][ps].move(x, y);
                     });
                     // patterns[entry].setPos(x, y);
-                    Interlocked.Increment(ref counter);
+                    GeoLibPointF[] pBB = GeoWrangler.move(bb.ToArray(), x, y);
+                    backgroundShapes[entry] = new PreviewShape();
+                    backgroundShapes[entry].addPoints(pBB); Interlocked.Increment(ref counter);
                     /*
                     if ((c % progressChunk) == 0)
                     {

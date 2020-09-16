@@ -139,6 +139,24 @@ namespace Quilt
                         }
                     }
 
+                    try
+                    {
+                        for (Int32 poly = 0; poly < commonVars.stitcher.backgroundShapes.Length; poly++)
+                        {
+                            Color polyColor = Color.FromArgb(commonVars.getColors().selected_Color.toArgb());
+                            Monitor.Enter(drawingLock);
+                            ovpSettings.addBGPolygon(
+                                poly: UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern].getPoints()[0]),
+                                polyColor: polyColor,
+                                alpha: (float)quiltContext.BGOpacity,
+                                layerIndex: 0
+                            );
+                        }
+                    }
+                    finally
+                    {
+                        Monitor.Exit(drawingLock);
+                    }
 
                     if ((pattern % progressChunk) == 0)
                     {
