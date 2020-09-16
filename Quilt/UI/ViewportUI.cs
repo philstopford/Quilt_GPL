@@ -150,7 +150,7 @@ namespace Quilt
                                 ovpSettings.addBGPolygon(
                                     poly: UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern].getPoints()[0]),
                                     polyColor: polyColor,
-                                    alpha: (float)quiltContext.BGOpacity,
+                                    alpha: 1.0f,
                                     layerIndex: 0
                                 );
                             }
