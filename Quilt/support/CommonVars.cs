@@ -51,6 +51,7 @@ namespace Quilt
                                                              "Middle: Top Side", "Middle: Right Side", "Middle: Bottom Side", "Middle: Left Side",
                                                              "Center"};
             colors = new Colors();
+            setColors(quiltContext.colors);
             openGLModeList = new List<string>() { "VBO", "Immediate" };
 
             subshapes = new ObservableCollection<string>() { "1" };
