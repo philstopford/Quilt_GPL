@@ -1767,14 +1767,14 @@ namespace Quilt
             ret = ret && (x == pe.x);
             ret = ret && (y == pe.y);
 
-            ret = ret && (rotation == pe.rotation);
+            ret = ret && (rotation % 360 == pe.rotation % 360);
 
             ret = ret && (boundingBottom == pe.boundingBottom);
             ret = ret && (boundingTop == pe.boundingTop);
             ret = ret && (boundingLeft == pe.boundingLeft);
             ret = ret && (boundingRight == pe.boundingRight);
 
-            ret = ret && (arrayRotation == pe.arrayRotation);
+            ret = ret && (arrayRotation % 360 == pe.arrayRotation % 360);
 
             ret = ret && (arrayXCount == pe.arrayXCount);
             ret = ret && (arrayYCount == pe.arrayYCount);
