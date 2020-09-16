@@ -114,6 +114,14 @@ namespace Quilt
 
             try
             {
+                quiltContext.drawExtents = Convert.ToBoolean(prefs.Descendants("openGL").Descendants("drawExtents").First().Value);
+            }
+            catch (Exception)
+            {
+            }
+
+            try
+            {
                 quiltContext.drawPoints = Convert.ToBoolean(prefs.Descendants("openGL").Descendants("openGLPoints").First().Value);
             }
             catch (Exception)
@@ -212,6 +220,17 @@ namespace Quilt
             {
             }
 
+            try
+            {
+                string layerCol = "extentsColor";
+                quiltContext.colors.extents_Color.R = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("R").First().Value);
+                quiltContext.colors.extents_Color.G = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("G").First().Value);
+                quiltContext.colors.extents_Color.B = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("B").First().Value);
+            }
+            catch (Exception)
+            {
+            }
+
             quiltContext.colors.rebuildLists();
         }
 
@@ -232,7 +251,8 @@ namespace Quilt
                     new XElement("openGLPoints", quiltContext.drawPoints),
                     new XElement("openGLZoomFactor", quiltContext.openGLZoomFactor),
                     new XElement("openGLFGOpacity", quiltContext.FGOpacity),
-                    new XElement("openGLBGOpacity", quiltContext.BGOpacity));
+                    new XElement("openGLBGOpacity", quiltContext.BGOpacity),
+                    new XElement("drawExtents", quiltContext.drawExtents));
                 prefsXML.Root.Add(openGLPrefs);
 
 
@@ -273,6 +293,12 @@ namespace Quilt
                     new XElement("G", quiltContext.colors.minor_Color.G),
                     new XElement("B", quiltContext.colors.minor_Color.B));
                 colorPrefs.Add(minorColor);
+
+                XElement extentsColor = new XElement("extentsColor",
+                    new XElement("R", quiltContext.colors.extents_Color.R),
+                    new XElement("G", quiltContext.colors.extents_Color.G),
+                    new XElement("B", quiltContext.colors.extents_Color.B));
+                colorPrefs.Add(extentsColor);
 
                 prefsXML.Root.Add(colorPrefs);
 
@@ -689,6 +715,10 @@ namespace Quilt
             checkBox_OGLPoints = new CheckBox();
             checkBox_OGLPoints.Text = "Points";
             dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_OGLPoints });
+
+            checkBox_drawExtents = new CheckBox();
+            checkBox_drawExtents.Text = "Extents";
+            dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_drawExtents });
         }
 
         void openGLRow1(TableCell tc)
@@ -821,6 +851,22 @@ namespace Quilt
             lbl_ss3Color_name = new Label();
             lbl_ss3Color_name.Text = "Subshape 3";
             c3TL.Rows[0].Cells.Add(lbl_ss3Color_name);
+
+            Panel c4 = new Panel();
+            tr.Cells.Add(new TableCell() { Control = c4 });
+
+            TableLayout c4TL = new TableLayout();
+            c4.Content = c4TL;
+            c4TL.Rows.Add(new TableRow());
+
+            lbl_extentsColor = new Label();
+            lbl_extentsColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().extents_Color);
+            setSize(lbl_extentsColor, label_Height, label_Height);
+            c4TL.Rows[0].Cells.Add(lbl_extentsColor);
+
+            lbl_extentsColor_name = new Label();
+            lbl_extentsColor_name.Text = "Extents";
+            c4TL.Rows[0].Cells.Add(lbl_extentsColor_name);
         }
 
         void openGLRow2(TableCell tc)
@@ -1179,12 +1225,14 @@ namespace Quilt
             checkBox_OGLAA.Checked = quiltContext.AA;
             checkBox_OGLFill.Checked = quiltContext.filledPolygons;
             checkBox_OGLPoints.Checked = quiltContext.drawPoints;
+            checkBox_drawExtents.Checked = quiltContext.drawExtents;
             num_zoomSpeed.Value = quiltContext.openGLZoomFactor;
             num_fgOpacity.Value = quiltContext.FGOpacity;
             num_bgOpacity.Value = quiltContext.BGOpacity;
             lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
             lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
             lbl_enabledColor.BackgroundColor = Color.FromArgb(quiltContext.colors.enabled_Color.toArgb());
+            lbl_extentsColor.BackgroundColor = Color.FromArgb(quiltContext.colors.extents_Color.toArgb());
             lbl_ss1Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape1_Color.toArgb());
             lbl_ss2Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape2_Color.toArgb());
             lbl_ss3Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape3_Color.toArgb());

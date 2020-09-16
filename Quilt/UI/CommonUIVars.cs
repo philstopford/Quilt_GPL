@@ -89,11 +89,11 @@ namespace Quilt
         Panel quiltUISplitter, prefsPanel;
 
         NumericStepper num_zoomSpeed, num_fgOpacity, num_bgOpacity;
-        CheckBox checkBox_OGLAA, checkBox_OGLFill, checkBox_OGLPoints;
+        CheckBox checkBox_OGLAA, checkBox_OGLFill, checkBox_OGLPoints, checkBox_drawExtents;
         Label lbl_ss1Color, lbl_ss2Color, lbl_ss3Color,
-                lbl_enabledColor, lbl_majorGridColor, lbl_minorGridColor,
+                lbl_enabledColor, lbl_majorGridColor, lbl_minorGridColor, lbl_extentsColor,
                 lbl_ss1Color_name, lbl_ss2Color_name, lbl_ss3Color_name,
-                lbl_enabledColor_name, lbl_majorGridColor_name, lbl_minorGridColor_name,
+                lbl_enabledColor_name, lbl_majorGridColor_name, lbl_minorGridColor_name, lbl_extentsColor_name,
                 lbl_zoomSpeed, lbl_fgOpacity, lbl_bgOpacity;
         Button btn_resetColors;
 

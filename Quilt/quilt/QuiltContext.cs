@@ -19,6 +19,7 @@ namespace Quilt
         public bool AA;
         public bool filledPolygons;
         public bool drawPoints;
+        public bool drawExtents;
         public Colors colors;
         public Int32 HTCount;
         public GraphicsBackend backend;
@@ -37,6 +38,7 @@ namespace Quilt
             openGLZoomFactor = 1;
             filledPolygons = false;
             drawPoints = false;
+            drawExtents = true;
             AA = true;
             FGOpacity = 0.7;
             BGOpacity = 0.5;

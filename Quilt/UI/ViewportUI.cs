@@ -139,23 +139,26 @@ namespace Quilt
                         }
                     }
 
-                    try
+                    if (quiltContext.drawExtents)
                     {
-                        for (Int32 poly = 0; poly < commonVars.stitcher.backgroundShapes.Length; poly++)
+                        try
                         {
-                            Color polyColor = Color.FromArgb(commonVars.getColors().selected_Color.toArgb());
-                            Monitor.Enter(drawingLock);
-                            ovpSettings.addBGPolygon(
-                                poly: UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern].getPoints()[0]),
-                                polyColor: polyColor,
-                                alpha: (float)quiltContext.BGOpacity,
-                                layerIndex: 0
-                            );
+                            for (Int32 poly = 0; poly < commonVars.stitcher.backgroundShapes.Length; poly++)
+                            {
+                                Color polyColor = Color.FromArgb(commonVars.getColors().extents_Color.toArgb());
+                                Monitor.Enter(drawingLock);
+                                ovpSettings.addBGPolygon(
+                                    poly: UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern].getPoints()[0]),
+                                    polyColor: polyColor,
+                                    alpha: (float)quiltContext.BGOpacity,
+                                    layerIndex: 0
+                                );
+                            }
                         }
-                    }
-                    finally
-                    {
-                        Monitor.Exit(drawingLock);
+                        finally
+                        {
+                            Monitor.Exit(drawingLock);
+                        }
                     }
 
                     if ((pattern % progressChunk) == 0)

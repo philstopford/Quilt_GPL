@@ -333,10 +333,12 @@ namespace Quilt
                 lbl_majorGridColor.MouseDoubleClick += layerColorChange;
 
                 lbl_enabledColor.MouseDoubleClick += layerColorChange;
+                lbl_extentsColor.MouseDoubleClick += layerColorChange;
 
                 checkBox_OGLAA.CheckedChanged += preferencesChange;
                 checkBox_OGLFill.CheckedChanged += preferencesChange;
                 checkBox_OGLPoints.CheckedChanged += preferencesChange;
+                checkBox_drawExtents.CheckedChanged += preferencesChange;
                 num_fgOpacity.LostFocus += preferencesChange;
                 num_bgOpacity.LostFocus += preferencesChange;
                 num_zoomSpeed.LostFocus += preferencesChange;
@@ -374,6 +376,10 @@ namespace Quilt
                 if (id == lbl_ss3Color)
                 {
                     quiltContext.colors.subshape3_Color = UIHelper.colorToMyColor(colDialogColor);
+                }
+                if (id == lbl_extentsColor)
+                {
+                    quiltContext.colors.extents_Color = UIHelper.colorToMyColor(colDialogColor);
                 }
 
                 quiltContext.colors.rebuildLists();
@@ -423,6 +429,11 @@ namespace Quilt
                     if (senderLabel == lbl_enabledColor)
                     {
                         sourceColor = UIHelper.myColorToColor(quiltContext.colors.enabled_Color);
+                    }
+
+                    if (senderLabel == lbl_extentsColor)
+                    {
+                        sourceColor = UIHelper.myColorToColor(quiltContext.colors.extents_Color);
                     }
 
                     ColorDialog colDialog = new ColorDialog
@@ -476,6 +487,8 @@ namespace Quilt
             ovpSettings.drawPoints(quiltContext.drawPoints);
             commonVars.setOpenGLProp(CommonVars.properties_gl.points, (bool)checkBox_OGLPoints.Checked);
 
+            quiltContext.drawExtents = (bool)checkBox_drawExtents.Checked;
+
             quiltContext.openGLZoomFactor = Convert.ToInt32(num_zoomSpeed.Value);
             ovpSettings.setZoomFactor(quiltContext.openGLZoomFactor);
             commonVars.setGLInt(CommonVars.gl_i.zoom, (Convert.ToInt32(num_zoomSpeed.Value)));
@@ -505,6 +518,7 @@ namespace Quilt
                 lbl_ss2Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape2_Color.toArgb());
                 lbl_ss3Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape3_Color.toArgb());
                 lbl_enabledColor.BackgroundColor = Color.FromArgb(quiltContext.colors.enabled_Color.toArgb());
+                lbl_extentsColor.BackgroundColor = Color.FromArgb(quiltContext.colors.extents_Color.toArgb());
                 lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
                 lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
                 doColors();
