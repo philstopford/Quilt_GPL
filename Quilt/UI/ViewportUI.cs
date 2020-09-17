@@ -137,30 +137,27 @@ namespace Quilt
                                 Monitor.Exit(drawingLock);
                             }
                         }
+
                     }
 
                     if (quiltContext.drawExtents)
                     {
+                        Color extentColor = Color.FromArgb(commonVars.getColors().extents_Color.toArgb());
+                        Monitor.Enter(drawingLock);
                         try
                         {
-                            for (Int32 poly = 0; poly < commonVars.stitcher.backgroundShapes.Length; poly++)
-                            {
-                                Color polyColor = Color.FromArgb(commonVars.getColors().extents_Color.toArgb());
-                                Monitor.Enter(drawingLock);
-                                ovpSettings.addBGPolygon(
-                                    poly: UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern].getPoints()[0]),
-                                    polyColor: polyColor,
-                                    alpha: 1.0f,
-                                    layerIndex: 0
-                                );
-                            }
+                            ovpSettings.addBGPolygon(
+                                poly: UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern].getPoints()[0]),
+                                polyColor: extentColor,
+                                alpha: 1.0f,
+                                layerIndex: 0
+                            );
                         }
                         finally
                         {
                             Monitor.Exit(drawingLock);
                         }
                     }
-
                     if ((pattern % progressChunk) == 0)
                     {
                         updateProgressBar(progress);
@@ -177,7 +174,6 @@ namespace Quilt
                 progressBar.ToolTip = "";
                 progressBar.Value = 0;
                 setUI(true);
-                //doPatternElementUI(0, updateUI: false, doPreview: false);
             });
         }
 
@@ -193,7 +189,6 @@ namespace Quilt
                 try
                 {
                     viewPort.updateViewport();
-                    // viewPort.Invalidate();
                 }
                 catch (Exception)
                 {
