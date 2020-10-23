@@ -6,5 +6,8 @@ Linux:
 Mac:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/Quilt220Mac_patt.png)
 
-Output designs can be used in Variance https://github.com/philstopford/Variance_GPL
+Output hierarchy, in KLayout
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/hierarchical_oasis_2.PNG)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/hierarchical_oasis_3.PNG)
+
+Output can be used in Variance https://github.com/philstopford/Variance_GPL
