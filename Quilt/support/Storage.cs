@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace Quilt
@@ -15,7 +16,7 @@ namespace Quilt
 
         double padding;
         int showDrawn;
-        List<PatternElement> loadedElements;
+        PatternElement[] loadedElements;
 
         public double getPadding()
         {
@@ -44,7 +45,7 @@ namespace Quilt
 
         List<PatternElement> pGetElements()
         {
-            return loadedElements;
+            return loadedElements.ToList();
         }
 
         // Callbacks for viewport values.
@@ -1026,12 +1027,15 @@ namespace Quilt
 
             preLoadUI?.Invoke();
 
-            loadedElements = new List<PatternElement>();
-
             int elementCount = Convert.ToInt32(simulationFromFile.Descendants("elementCount").First().Value);
 
-            for (int layer = 0; layer < elementCount; layer++)
+            loadedElements = new PatternElement[elementCount];
+
+            Parallel.For(0, elementCount, (layer, loopstate) =>
+            // for (int layer = 0; layer < elementCount; layer++)
             {
+                PatternElement readSettings = new PatternElement();
+
                 string layerref = "layer" + (layer + 1).ToString();
 
                 try
@@ -1056,8 +1060,8 @@ namespace Quilt
 
                 pLoadPositionRotationSettings(ref readSettings, ref simulationFromFile, layerref);
 
-                loadedElements.Add(new PatternElement(readSettings));
-            }
+                loadedElements[layer] = readSettings;
+            });
 
             try
             {
@@ -1102,7 +1106,7 @@ namespace Quilt
             postLoadUI?.Invoke(filename);
             if (error)
             {
-                loadedElements = new List<PatternElement>();
+                loadedElements = null;
                 padding = 0;
                 showDrawn = 1;
                 returnString = "";
