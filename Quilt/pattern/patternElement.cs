@@ -308,6 +308,23 @@ namespace Quilt
             refArrayBoundsAfterRotation = source.refArrayBoundsAfterRotation;
         }
 
+        GeoLibPointF midpoint;
+
+        public bool midPointSet()
+        {
+            return midpoint != null;
+        }
+
+        public GeoLibPointF getMidPoint()
+        {
+            return new GeoLibPointF(midpoint.X, midpoint.Y);
+        }
+
+        public void setMidPoint(GeoLibPointF point)
+        {
+            midpoint = new GeoLibPointF(point.X, point.Y);
+        }
+
         string name;
 
         public enum properties_s

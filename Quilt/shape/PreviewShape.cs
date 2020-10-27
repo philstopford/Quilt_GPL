@@ -1038,19 +1038,12 @@ namespace Quilt
                 {
                     while (rotRef >= 0)
                     {
-                        GeoLibPointF r_pivot = new GeoLibPointF(pivot.X, pivot.Y);
-
-                        if (refPivot)
-                        {
-                            bool boundsAfterRotation = pattern.getPatternElement(index).getInt(PatternElement.properties_i.refBoundsAfterRotation) == 1;
-                            r_pivot = GeoWrangler.midPoint(pGetPointArray(pattern, rotRef, doRotation: boundsAfterRotation));
-                        }
-
                         // Is the reference an array; if it is, do we want to get the array rotation or something else.
                         bool refIsArray = pattern.getPatternElement(rotRef).isXArray() || pattern.getPatternElement(rotRef).isYArray();
                         refIsArray = refIsArray || (pattern.getPatternElement(rotRef).getInt(PatternElement.properties_i.arrayRef) > 0);
 
-                        // If we have an array and we also want to match the array rotation rather than the element rotation, we need to change the rotation value from the reference.
+                        GeoLibPointF r_pivot = new GeoLibPointF(pivot.X, pivot.Y);
+
                         bool done = false;
 
                         if (refIsArray)
@@ -1077,7 +1070,7 @@ namespace Quilt
                                     double arrayWidth = (xCount * width) + ((xCount - 1) * xSpace);
                                     double arrayHeight = (yCount * height) + ((yCount - 1) * ySpace);
 
-                                    r_pivot =new GeoLibPointF(bounds[0] + (arrayWidth / 2.0f), bounds[1] + (arrayHeight / 2.0f));
+                                    r_pivot = new GeoLibPointF(bounds[0] + (arrayWidth / 2.0f), bounds[1] + (arrayHeight / 2.0f));
                                 }
 
                                 done = true;
@@ -1087,11 +1080,27 @@ namespace Quilt
                         // However, we may want rotation relative to a non-array case.
                         if (!done)
                         {
+                            if (refPivot)
+                            {
+                                bool boundsAfterRotation = pattern.getPatternElement(index).getInt(PatternElement.properties_i.refBoundsAfterRotation) == 1;
+                                if (pattern.getPatternElement(rotRef).midPointSet())
+                                {
+                                    r_pivot = new GeoLibPointF(pattern.getPatternElement(rotRef).getMidPoint());
+                                }
+                                else
+                                {
+                                    r_pivot = new GeoLibPointF(GeoWrangler.midPoint(pGetPointArray(pattern, rotRef, doRotation: boundsAfterRotation)));
+                                    pattern.getPatternElement(rotRef).setMidPoint(r_pivot);
+                                }
+                            }
+
                             rotAngle = Convert.ToDouble(pattern.getPatternElement(rotRef).getDecimal(PatternElement.properties_decimal.rotation));
                         }
 
-                        transformed = GeoWrangler.Rotate(r_pivot, transformed, rotAngle);
-
+                        if (Math.Abs(rotAngle) > double.Epsilon)
+                        {
+                            transformed = GeoWrangler.Rotate(r_pivot, transformed, rotAngle);
+                        }
                         rotRef = pattern.getRef(rotRef, PatternElement.properties_i.rotationRef);
                     }
                 }
