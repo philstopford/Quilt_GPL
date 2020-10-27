@@ -163,7 +163,16 @@ namespace Quilt
             {
             }
 
-
+            try
+            {
+                string layerCol = "deselectedColor";
+                quiltContext.colors.deselected_Color.R = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("R").Single().Value);
+                quiltContext.colors.deselected_Color.G = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("G").Single().Value);
+                quiltContext.colors.deselected_Color.B = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("B").Single().Value);
+            }
+            catch (Exception)
+            {
+            }
 
             try
             {
@@ -281,6 +290,12 @@ namespace Quilt
                     new XElement("G", quiltContext.colors.selected_Color.G),
                     new XElement("B", quiltContext.colors.selected_Color.B));
                 colorPrefs.Add(enabledColor);
+
+                XElement backgroundColor = new XElement("deselectedColor",
+                    new XElement("R", quiltContext.colors.deselected_Color.R),
+                    new XElement("G", quiltContext.colors.deselected_Color.G),
+                    new XElement("B", quiltContext.colors.deselected_Color.B));
+                colorPrefs.Add(backgroundColor);
 
                 XElement majorColor = new XElement("majorColor",
                     new XElement("R", quiltContext.colors.major_Color.R),
@@ -804,6 +819,22 @@ namespace Quilt
             lbl_enabledColor_name.Text = "Enabled";
             c0TL.Rows[0].Cells.Add(lbl_enabledColor_name);
 
+            Panel c0b = new Panel();
+            tr.Cells.Add(new TableCell() { Control = c0b });
+
+            TableLayout c0bTL = new TableLayout();
+            c0b.Content = c0bTL;
+            c0bTL.Rows.Add(new TableRow());
+
+            lbl_backgroundColor = new Label();
+            lbl_backgroundColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().deselected_Color);
+            setSize(lbl_backgroundColor, label_Height, label_Height);
+            c0bTL.Rows[0].Cells.Add(lbl_backgroundColor);
+
+            lbl_backgroundColor_name = new Label();
+            lbl_backgroundColor_name.Text = "Background";
+            c0bTL.Rows[0].Cells.Add(lbl_backgroundColor_name);
+
             Panel c1 = new Panel();
             tr.Cells.Add(new TableCell() { Control = c1 });
 
@@ -1243,6 +1274,7 @@ namespace Quilt
             lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
             lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
             lbl_enabledColor.BackgroundColor = Color.FromArgb(quiltContext.colors.enabled_Color.toArgb());
+            lbl_backgroundColor.BackgroundColor = Color.FromArgb(quiltContext.colors.deselected_Color.toArgb());
             lbl_extentsColor.BackgroundColor = Color.FromArgb(quiltContext.colors.extents_Color.toArgb());
             lbl_ss1Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape1_Color.toArgb());
             lbl_ss2Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape2_Color.toArgb());

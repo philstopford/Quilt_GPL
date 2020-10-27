@@ -346,6 +346,7 @@ namespace Quilt
                 lbl_majorGridColor.MouseDoubleClick += layerColorChange;
 
                 lbl_enabledColor.MouseDoubleClick += layerColorChange;
+                lbl_backgroundColor.MouseDoubleClick += layerColorChange;
                 lbl_extentsColor.MouseDoubleClick += layerColorChange;
 
                 checkBox_OGLAA.CheckedChanged += preferencesChange;
@@ -377,6 +378,10 @@ namespace Quilt
                 if (id == lbl_enabledColor)
                 {
                     quiltContext.colors.enabled_Color = UIHelper.colorToMyColor(colDialogColor);
+                }
+                if (id == lbl_backgroundColor)
+                {
+                    quiltContext.colors.deselected_Color = UIHelper.colorToMyColor(colDialogColor);
                 }
                 if (id == lbl_ss1Color)
                 {
@@ -442,6 +447,11 @@ namespace Quilt
                     if (senderLabel == lbl_enabledColor)
                     {
                         sourceColor = UIHelper.myColorToColor(quiltContext.colors.enabled_Color);
+                    }
+
+                    if (senderLabel == lbl_backgroundColor)
+                    {
+                        sourceColor = UIHelper.myColorToColor(quiltContext.colors.deselected_Color);
                     }
 
                     if (senderLabel == lbl_extentsColor)
@@ -531,6 +541,7 @@ namespace Quilt
                 lbl_ss2Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape2_Color.toArgb());
                 lbl_ss3Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape3_Color.toArgb());
                 lbl_enabledColor.BackgroundColor = Color.FromArgb(quiltContext.colors.enabled_Color.toArgb());
+                lbl_backgroundColor.BackgroundColor = Color.FromArgb(quiltContext.colors.deselected_Color.toArgb());
                 lbl_extentsColor.BackgroundColor = Color.FromArgb(quiltContext.colors.extents_Color.toArgb());
                 lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
                 lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());

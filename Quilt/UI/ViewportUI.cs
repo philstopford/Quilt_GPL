@@ -97,7 +97,11 @@ namespace Quilt
 
                         for (Int32 poly = 0; poly < polyCount; poly++)
                         {
-                            Color polyColor = Color.FromArgb(commonVars.getColors().enabled_Color.toArgb());
+                            Color polyColor = Color.FromArgb(commonVars.getColors().deselected_Color.toArgb());
+                            if (commonVars.stitcher.previewShapes[pattern][i].elementIndex == listBox_entries.SelectedIndex)
+                            {
+                                polyColor = Color.FromArgb(commonVars.getColors().enabled_Color.toArgb());
+                            }
                             bool drawn = commonVars.stitcher.previewShapes[pattern][i].getDrawnPoly(poly);
                             // Skip this polygon in case drawn, when not showing drawn; not-drawn when showing drawn.
                             if (((commonVars.stitcher.getShowInput() == 1) && (!drawn)) || ((commonVars.stitcher.getShowInput() == 0) && (drawn)))

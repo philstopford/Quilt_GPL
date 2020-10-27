@@ -12,6 +12,8 @@ namespace Quilt
 {
     public class PreviewShape
     {
+        public int elementIndex; // originating element.
+
         // Class for our preview shapes.
         List<GeoLibPointF[]> previewPoints; // list of polygons defining the shape(s) that will be drawn. In the complex case, we populate this from complexPoints.
         public List<GeoLibPointF[]> getPoints()
@@ -783,6 +785,7 @@ namespace Quilt
             textEntity = source.textEntity.ToList();
             geoCoreOrthogonalPoly = source.geoCoreOrthogonalPoly.ToList();
             color = new MyColor(source.color);
+            elementIndex = source.elementIndex;
         }
 
         public PreviewShape(Pattern pattern, Int32 settingsIndex)
@@ -1148,6 +1151,8 @@ namespace Quilt
                 color = MyColor.Black; // overridden later.
 
                 PatternElement patternElement = pattern.getPatternElement(settingsIndex);
+
+                elementIndex = settingsIndex;
 
                 int shapeType = patternElement.getInt(PatternElement.properties_i.shapeIndex);
                 bool textShape = shapeType == (int)CommonVars.shapeNames.text;

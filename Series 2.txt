@@ -12,6 +12,7 @@ Changelog for Quilt. A pattern generator.
 	 - Performance enhancements for relative rotation pipeline.
 	 - UI refinements.
 	 - Multi-threaded loader.
+	 - Color preference for geometry not coming from selected element.
 
 2.3
 
