@@ -290,6 +290,12 @@ namespace Quilt
                 viewPort.zoomExtents(-1);
             };
             itemIndex++;
+            vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom Selected (z)" });
+            vp_menu.Items[itemIndex].Click += delegate
+            {
+                viewPort.zoomExtents(listBox_entries.SelectedIndex);
+            };
+            itemIndex++;
             vp_menu.Items.AddSeparator();
             itemIndex++;
             vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom In (m)" });

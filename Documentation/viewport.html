@@ -186,6 +186,9 @@ img {
 <a name="viewport"></a>
 <h1 class="western">Viewport</h1>
   <p class="western" style=" line-height: 100%">The viewport system uses the optimal native system for the platform being used (Vulkan, OpenGL, Direct3D, Metal). You can zoom with your mouse wheel and also move around using the WASD keys. If you get lost in the viewport, hit ‘r’ and the viewport will go back to the origin and default zoom. 'f' will freeze/thaw the viewport, preventing mouse input changing the camera position and zoom until thawed. 'n' and 'm' will zoom in/out. Tooltips will be displayed on mouse hover, providing a reference for the user.</p>
+
+  <p class="western" style=" line-height: 100%">Elements in the viewport can be selected in the viewport with a middle, or Ctrl-Left, click.</p>    
+
   <p class="western" style=" line-height: 100%">A context menu is available in the viewport - simply right click.</p>    
   
   <p class="western" style=" line-height: 100%"><img src="images/contextmenu.png" lt=""/></p>    
@@ -197,7 +200,8 @@ img {
     <li>Freeze/Thaw : 'Freeze' will lock the viewport position and zoom at the current values. 'Thaw' will remove the lock.</li>
     <li>Save bookmark : This will save the current view location.</li>
     <li>Load bookmark : This will load a saved view.</li>
-    <li>Zoom Extents : zooms and repositions the camera to display all content in the viewport. See note below for DOE previews.</li>
+    <li>Zoom Extents : zooms and repositions the camera to display all content in the viewport.</li>
+    <li>Zoom Selected : zooms and repositions the camera to display the selected content in the viewport.</li>
     <li>Zoom In / Zoom Out : zooms in or out by one step.</li>
     <li>Fast Zoom In / Fast Zoom Out : zooms in or out by a multiple of steps.</li>
   </ul>
