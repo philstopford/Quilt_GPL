@@ -510,6 +510,7 @@ namespace Quilt
 
             vSurface.Size = new Size(viewportSize, viewportSize);
             viewPort.updateHostFunc = viewportUpdateHost;
+            viewPort.updateHostSelectionFunc = viewportSelectionFunc;
 
             commonVars.titleText += " " + vSurface.Backend.ToString();
 
@@ -529,7 +530,6 @@ namespace Quilt
 
             //updateViewport();
         }
-
 
         void interfaceUpdate(object sender, EventArgs e)
         {

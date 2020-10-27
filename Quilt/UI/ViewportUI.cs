@@ -129,7 +129,8 @@ namespace Quilt
                                     polyColor: polyColor,
                                     alpha: alpha, 
                                     drawn: drawn,
-                                    layerIndex: (pattern % commonVars.getColors().simPreviewColors.Count)
+                                    layerIndex: i,
+                                    mask: pattern == num_patNum.Value  // tag our chosen pattern polys for zoom-to-selected.
                                 );
                             }
                             finally
@@ -212,7 +213,7 @@ namespace Quilt
 
             int itemIndex = 0;
             int svgIndex = 1;
-            vp_menu.Items.Add(new ButtonMenuItem { Text = "Reset" });
+            vp_menu.Items.Add(new ButtonMenuItem { Text = "Reset (r)" });
             vp_menu.Items[itemIndex].Click += delegate
             {
                 viewPort.reset();
@@ -247,11 +248,11 @@ namespace Quilt
             {
                 if (viewPort.ovpSettings.isLocked())
                 {
-                    vp_menu.Items.Add(new ButtonMenuItem { Text = "Thaw" });
+                    vp_menu.Items.Add(new ButtonMenuItem { Text = "Thaw (f)" });
                 }
                 else
                 {
-                    vp_menu.Items.Add(new ButtonMenuItem { Text = "Freeze" });
+                    vp_menu.Items.Add(new ButtonMenuItem { Text = "Freeze (f)" });
                 }
                 vp_menu.Items[itemIndex].Click += delegate
                 {
@@ -279,15 +280,15 @@ namespace Quilt
             }
             vp_menu.Items.AddSeparator();
             itemIndex++;
-            vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom Extents" });
+            vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom Extents (x)" });
             vp_menu.Items[itemIndex].Click += delegate
             {
-                viewPort.zoomExtents();
+                viewPort.zoomExtents(-1);
             };
             itemIndex++;
             vp_menu.Items.AddSeparator();
             itemIndex++;
-            vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom In" });
+            vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom In (m)" });
             vp_menu.Items[itemIndex].Click += delegate
             {
                 viewPort.zoomIn(-1);
@@ -325,7 +326,7 @@ namespace Quilt
             vp_menu.Items.AddSeparator();
             itemIndex++;
 
-            vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom Out" });
+            vp_menu.Items.Add(new ButtonMenuItem { Text = "Zoom Out (n)" });
             vp_menu.Items[itemIndex].Click += delegate
             {
                 viewPort.zoomOut(-1);
@@ -446,8 +447,17 @@ namespace Quilt
             num_viewportZoom.Value = value;
             num_viewportX.Value = viewPort.ovpSettings.getCameraX();
             num_viewportY.Value = viewPort.ovpSettings.getCameraY();
+            viewPort.ovpSettings.selectedIndex = listBox_entries.SelectedIndex;
             UIFreeze = false;
             createVPContextMenu();
+        }
+
+        void viewportSelectionFunc(int index)
+        {
+            Application.Instance.Invoke(() =>
+            {
+                listBox_entries.SelectedIndex = index;
+            });
         }
 
         void goToPattern(object sender, EventArgs e)
@@ -466,6 +476,8 @@ namespace Quilt
                 return;
             }
             patternIndex = index;
+
+            doPatternElementUI(patternIndex);
 
             PointF tmp = commonVars.stitcher.findPattern((int)num_patNum.Value);
             moveCamera(tmp.X, tmp.Y);
