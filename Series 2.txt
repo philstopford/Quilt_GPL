@@ -11,6 +11,7 @@ Changelog for Quilt. A pattern generator.
 	 - Allow rename of pattern elements.
 	 - Performance enhancements for relative rotation pipeline.
 	 - UI refinements.
+	 - Multi-threaded loader.
 
 2.3
 
