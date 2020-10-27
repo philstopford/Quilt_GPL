@@ -1,5 +1,17 @@
 Changelog for Quilt. A pattern generator.
 
+2.5
+
+	- Backports from custom development branch:
+	 - Viewport-based selection, using middle, or ctrl-left, mouse button to select pattern element by a proximity search to the click location.
+	  - Search is multi-threaded.
+	 - Hotkeys in context menu.
+	 - Zoom-to-selected (z).
+	 - Allow negative X/Y position coordinates.
+	 - Allow rename of pattern elements.
+	 - Performance enhancements for relative rotation pipeline.
+	 - UI refinements.
+
 2.3
 
 	- Fix for crash related to toggling filled polygon display.

@@ -1017,6 +1017,15 @@ namespace Quilt
 
         void patternSettingsUI_2()
         {
+            TableRow left_layout_tr = new TableRow();
+            left_tl.Rows.Add(left_layout_tr);
+
+            Panel layout_pnl = new Panel();
+            TableLayout layout_tl = new TableLayout();
+            layout_pnl.Content = TableLayout.AutoSized(layout_tl);
+            left_layout_tr.Cells.Add(new TableCell() { Control = layout_pnl });
+
+            layout_tl.Rows.Add(new TableRow());
             TableRow left_tr0 = new TableRow();
             left_tr0.ScaleHeight = true;
             left_tl.Rows.Add(left_tr0);
@@ -1032,9 +1041,7 @@ namespace Quilt
             left_tr0.Cells.Add(left_tr0_0);
 
             Panel listBox_pnl = new Panel();
-            Scrollable listBox_s = new Scrollable();
-            listBox_pnl.Content = listBox_s;
-            listBox_s.Content = listBox_entries;
+            listBox_pnl.Content = listBox_entries;
             left_tr0_0.Control = listBox_pnl;
 
             Panel lowerLeftContainer = new Panel();

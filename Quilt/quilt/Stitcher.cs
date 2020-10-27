@@ -718,7 +718,7 @@ namespace Quilt
 
                     pattEl = new PatternElement(patternElements[level]);
 
-                    pattName += " / " + pattEl.getString(PatternElement.properties_s.name);
+                    pattName = pattEl.getString(PatternElement.properties_s.name);
 
                     updateUIStatus?.Invoke(pattName);
 
