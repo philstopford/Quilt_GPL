@@ -1185,7 +1185,7 @@ namespace Quilt
             num_minXPos = new NumericStepper();
             num_minXPos.Increment = 0.1;
             num_minXPos.DecimalPlaces = 2;
-            num_minXPos.MinValue = 0;
+            // num_minXPos.MinValue = 0;
             setSize(num_minXPos, numWidth, num_Height);
 
             TableCell tr2_1_0 = new TableCell();
@@ -1353,7 +1353,7 @@ namespace Quilt
             num_minYPos = new NumericStepper();
             num_minYPos.Increment = 0.1;
             num_minYPos.DecimalPlaces = 2;
-            num_minYPos.MinValue = 0;
+            // num_minYPos.MinValue = 0;
             setSize(num_minYPos, numWidth, num_Height);
 
             TableCell tr5_1_0 = new TableCell();
