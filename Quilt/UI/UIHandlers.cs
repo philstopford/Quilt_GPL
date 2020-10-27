@@ -221,6 +221,19 @@ namespace Quilt
             text_patternElement.Text = "";
         }
 
+        void renamePatternElement(object sender, EventArgs e)
+        {
+            int index = listBox_entries.SelectedIndex;
+            if (index == -1)
+            {
+                return;
+            }
+            commonVars.stitcher.renamePatternElement(index, text_patternElement.Text);
+            text_patternElement.Text = "";
+
+            updatePatternElementUI();
+        }
+
         void removePatternElement(object sender, EventArgs e)
         {
             int index = listBox_entries.SelectedIndex;

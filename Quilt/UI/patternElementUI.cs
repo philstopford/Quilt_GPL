@@ -154,6 +154,7 @@ namespace Quilt
             num_padding.LostFocus += setPadding;
 
             entry_Add.Click += addPatternElement;
+            entry_Rename.Click += renamePatternElement;
             entry_Remove.Click += removePatternElement;
 
             btn_export.Click += exportClicked;

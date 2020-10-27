@@ -72,7 +72,7 @@ namespace Quilt
 
         Label lbl_padding, lbl_patNum;
         NumericStepper num_padding, num_patNum;
-        Button entry_Add, entry_Remove;
+        Button entry_Add, entry_Rename, entry_Remove;
         Button btn_export;
 
         ButtonMenuItem fileMenu, editMenu;

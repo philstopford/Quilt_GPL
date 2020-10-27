@@ -1069,7 +1069,11 @@ namespace Quilt
             setSize(entry_Add, entry_btnWidth, 21);
             bTable.Rows[bTable.Rows.Count - 1].Cells.Add(new TableCell() { Control = entry_Add });
 
-            bTable.Rows[bTable.Rows.Count - 1].Cells.Add(new TableCell() { Control = null, ScaleWidth = true });
+            entry_Rename = new Button();
+            entry_Rename.Text = "Rename";
+            entry_Rename.ToolTip = "Rename selected pattern entry.";
+            setSize(entry_Rename, entry_btnWidth, 21);
+            bTable.Rows[bTable.Rows.Count - 1].Cells.Add(new TableCell() { Control = entry_Rename });
 
             entry_Remove = new Button();
             entry_Remove.Text = "Remove";

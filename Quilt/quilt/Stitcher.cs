@@ -493,6 +493,18 @@ namespace Quilt
             pUpdateQuilt();
         }
 
+        public void renamePatternElement(int index, string name)
+        {
+            pRenamePatternElement(index, name);
+        }
+
+        void pRenamePatternElement(int index, string name)
+        {
+            patternElements[index].setString(PatternElement.properties_s.name, name);
+            patternElementNames[index] = name;
+            pUpdate_filteredPatternedElementNames(index);
+        }
+
         public void removePatternElement(int index)
         {
             pRemovePatternElement(index);
