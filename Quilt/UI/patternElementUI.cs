@@ -2241,6 +2241,8 @@ namespace Quilt
 
             }
             doPatternElementUI(0, updateUI);
+            pasteLayer.Enabled = commonVars.stitcher.isCopySet();
+            revertSim.Enabled = commonVars.projectFileName != "";
         }
 
         void doPatternElementUI_subshape(int pattern, int index, bool updateUI, string shapeString)

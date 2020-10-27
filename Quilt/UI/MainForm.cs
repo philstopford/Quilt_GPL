@@ -403,6 +403,32 @@ namespace Quilt
             createVPContextMenu();
         }
 
+        void createLBContextMenu()
+        {
+            listbox_menu = new ContextMenu();
+            int itemIndex = 0;
+            listbox_menu.Items.Add(new ButtonMenuItem { Text = "Copy" });
+            listbox_menu.Items[itemIndex].Click += delegate
+            {
+                copy();
+            };
+            itemIndex++;
+            listbox_menu.Items.Add(new ButtonMenuItem { Text = "Paste" });
+            listbox_menu.Items[itemIndex].Click += delegate
+            {
+                paste();
+            };
+            try
+            {
+                listbox_menu.Items[itemIndex].Enabled = commonVars.stitcher.isCopySet();
+            }
+            catch (Exception)
+            {
+                listbox_menu.Items[itemIndex].Enabled = false;
+            }
+            itemIndex++;
+        }
+
         void UI(QuiltContext _quiltContext)
         {
             if (_quiltContext == null) // safety net.
@@ -419,6 +445,8 @@ namespace Quilt
             loadPrefs();
 
             commonVars = new CommonVars(ref quiltContext);
+
+            createLBContextMenu();
 
             delegates();
 
@@ -944,6 +972,7 @@ namespace Quilt
 
             pasteLayer = new Command { MenuText = "Paste", ToolBarText = "Paste", Shortcut = Application.Instance.CommonModifier | Keys.V };
             pasteLayer.Executed += pasteHandler;
+            pasteLayer.Enabled = commonVars.stitcher.isCopySet();
 
             newSim = new Command { MenuText = "New", ToolBarText = "New", Shortcut = Application.Instance.CommonModifier | Keys.N };
             newSim.Executed += newHandler;
@@ -1062,6 +1091,8 @@ namespace Quilt
             left_tl.Rows.Add(left_tr0);
 
             listBox_entries = new ListBox();
+            listBox_entries.ContextMenu = listbox_menu;
+
             int listBox_entries_Width = 200;
             int listBox_entries_Height = 300;
             setSize(listBox_entries, listBox_entries_Width, listBox_entries_Height);

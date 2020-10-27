@@ -83,13 +83,13 @@ namespace Quilt
             {
                 if (commonVars.projectFileName == "")
                 {
-                    //menu_fileSave.Enabled = false;
                     Title = commonVars.titleText;
-                }
+                    revertSim.Enabled = false;
+                 }
                 else
                 {
                     Title = commonVars.titleText + " - " + commonVars.projectFileName;
-                    //menu_fileSave.Enabled = true;
+                    revertSim.Enabled = true;
                 }
             });
         }
@@ -166,10 +166,20 @@ namespace Quilt
 
         void copyHandler(object sender, EventArgs e)
         {
+            copy();
+        }
+
+        void copy()
+        {
             commonVars.stitcher.setCopy(listBox_entries.SelectedIndex);
         }
 
         void pasteHandler(object sender, EventArgs e)
+        {
+            paste();
+        }
+
+        void paste()
         {
             commonVars.stitcher.paste(listBox_entries.SelectedIndex);
             updatePatternElementUI();

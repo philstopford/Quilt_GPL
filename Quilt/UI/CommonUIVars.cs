@@ -99,6 +99,8 @@ namespace Quilt
 
         TableLayout groupBox_subShapes_table, groupBox_bounding_table;
 
+        ContextMenu listbox_menu;
+
         int patternIndex; // used to avoid moving the view if the pattern number loses focus, but the value hasn't changed.
 
         bool openGLErrorReported;

@@ -13,6 +13,7 @@ Changelog for Quilt. A pattern generator.
 	 - UI refinements.
 	 - Multi-threaded loader.
 	 - Color preference for geometry not coming from selected element.
+	 - ListBox context menu.
 
 2.3
 

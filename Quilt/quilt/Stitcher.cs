@@ -116,6 +116,11 @@ namespace Quilt
             reset();
         }
 
+        public bool isCopySet()
+        {
+            return pIsCopySet();
+        }
+
         bool pIsCopySet()
         {
             return copyBuffer != null;
