@@ -612,6 +612,18 @@ namespace Quilt
                         changed = true;
                     }
 
+                    int rARef = patternElements[i].getInt(PatternElement.properties_i.arrayRef);
+                    if (rARef == index)
+                    {
+                        patternElements[i].setInt(PatternElement.properties_i.arrayRef, 0); // global reference as the reference layer will be removed.
+                        changed = true;
+                    }
+                    else if (rARef > index)
+                    {
+                        patternElements[i].setInt(PatternElement.properties_i.arrayRef, rARef - 1); // decrement the reference as the reference layer below this point is being removed.
+                        changed = true;
+                    }
+
                     if (changed)
                     {
                         // Clear midpoint to force a recompute
