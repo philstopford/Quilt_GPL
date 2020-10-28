@@ -258,11 +258,19 @@ namespace Quilt
 
         void exportClicked(object sender, EventArgs e)
         {
-            doExport();
+            // Avoid users trying to export with no patterns
+            if (commonVars.stitcher.getPatternCount() > 0)
+            {
+                doExport();
+            }
         }
 
         async void doExport()
         {
+            if (commonVars.stitcher.getPatternCount() <= 0)
+            {
+                return;
+            }
             // Need to request output file location and name.
             SaveFileDialog sfd = new SaveFileDialog()
             {

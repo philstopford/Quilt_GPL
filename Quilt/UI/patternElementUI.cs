@@ -483,6 +483,8 @@ namespace Quilt
 
             UIFreeze = false;
             doPatternElementUI(0, updateUI: true, doPreview);
+
+            btn_export.Enabled = commonVars.stitcher.getPatternCount() > 0;
         }
 
         void setBoundingShapeVals(int index)
@@ -621,7 +623,7 @@ namespace Quilt
 
         void clearPatternElementUI()
         {
-            comboBox_patternElementShape.Visible = false;
+            comboBox_patternElementShape.Visible = (commonVars.stitcher.getPatternCount() > 0);
 
             groupBox_properties.Visible = false;
             num_layer_subshape_minhl.Enabled = false;
@@ -2758,6 +2760,7 @@ namespace Quilt
                 {
                     drawPreviewPanelHandler();
                 }
+                clearPatternElementUI();
                 UIFreeze = false;
                 return;
             }
