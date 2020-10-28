@@ -3,6 +3,7 @@ Changelog for Quilt. A pattern generator.
 2.5
 
 	- Backports from custom development branch:
+	 - Bug fix for dependent references when removing elements.
 	 - Viewport-based selection, using middle, or ctrl-left, mouse button to select pattern element by a proximity search to the click location.
 	  - Search is multi-threaded.
 	 - Hotkeys in context menu.

@@ -108,6 +108,17 @@ namespace Quilt
 
                 List<GeoLibPointF[]> pPoints = previewShapes[0].getPoints();
 
+                if (pPoints.Count == 0)
+                {
+                    minX = 0;
+                    maxX = 0;
+                    minY = 0;
+                    maxY = 0;
+                    points = new List<GeoLibPointF>(4) { new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0) };
+                    midPoint = new GeoLibPointF(0, 0);
+                    return;
+                }
+
                 BoundingBox test;
 
                 if (pPoints[0].Length != 0)

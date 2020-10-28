@@ -322,7 +322,14 @@ namespace Quilt
 
         public void setMidPoint(GeoLibPointF point)
         {
-            midpoint = new GeoLibPointF(point.X, point.Y);
+            if (point == null)
+            {
+                midpoint = null;
+            }
+            else
+            {
+                midpoint = new GeoLibPointF(point.X, point.Y);
+            }
         }
 
         string name;

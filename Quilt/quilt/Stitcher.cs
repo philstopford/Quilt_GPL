@@ -538,44 +538,84 @@ namespace Quilt
             {
                 if (i != index)
                 {
+                    bool changed = false;
+
                     int xRef = patternElements[i].getInt(PatternElement.properties_i.xPosRef);
                     if (xRef == index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.xPosRef, 0); // global reference as the reference layer will be removed.
+                        changed = true;
                     }
                     else if (xRef > index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.xPosRef, xRef - 1); // decrement the reference as the reference layer below this point is being removed.
+                        changed = true;
                     }
 
                     int yRef = patternElements[i].getInt(PatternElement.properties_i.yPosRef);
                     if (yRef == index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.yPosRef, 0); // global reference as the reference layer will be removed.
+                        changed = true;
                     }
                     else if (yRef > index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.yPosRef, yRef - 1); // decrement the reference as the reference layer below this point is being removed.
+                        changed = true;
                     }
 
                     int xSSRef = patternElements[i].getInt(PatternElement.properties_i.xPosSubShapeRef);
                     if (xSSRef == index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.xPosSubShapeRef, 0); // global reference as the reference layer will be removed.
+                        changed = true;
                     }
                     else if (xSSRef > index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.xPosSubShapeRef, xSSRef - 1); // decrement the reference as the reference layer below this point is being removed.
+                        changed = true;
                     }
 
                     int ySSRef = patternElements[i].getInt(PatternElement.properties_i.yPosSubShapeRef);
                     if (ySSRef == index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.yPosSubShapeRef, 0); // global reference as the reference layer will be removed.
+                        changed = true;
                     }
                     else if (ySSRef > index)
                     {
                         patternElements[i].setInt(PatternElement.properties_i.yPosSubShapeRef, ySSRef - 1); // decrement the reference as the reference layer below this point is being removed.
+                        changed = true;
+                    }
+
+                    int aRRef = patternElements[i].getInt(PatternElement.properties_i.arrayRotationRef);
+                    if (aRRef == index)
+                    {
+                        patternElements[i].setInt(PatternElement.properties_i.arrayRotationRef, 0); // global reference as the reference layer will be removed.
+                        changed = true;
+                    }
+                    else if (aRRef > index)
+                    {
+                        patternElements[i].setInt(PatternElement.properties_i.arrayRotationRef, aRRef - 1); // decrement the reference as the reference layer below this point is being removed.
+                        changed = true;
+                    }
+
+                    int rRef = patternElements[i].getInt(PatternElement.properties_i.rotationRef);
+                    if (rRef == index)
+                    {
+                        patternElements[i].setInt(PatternElement.properties_i.rotationRef, 0); // global reference as the reference layer will be removed.
+                        changed = true;
+                    }
+                    else if (rRef > index)
+                    {
+                        patternElements[i].setInt(PatternElement.properties_i.rotationRef, rRef - 1); // decrement the reference as the reference layer below this point is being removed.
+                        changed = true;
+                    }
+
+                    if (changed)
+                    {
+                        // Clear midpoint to force a recompute
+                        patternElements[i].setMidPoint(null);
                     }
                 }
             }
