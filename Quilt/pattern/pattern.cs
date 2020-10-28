@@ -193,7 +193,7 @@ namespace Quilt
             void pBoundingBox(GeoLibPointF[] incomingPoints)
             {
                 points = new List<GeoLibPointF>();
-                if (incomingPoints == null)
+                if ((incomingPoints == null) || (incomingPoints.Length == 0))
                 {
                     minX = 0;
                     maxX = 0;
