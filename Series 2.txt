@@ -16,6 +16,9 @@ Changelog for Quilt. A pattern generator.
 	 - Color preference for geometry not coming from selected element.
 	 - ListBox context menu.
 	 - Quilt multithreading enablement (build directive was lost).
+	 - Layout output enhancements.
+	  - Support output to GZIP-compressed layout files.
+	  - Expand the list of recognized file extensions.	
 
 2.3
 

@@ -277,9 +277,11 @@ namespace Quilt
                 Title = "Enter file to save",
                 Filters =
                         {
-                            new FileFilter("GDS file", "*.gds"),
-                            new FileFilter("OAS file", "*.oas")
-                        }
+                            new FileFilter("GDS file", "*.gds", ".gdsii"),
+                            new FileFilter("GDS file, GZIP compressed", "*.gds.gz", "*.gdsii.gz"),
+                            new FileFilter("OAS file", "*.oas", "*.oasis"),
+                            new FileFilter("OAS file. GZIP compressed", "*.oas.gz", "*.oasis.gz")
+                }
             };
             if (sfd.ShowDialog(ParentWindow) == DialogResult.Ok)
             {
@@ -287,11 +289,22 @@ namespace Quilt
                 string[] tokens = filename.Split(new char[] { '.' });
                 string ext = tokens[tokens.Length - 1].ToUpper();
 
-                int type = (int)geoCoreLib.GeoCore.fileType.gds;
+                int type = -1;
 
-                if (ext == "OAS")
+                if (((ext == "GDS") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "GDS"))) ||
+                    ((ext == "GDSII") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "GDSII"))))
+                {
+                    type = (int)geoCoreLib.GeoCore.fileType.gds;
+                }
+                else if (((ext == "OAS") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "OAS"))) ||
+                    ((ext == "OASIS") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "OASIS"))))
                 {
                     type = (int)geoCoreLib.GeoCore.fileType.oasis;
+                }
+
+                if (type == -1)
+                {
+                    return;
                 }
 
                 Application.Instance.Invoke(() =>
