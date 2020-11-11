@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+2.5.1
+
+	- Targetting .NET 5.0
+
 2.5
 
 	- Backports from custom development branch:
