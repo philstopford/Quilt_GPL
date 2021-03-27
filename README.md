@@ -10,7 +10,7 @@ Pattern from layout, including non-orthogonal shape:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/non_ortho_and_orth__samelayer.png)
 
 Pattern from layout, involving decomposition:
-![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/versions/3.0_decomp.png)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/versions/3.1_3.1decomp.png)
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/non_ortho_decomp_samelayer.png)
 
 Relative transforms:
