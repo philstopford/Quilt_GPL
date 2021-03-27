@@ -24,6 +24,9 @@ namespace Quilt
         {
             public ObservableCollection<string> patternElementNames { get; set; }
             public ObservableCollection<string> patternElementNames_filtered { get; set; }
+
+            public ObservableCollection<string> patternElementNamesForMerge_filtered { get; set; }
+            
             public ObservableCollection<string> patternElementNames_filtered_array { get; set; }
             public ObservableCollection<string> xPosRefSubShapeList { get; set; }
             public ObservableCollection<string> yPosRefSubShapeList { get; set; }
@@ -66,6 +69,7 @@ namespace Quilt
                 shapes = commonVars.getAvailableShapes(),
                 patternElementNames = commonVars.stitcher.patternElementNames,
                 patternElementNames_filtered = commonVars.stitcher.patternElementNames_filtered,
+                patternElementNamesForMerge_filtered = commonVars.stitcher.patternElementNamesForMerge_filtered,
                 patternElementNames_filtered_array = commonVars.stitcher.patternElementNames_filtered_array,
                 xPosRefSubShapeList = commonVars.xPosRefSubShapeList,
                 yPosRefSubShapeList = commonVars.yPosRefSubShapeList,
@@ -228,6 +232,17 @@ namespace Quilt
 
             try
             {
+                string layerCol = "axisColor";
+                quiltContext.colors.axis_Color.R = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("R").First().Value);
+                quiltContext.colors.axis_Color.G = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("G").First().Value);
+                quiltContext.colors.axis_Color.B = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("B").First().Value);
+            }
+            catch (Exception)
+            {
+            }
+
+            try
+            {
                 string layerCol = "majorColor";
                 quiltContext.colors.major_Color.R = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("R").First().Value);
                 quiltContext.colors.major_Color.G = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("G").First().Value);
@@ -243,6 +258,17 @@ namespace Quilt
                 quiltContext.colors.minor_Color.R = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("R").First().Value);
                 quiltContext.colors.minor_Color.G = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("G").First().Value);
                 quiltContext.colors.minor_Color.B = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("B").First().Value);
+            }
+            catch (Exception)
+            {
+            }
+
+            try
+            {
+                string layerCol = "backgroundColor";
+                quiltContext.colors.background_Color.R = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("R").First().Value);
+                quiltContext.colors.background_Color.G = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("G").First().Value);
+                quiltContext.colors.background_Color.B = Convert.ToInt32(prefs.Descendants("colors").Descendants(layerCol).Descendants("B").First().Value);
             }
             catch (Exception)
             {
@@ -320,6 +346,12 @@ namespace Quilt
                     new XElement("B", quiltContext.colors.deselected_Color.B));
                 colorPrefs.Add(backgroundColor);
 
+                XElement axisColor = new XElement("axisColor",
+                    new XElement("R", quiltContext.colors.axis_Color.R),
+                    new XElement("G", quiltContext.colors.axis_Color.G),
+                    new XElement("B", quiltContext.colors.axis_Color.B));
+                colorPrefs.Add(axisColor);
+
                 XElement majorColor = new XElement("majorColor",
                     new XElement("R", quiltContext.colors.major_Color.R),
                     new XElement("G", quiltContext.colors.major_Color.G),
@@ -331,6 +363,12 @@ namespace Quilt
                     new XElement("G", quiltContext.colors.minor_Color.G),
                     new XElement("B", quiltContext.colors.minor_Color.B));
                 colorPrefs.Add(minorColor);
+
+                XElement vpBackgroundColor = new XElement("backgroundColor",
+                    new XElement("R", quiltContext.colors.background_Color.R),
+                    new XElement("G", quiltContext.colors.background_Color.G),
+                    new XElement("B", quiltContext.colors.background_Color.B));
+                colorPrefs.Add(vpBackgroundColor);
 
                 XElement extentsColor = new XElement("extentsColor",
                     new XElement("R", quiltContext.colors.extents_Color.R),
@@ -923,8 +961,34 @@ namespace Quilt
             Panel c2 = new Panel();
             tr.Cells.Add(new TableCell() { Control = c2 });
 
+            TableLayout c2TL = new TableLayout();
+            c2.Content = c2TL;
+            c2TL.Rows.Add(new TableRow());
+
+            lbl_axisColor = new Label();
+            lbl_axisColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().axis_Color);
+            setSize(lbl_axisColor, label_Height, label_Height);
+            c2TL.Rows[0].Cells.Add(lbl_axisColor);
+
+            lbl_axisColor_name = new Label();
+            lbl_axisColor_name.Text = "Axis";
+            c2TL.Rows[0].Cells.Add(lbl_axisColor_name);
+
             Panel c3 = new Panel();
             tr.Cells.Add(new TableCell() { Control = c3 });
+
+            TableLayout c3TL = new TableLayout();
+            c3.Content = c3TL;
+            c3TL.Rows.Add(new TableRow());
+
+            lbl_vpbgColor = new Label();
+            lbl_vpbgColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().background_Color);
+            setSize(lbl_vpbgColor, label_Height, label_Height);
+            c3TL.Rows[0].Cells.Add(lbl_vpbgColor);
+
+            lbl_vpbgColor_name = new Label();
+            lbl_vpbgColor_name.Text = "VP Background";
+            c3TL.Rows[0].Cells.Add(lbl_vpbgColor_name);
         }
 
         void opengl_swatchrow1(TableRow tr)
@@ -1423,8 +1487,10 @@ namespace Quilt
             num_fgOpacity.Value = quiltContext.FGOpacity;
             num_bgOpacity.Value = quiltContext.BGOpacity;
             num_angularTolerance.Value = quiltContext.angularTolerance;
+            lbl_axisColor.BackgroundColor = Color.FromArgb(quiltContext.colors.axis_Color.toArgb());
             lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
             lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
+            lbl_vpbgColor.BackgroundColor = Color.FromArgb(quiltContext.colors.background_Color.toArgb());
             lbl_enabledColor.BackgroundColor = Color.FromArgb(quiltContext.colors.enabled_Color.toArgb());
             lbl_backgroundColor.BackgroundColor = Color.FromArgb(quiltContext.colors.deselected_Color.toArgb());
             lbl_extentsColor.BackgroundColor = Color.FromArgb(quiltContext.colors.extents_Color.toArgb());

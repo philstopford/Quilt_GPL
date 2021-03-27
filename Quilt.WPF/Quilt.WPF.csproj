@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <ApplicationManifest>app1.manifest</ApplicationManifest>
     <ApplicationIcon>quilt.ico</ApplicationIcon>
     <Configurations>Debug;Release</Configurations>
@@ -11,6 +11,11 @@
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants></DefineConstants>
   </PropertyGroup>
@@ -20,11 +25,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DesignLibs_GPL\Eto\DynamicAero2\DynamicAero2.csproj" />
     <ProjectReference Include="..\Quilt\Quilt.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.6" />
+    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.10" />
     <PackageReference Include="Eto.Veldrid.Wpf" Version="0.1.0" />
   </ItemGroup>
 

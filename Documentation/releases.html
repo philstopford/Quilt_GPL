@@ -201,12 +201,95 @@ box-shadow: 0 1px 3px black;
     <h1 class="western">Quilt Release History</h1>
 
   <ul id=menu>
+    <li><a href="#releases_310">3.1</a>
     <li><a href="#releases_300">3.0</a>
   </ul>
 
     <blockquote>
+      <a name="releases_310"></a>
+      <h2 class="western">New to 3.1 (Feb 28 2021)</h2>
+      <blockquote>
+        <ul>
+          <li>Export of layout-defined patterns will respect original layer/datatype, subject to merge rules.</li>
+          <li>Allow element name to define export layer/datatype definition.</li>
+          <li>Allow more viewport customization (background, axis colors).</li>
+          <li>Target .NET 5 for performance (~10%) and improved platform support.</li>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_layout_decomp_large.png" alt=""/>
+          </td>
+          <td = width="33%">
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Allow any pattern elements to be merged (union) with other elements during export using the new Merge parameter.</li>
+          <li>Bug fix for layout handling.</li>
+          <li>Added a keyholing pass to the decomposition pipeline to permit handling of loops.</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_loop_decomp.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_loop_decomp_2.png" alt=""/>
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Refined the rectangular decomposition methodology to handle multi-decomp better. Each set of decomposed geometry in the same design layer has its own relative transforms.</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_layout_decomp_samelayer_reltransform.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_layout_decomp_samelayer_reltransform_2.png" alt=""/>
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Refined the rectangular decomposition methodology to reduce incidence of surplus rectangles (new on left, old on right).</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_3.1decomp.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_3.0decomp.png" alt=""/>
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Allow variable array count and spacing.</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_variable_array.png" alt=""/>
+          </td>
+          <td = width="33%">
+          </td>
+        </tr>
+      </table>
+    </blockquote>
+
+    <blockquote>
       <a name="releases_300"></a>
-      <h2 class="western">New to 3.0 (TBD)</h2>
+      <h2 class="western">New to 3.0 (Oct 30 2020)</h2>
       <table>
         <tr>
           <td = width="100%">
@@ -260,7 +343,7 @@ box-shadow: 0 1px 3px black;
             <ul>
               <li>Complex cell hierarchies will be fully resolved to map into the Quilt system.</li>
             </ul>
-            <li>Complex orthogonal geometry will be subjected to retangular decomposition.</li>
+            <li>Complex orthogonal geometry will be subjected to rectangular decomposition.</li>
             <ul>
               <li>Rectangular primitives will be added, ordered in increasing X,Y sequence based on the bottom left corner.</li>
               <li>Decomposition primitives can be oriented vertically (default) or horizontally (as a user setting).</li>

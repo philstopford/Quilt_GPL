@@ -186,7 +186,13 @@ img {
 <a name="overview_export"></a>
 <h1 class="western">Export</h1>
 
-  <p class="western" style=" line-height: 100%">Using the 'Export' button, you can export the quilt to either GDSII or Oasis, including GZIP compressed versions. The choice of file type to write is set in the resulting file dialog. Any existing file will be overwritten. The first stage of the export is 'Weaving', where the internal geometry is mapped into the gridded layout system. Colinear vertices are removed from edges during this process, such as that arising from clamping, ensuring clean geometry is written to disk. The progress of the export is shown in the GUI. Due to careful engineering, export of even large designs is extremely fast for both formats: typically less than 10 seconds for a 250,000 pattern quilt. If 'Suspend Build' is active, the quilt will be built during export.</p>
+	  <p class="western" style=" line-height: 100%">Using the 'Export' button, you can export the quilt to either GDSII or Oasis, including GZIP compressed versions. The choice of file type to write is set in the resulting file dialog. Any existing file will be overwritten.</p>
+	  <p class="western" style=" line-height: 100%">During export, merge rules are evaluated :</p>
+	  <ul>
+	  	<li>Elements within a pattern that have the same name will be merged to the same output layer.</li>
+	  	<li>Elements within a pattern that have the merge parameter set to something other than 'self' will be merged to the output layer of the element chosen. This will also track any merges for that merge element, and overrides any name-based merge directive.</li>
+	  </ul>
+    <p class="western" style=" line-height: 100%">The first stage of the export is 'Weaving', where the internal geometry is mapped into the gridded layout system. Colinear vertices are removed from edges during this process, such as that arising from clamping, ensuring clean geometry is written to disk. The progress of the export is shown in the GUI. Due to careful engineering, export of even large designs is extremely fast for both formats: typically less than 10 seconds for a 250,000 pattern quilt. If 'Suspend Build' is active, the quilt will be built during export.</p>
 
       <table>
         <tr>
@@ -200,7 +206,8 @@ img {
       </table>
 
 
-  <p class="western" style=" line-height: 100%">In both cases, the quilt will be exported as a hierarchical design. Each pattern will be placed, using a cell reference, in the root cell. Cell placements are matched to the preview. Layer numbers are based on the position of the pattern element in the list (i.e. the first element in the list will be present as layer 1, datatype 0; the second will be 2/0). If writing to an Oasis file, the layer names will be set according to the pattern element name in the list.</p>
+  <p class="western" style=" line-height: 100%">In both cases, the quilt will be exported as a hierarchical design. Each pattern will be placed, using a cell reference, in the root cell. Cell placements are matched to the preview.</p>
+  <p class="western" style=" line-height: 100%">Absent complications of merge settings or an explicit layer name (LxxDxx) to force an output layer/dataype, layer numbers will be based on the position of the pattern element in the list (i.e. the first element in the list will be present as layer 1, datatype 0; the second will be 2/0). Merge directives will change this, and merge rules will override explicitly named elements (e.g. a layer named L1D2 would export to layer 1, dataype 2 unless it is being merged into a different element's output layer). If writing to an Oasis file, the layer names will be set according to the pattern element name in the list.</p>
 
   <p class="western" style=" line-height: 100%">Quilt will also export a CSV file that can be used with Variance 3.5.1 (or later) to auto-configure the DOE grid in that tool. This CSV file also contains an overview of the patterns within the exported grid. To allow for review, each pattern entry in this summary is comma-separated. Within the pattern information, the elements are separated by ';'. Within each pattern element, the fields are separated by '|'. For the subshape settings, ':' separates label and value.</p>
 

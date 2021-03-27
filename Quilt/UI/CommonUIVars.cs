@@ -44,7 +44,7 @@ namespace Quilt
                 lbl_layer_subshape_stepsHL, lbl_layer_subshape_stepsHO, lbl_layer_subshape_stepsVL, lbl_layer_subshape_stepsVO,
                 lbl_layer_subshape_incHL, lbl_layer_subshape_incHO, lbl_layer_subshape_incVL, lbl_layer_subshape_incVO;
 
-        DropDown comboBox_subShapeRef, comboBox_posSubShape, comboBox_xPos_subShapeRefPos, comboBox_yPos_subShapeRefPos, comboBox_rotRef, comboBox_arrayRotRef, comboBox_arrayRef;
+        DropDown comboBox_subShapeRef, comboBox_posSubShape, comboBox_xPos_subShapeRefPos, comboBox_yPos_subShapeRefPos, comboBox_rotRef, comboBox_arrayRotRef, comboBox_arrayRef, comboBox_merge;
         Label lbl_subShapeRef, lbl_posSubShape;
 
         DropDown comboBox_xPosRef, comboBox_yPosRef, comboBox_xPos_subShapeRef, comboBox_yPos_subShapeRef;
@@ -60,7 +60,8 @@ namespace Quilt
 
         Label lbl_flip, lbl_arrayX, lbl_arrayY, lbl_use, lbl_arrayUse;
         CheckBox checkBox_flipH, checkBox_flipV, checkBox_alignX, checkBox_alignY, checkBox_arrayRotRef, checkBox_refPivot, checkBox_refArrayPivot, checkBox_refBoundsAfterRotation, checkBox_refArrayBoundsAfterRotation;
-        NumericStepper num_arrayXCount, num_arrayYCount, num_arrayXSpace, num_arrayYSpace;
+        NumericStepper num_arrayMinXCount, num_arrayMinYCount, num_arrayXInc, num_arrayYInc, num_arrayXSteps, num_arrayYSteps;
+        NumericStepper num_arrayMinXSpace, num_arrayMinYSpace, num_arrayXSpaceInc, num_arrayYSpaceInc, num_arrayXSpaceSteps, num_arrayYSpaceSteps;
 
         GroupBox groupBox_properties;
 
@@ -95,9 +96,9 @@ namespace Quilt
         NumericStepper num_zoomSpeed, num_fgOpacity, num_bgOpacity, num_angularTolerance;
         CheckBox checkBox_OGLAA, checkBox_OGLFill, checkBox_OGLPoints, checkBox_drawExtents, checkBox_verticalRectDecomp;
         Label lbl_ss1Color, lbl_ss2Color, lbl_ss3Color,
-                lbl_enabledColor, lbl_backgroundColor, lbl_majorGridColor, lbl_minorGridColor, lbl_extentsColor,
+                lbl_enabledColor, lbl_backgroundColor, lbl_axisColor, lbl_majorGridColor, lbl_minorGridColor, lbl_vpbgColor, lbl_extentsColor,
                 lbl_ss1Color_name, lbl_ss2Color_name, lbl_ss3Color_name,
-                lbl_enabledColor_name, lbl_backgroundColor_name, lbl_majorGridColor_name, lbl_minorGridColor_name, lbl_extentsColor_name,
+                lbl_enabledColor_name, lbl_backgroundColor_name, lbl_axisColor_name, lbl_majorGridColor_name, lbl_minorGridColor_name, lbl_vpbgColor_name, lbl_extentsColor_name,
                 lbl_zoomSpeed, lbl_fgOpacity, lbl_bgOpacity, lbl_angularTolerance;
         Button btn_resetColors;
 

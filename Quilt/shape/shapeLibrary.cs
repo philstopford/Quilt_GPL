@@ -1550,7 +1550,7 @@ namespace Quilt
             sourcePoly = GeoWrangler.clockwise(sourcePoly);
 
             // We need to look at our incoming shape to see whether it's orthogonal and suitable for contouring.
-            bool geoCoreShapeOrthogonal = GeoWrangler.orthogonal(sourcePoly);
+            bool geoCoreShapeOrthogonal = GeoWrangler.orthogonal(sourcePoly, angularTolerance: 0);
 
             if (!geoCoreShapeOrthogonal)
             {

@@ -15,8 +15,10 @@ namespace Quilt.WPF
         {
             string xmlFile = "";
             int graphicsMode = -1;
+            bool dark = false;
             if (args.Length > 0)
             {
+                dark = Array.IndexOf(args, "--dark") != -1;
                 int graphicsModeIndex = Array.IndexOf(args, "--graphicsMode");
                 if (graphicsModeIndex != -1)
                 {
@@ -71,6 +73,11 @@ namespace Quilt.WPF
             QuiltContext quiltContext = new QuiltContext(xmlFile, backend);
             // run application with our main form
             QuiltApplication pa = new QuiltApplication(platform, quiltContext);
+            if (dark)
+            {
+                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary { Source = new Uri("pack://application:,,,/DynamicAero2;component/Theme.xaml", UriKind.RelativeOrAbsolute) });
+                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary { Source = new Uri("pack://application:,,,/DynamicAero2;component/Brushes/Dark.xaml", UriKind.RelativeOrAbsolute) });
+            }
             pa.Run();
         }
     }

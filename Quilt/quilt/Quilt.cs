@@ -2,6 +2,7 @@
 using Eto.Forms;
 using System;
 using System.ComponentModel;
+using Error;
 
 namespace Quilt
 {
@@ -12,6 +13,13 @@ namespace Quilt
         QuiltContext quiltContext;
         public QuiltApplication(Platform platform, QuiltContext pContext) : base(platform)
         {
+            /*
+            if (DateTime.Now > new DateTime(2021, 02, 28))
+            {
+                ErrorReporter.showMessage_OK("Contact phil.stopford@gmail.com", "Build expired!");
+                Quit();
+            }
+            */
             quiltContext = pContext;
         }
 

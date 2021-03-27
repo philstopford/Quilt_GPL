@@ -44,7 +44,7 @@ namespace Quilt
             verticalRectDecomp = true;
             AA = true;
             FGOpacity = 0.7;
-            BGOpacity = 0.5;
+            BGOpacity = 0.3;
             angularTolerance = 0.2;
             colors = new Colors();
             backend = _backend;

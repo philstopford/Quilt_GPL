@@ -50,6 +50,7 @@ namespace Quilt
         static Int32 default_subShapeRef = 0;
         static Int32 defaultSteps = 1;
         static Int32 defaultArrayCount = 1;
+        static Int32 defaultLayoutLDValue = -1;
 
         public PatternElement()
         {
@@ -143,10 +144,18 @@ namespace Quilt
 
             variantCounter = 0;
 
-            arrayXCount = defaultArrayCount;
+            arrayMinXCount = defaultArrayCount;
+            arrayXSteps = defaultSteps;
+            arrayXInc = 0;
             arrayXSpace = 0;
-            arrayYCount = defaultArrayCount;
+            arrayMinXSpace = 0;
+            arrayXSpaceInc = 0;
+            arrayMinYCount = defaultArrayCount;
+            arrayYSteps = defaultSteps;
+            arrayYInc = 0;
             arrayYSpace = 0;
+            arrayMinYSpace = 0;
+            arrayYSpaceInc = 0;
 
             arrayRotation = 0;
             arrayRotationSteps = defaultSteps;
@@ -164,6 +173,9 @@ namespace Quilt
             externalGeoCoordY = new List<decimal>();
 
             linkedElementIndex = -1;
+
+            layoutLayer = defaultLayoutLDValue;
+            layoutDataType = defaultLayoutLDValue;
 
             midpoint = null;
         }
@@ -301,10 +313,23 @@ namespace Quilt
             alignX = source.alignX;
             alignY = source.alignY;
 
-            arrayXCount = source.arrayXCount;
+            arrayMinXCount = source.arrayMinXCount;
+            arrayXInc = source.arrayXInc;
+            arrayXSteps = source.arrayXSteps;
             arrayXSpace = source.arrayXSpace;
-            arrayYCount = source.arrayYCount;
+            arrayXSpaceSteps = source.arrayXSpaceSteps;
+            arrayMinXSpace = source.arrayMinXSpace;
+            arrayXSpaceInc = source.arrayXSpaceInc;
+            arrayMinYCount = source.arrayMinYCount;
+            arrayYInc = source.arrayYInc;
+            arrayYSteps = source.arrayYSteps;
             arrayYSpace = source.arrayYSpace;
+            arrayYSpaceSteps = source.arrayYSpaceSteps;
+            arrayMinYSpace = source.arrayMinYSpace;
+            arrayYSpaceInc = source.arrayYSpaceInc;
+
+            arrayXCount = source.arrayXCount;
+            arrayYCount = source.arrayYCount;
 
             minArrayRotation = source.minArrayRotation;
 
@@ -326,6 +351,9 @@ namespace Quilt
             externalGeoCoordY = source.externalGeoCoordY.ToList();
 
             linkedElementIndex = source.linkedElementIndex;
+
+            layoutLayer = source.layoutLayer;
+            layoutDataType = source.layoutDataType;
 
             midpoint = source.midpoint;
         }
@@ -408,12 +436,17 @@ namespace Quilt
         Int32 rotRef, rotRefUseArray;
         Int32 flipH, flipV, alignX, alignY;
         Int32 arrayXCount, arrayYCount;
+        Int32 arrayMinXCount, arrayMinYCount, arrayXSteps, arrayYSteps, arrayXInc, arrayYInc;
+        Int32 arrayXSpaceSteps, arrayYSpaceSteps;
         Int32 arrayRotationSteps, arrayRotRef, arrayRotRefUseArray;
         Int32 arrayRef;
         Int32 refPivot, refArrayPivot;
         Int32 refBoundsAfterRotation, refArrayBoundsAfterRotation;
         Int32 relativeArray;
         Int32 linkedElementIndex;
+
+        // Used for layout-originated elements, to try and map back to original LD on export.
+        Int32 layoutLayer, layoutDataType;
 
         public bool isXArray()
         {
@@ -422,7 +455,9 @@ namespace Quilt
 
         bool pIsXArray()
         {
-            bool ret = (arrayXCount > 1);
+            bool ret = (arrayMinXCount > 1) || (arrayXCount > 1);
+            // Also need to consider whether this is an incremental arrau.
+            ret = ret || ((arrayXInc > 0) && (array_X_Steps > 0));
             return ret;
         }
 
@@ -433,7 +468,7 @@ namespace Quilt
 
         bool pIsYArray()
         {
-            bool ret = (arrayYCount > 1);
+            bool ret = (arrayMinYCount > 1) || (arrayYCount > 1);
             return ret;
         }
 
@@ -449,13 +484,18 @@ namespace Quilt
             maxVariants,
             flipH, flipV, alignX, alignY,
             arrayXCount, arrayYCount,
+            arrayMinXCount, arrayMinYCount,
+            arrayXInc, arrayYInc,
+            arrayXSteps, arrayYSteps,
+            arrayXSpaceSteps, arrayYSpaceSteps,
             arrayRotationSteps, arrayRotationRef, arrayRotRefUseArray,
             arrayRef,
             refPivot, refArrayPivot,
             refBoundsAfterRotation, refArrayBoundsAfterRotation,
             relativeArray,
             externalGeoVertexCount,
-            linkedElementIndex
+            linkedElementIndex,
+            layoutLayer, layoutDataType
         }
 
         public Int32 getSubShapeCount()
@@ -600,6 +640,30 @@ namespace Quilt
                 case properties_i.arrayYCount:
                     ret = arrayYCount;
                     break;
+                case properties_i.arrayMinXCount:
+                    ret = arrayMinXCount;
+                    break;
+                case properties_i.arrayMinYCount:
+                    ret = arrayMinYCount;
+                    break;
+                case properties_i.arrayXInc:
+                    ret = arrayXInc;
+                    break;
+                case properties_i.arrayYInc:
+                    ret = arrayYInc;
+                    break;
+                case properties_i.arrayXSteps:
+                    ret = arrayXSteps;
+                    break;
+                case properties_i.arrayYSteps:
+                    ret = arrayYSteps;
+                    break;
+                case properties_i.arrayXSpaceSteps:
+                    ret = arrayXSpaceSteps;
+                    break;
+                case properties_i.arrayYSpaceSteps:
+                    ret = arrayYSpaceSteps;
+                    break;
                 case properties_i.boundingLeftSteps:
                     ret = boundingLeftSteps;
                     break;
@@ -644,6 +708,12 @@ namespace Quilt
                     break;
                 case properties_i.linkedElementIndex:
                     ret = linkedElementIndex;
+                    break;
+                case properties_i.layoutLayer:
+                    ret = layoutLayer;
+                    break;
+                case properties_i.layoutDataType:
+                    ret = layoutDataType;
                     break;
             }
 
@@ -764,6 +834,30 @@ namespace Quilt
                 case properties_i.arrayYCount:
                     arrayYCount = val;
                     break;
+                case properties_i.arrayMinXCount:
+                    arrayMinXCount = val;
+                    break;
+                case properties_i.arrayMinYCount:
+                    arrayMinYCount = val;
+                    break;
+                case properties_i.arrayXInc:
+                    arrayXInc = val;
+                    break;
+                case properties_i.arrayYInc:
+                    arrayYInc = val;
+                    break;
+                case properties_i.arrayXSteps:
+                    arrayXSteps = val;
+                    break;
+                case properties_i.arrayYSteps:
+                    arrayYSteps = val;
+                    break;
+                case properties_i.arrayXSpaceSteps:
+                    arrayXSpaceSteps = val;
+                    break;
+                case properties_i.arrayYSpaceSteps:
+                    arrayYSpaceSteps = val;
+                    break;
                 case properties_i.boundingLeftSteps:
                     boundingLeftSteps = val;
                     break;
@@ -805,6 +899,12 @@ namespace Quilt
                     break;
                 case properties_i.linkedElementIndex:
                     linkedElementIndex = val;
+                    break;
+                case properties_i.layoutLayer:
+                    layoutLayer = val;
+                    break;
+                case properties_i.layoutDataType:
+                    layoutDataType = val;
                     break;
             }
         }
@@ -912,10 +1012,34 @@ namespace Quilt
                     alignY = 1;
                     break;
                 case properties_i.arrayXCount:
-                    arrayXCount = 0;
+                    arrayXCount = defaultArrayCount;
+                    break;
+                case properties_i.arrayMinXCount:
+                    arrayMinXCount = defaultArrayCount;
+                    break;
+                case properties_i.arrayXInc:
+                    arrayXInc = 0;
+                    break;
+                case properties_i.arrayXSteps:
+                    arrayXSteps = defaultSteps;
+                    break;
+                case properties_i.arrayXSpaceSteps:
+                    arrayXSpaceSteps = defaultSteps;
                     break;
                 case properties_i.arrayYCount:
-                    arrayYCount = 0;
+                    arrayYCount = defaultArrayCount;
+                    break;
+                case properties_i.arrayMinYCount:
+                    arrayMinYCount = defaultArrayCount;
+                    break;
+                case properties_i.arrayYInc:
+                    arrayYInc = 0;
+                    break;
+                case properties_i.arrayYSteps:
+                    arrayYSteps = defaultSteps;
+                    break;
+                case properties_i.arrayYSpaceSteps:
+                    arrayYSpaceSteps = defaultSteps;
                     break;
                 case properties_i.arrayRotationSteps:
                     arrayRotationSteps = defaultSteps;
@@ -961,6 +1085,12 @@ namespace Quilt
                     break;
                 case properties_i.linkedElementIndex:
                     linkedElementIndex = -1;
+                    break;
+                case properties_i.layoutDataType:
+                    layoutLayer = defaultLayoutLDValue;
+                    break;
+                case properties_i.layoutLayer:
+                    layoutDataType = defaultLayoutLDValue;
                     break;
             }
         }
@@ -1014,14 +1144,15 @@ namespace Quilt
                 case properties_i.boundingBottomSteps:
                 case properties_i.boundingTopSteps:
                 case properties_i.arrayRotationSteps:
+                case properties_i.arrayXSteps:
+                case properties_i.arrayYSteps:
+                case properties_i.arrayXSpaceSteps:
+                case properties_i.arrayYSpaceSteps:
                     ret = defaultSteps;
                     break;
                 case properties_i.rotationRef:
                 case properties_i.arrayRotationRef:
                     ret = default_rotRefIndex;
-                    break;
-                default:
-                    ret = 0;
                     break;
                 case properties_i.flipH:
                 case properties_i.flipV:
@@ -1032,8 +1163,12 @@ namespace Quilt
                 case properties_i.refBoundsAfterRotation:
                 case properties_i.refArrayBoundsAfterRotation:
                 case properties_i.relativeArray:
+                case properties_i.arrayXInc:
+                case properties_i.arrayYInc:
                     ret = 0;
                     break;
+                case properties_i.arrayMinXCount:
+                case properties_i.arrayMinYCount:
                 case properties_i.arrayXCount:
                 case properties_i.arrayYCount:
                     ret = defaultArrayCount;
@@ -1044,6 +1179,13 @@ namespace Quilt
                     break;
                 case properties_i.linkedElementIndex:
                     ret = -1;
+                    break;
+                case properties_i.layoutDataType:
+                case properties_i.layoutLayer:
+                    ret = defaultLayoutLDValue;
+                    break;
+                default:
+                    ret = 0;
                     break;
             }
 
@@ -1114,6 +1256,10 @@ namespace Quilt
 
         decimal arrayXSpace;
         decimal arrayYSpace;
+        decimal arrayMinXSpace;
+        decimal arrayMinYSpace;
+        decimal arrayXSpaceInc;
+        decimal arrayYSpaceInc;
 
         List<decimal> externalGeoCoordX;
         List<decimal> externalGeoCoordY;
@@ -1150,7 +1296,7 @@ namespace Quilt
             minRotation, rotationInc, rotation,
             boundingLeft, boundingRight, boundingTop, boundingBottom,
             boundingLeftInc, boundingRightInc, boundingTopInc, boundingBottomInc,
-            arrayXSpace, arrayYSpace,
+            arrayXSpace, arrayYSpace, arrayMinXSpace, arrayXSpaceInc, arrayMinYSpace, arrayYSpaceInc,
             minArrayRotation, arrayRotationInc, arrayRotation,
             externalGeoCoordX, externalGeoCoordY
         }
@@ -1352,6 +1498,18 @@ namespace Quilt
                 case properties_decimal.arrayYSpace:
                     ret = arrayYSpace;
                     break;
+                case properties_decimal.arrayMinXSpace:
+                    ret = arrayMinXSpace;
+                    break;
+                case properties_decimal.arrayMinYSpace:
+                    ret = arrayMinYSpace;
+                    break;
+                case properties_decimal.arrayXSpaceInc:
+                    ret = arrayXSpaceInc;
+                    break;
+                case properties_decimal.arrayYSpaceInc:
+                    ret = arrayYSpaceInc;
+                    break;
                 case properties_decimal.minArrayRotation:
                     ret = minArrayRotation;
                     break;
@@ -1452,6 +1610,10 @@ namespace Quilt
                 case properties_decimal.boundingTopInc:
                 case properties_decimal.arrayXSpace:
                 case properties_decimal.arrayYSpace:
+                case properties_decimal.arrayMinXSpace:
+                case properties_decimal.arrayMinYSpace:
+                case properties_decimal.arrayXSpaceInc:
+                case properties_decimal.arrayYSpaceInc:
                 case properties_decimal.minArrayRotation:
                 case properties_decimal.arrayRotation:
                 case properties_decimal.arrayRotationInc:
@@ -1639,6 +1801,18 @@ namespace Quilt
                     break;
                 case properties_decimal.arrayYSpace:
                     arrayYSpace = val;
+                    break;
+                case properties_decimal.arrayMinXSpace:
+                    arrayMinXSpace = val;
+                    break;
+                case properties_decimal.arrayXSpaceInc:
+                    arrayXSpaceInc = val;
+                    break;
+                case properties_decimal.arrayMinYSpace:
+                    arrayMinYSpace = val;
+                    break;
+                case properties_decimal.arrayYSpaceInc:
+                    arrayYSpaceInc = val;
                     break;
                 case properties_decimal.minArrayRotation:
                     minArrayRotation = val;
@@ -1829,6 +2003,18 @@ namespace Quilt
                 case properties_decimal.arrayYSpace:
                     arrayYSpace = 0;
                     break;
+                case properties_decimal.arrayMinXSpace:
+                    arrayMinXSpace = 0;
+                    break;
+                case properties_decimal.arrayXSpaceInc:
+                    arrayXSpaceInc = 0;
+                    break;
+                case properties_decimal.arrayMinYSpace:
+                    arrayMinYSpace = 0;
+                    break;
+                case properties_decimal.arrayYSpaceInc:
+                    arrayYSpaceInc = 0;
+                    break;
 
                 case properties_decimal.minArrayRotation:
                     minArrayRotation = 0;
@@ -1931,7 +2117,7 @@ namespace Quilt
         int s0HLSteps, s0VLSteps, s0HOSteps, s0VOSteps;
         int s1HLSteps, s1VLSteps, s1HOSteps, s1VOSteps;
         int s2HLSteps, s2VLSteps, s2HOSteps, s2VOSteps;
-        int rSteps, arrayRSteps;
+        int rSteps, arrayRSteps, array_X_Steps, array_Y_Steps, array_XSpace_Steps, array_YSpace_Steps;
         int bbLSteps, bbRSteps, bbBSteps, bbTSteps;
 
         int calcMaxVariants()
@@ -1958,13 +2144,21 @@ namespace Quilt
             if (pIsXArray() || pIsYArray() || relativeArray == 1)
             {
                 arrayRSteps = arrayRotationSteps;
+                array_X_Steps = arrayXSteps;
+                array_Y_Steps = arrayYSteps;
+                array_XSpace_Steps = arrayXSpaceSteps;
+                array_YSpace_Steps = arrayYSpaceSteps;
             }
             else
             {
                 arrayRSteps = 1;
+                array_X_Steps = 1;
+                array_Y_Steps = 1;
+                array_XSpace_Steps = 1;
+                array_YSpace_Steps = 1;
             }
 
-            int limit = xSteps * ySteps * rSteps * arrayRSteps;
+            int limit = xSteps * ySteps * rSteps * arrayRSteps * array_X_Steps * array_Y_Steps * array_XSpace_Steps * array_YSpace_Steps;
 
             switch (shapeIndex)
             {
@@ -2254,12 +2448,32 @@ namespace Quilt
             fields *= rSteps;
 
             ret.arrayRotation = 0;
+            ret.arrayXCount = arrayMinXCount;
+            ret.arrayYCount = arrayMinYCount;
+            ret.arrayXSpace = ret.arrayMinXSpace;
+            ret.arrayYSpace = ret.arrayMinYSpace;
             if (pIsXArray() || pIsYArray() || relativeArray == 1) // Would like to be able to directly identify a relative array reference, but there's no way to check this from the element level. We have to set this from elsewhere.
             {
                 int arrayRotIndex = (int)(Math.Floor((float)variantCounter / fields) % arrayRSteps);
                 ret.arrayRotation = minArrayRotation + (arrayRotIndex * arrayRotationInc);
                 fields *= arrayRSteps;
+                int arrayXIndex = (int)(Math.Floor((float)variantCounter / fields) % array_X_Steps);
+                ret.arrayXCount += (arrayXIndex * arrayXInc);
+                fields *= array_X_Steps;
+                int arrayYIndex = (int)(Math.Floor((float)variantCounter / fields) % array_Y_Steps);
+                ret.arrayYCount += (arrayYIndex * arrayYInc);
+                fields *= array_Y_Steps;
+
+                int arrayXSpaceIndex = (int)(Math.Floor((float)variantCounter / fields) % array_XSpace_Steps);
+                ret.arrayXSpace += (arrayXSpaceIndex * arrayXSpaceInc);
+                fields *= array_XSpace_Steps;
+                int arrayYSpaceIndex = (int)(Math.Floor((float)variantCounter / fields) % array_YSpace_Steps);
+                ret.arrayYSpace += (arrayYSpaceIndex * arrayYSpaceInc);
+                fields *= array_YSpace_Steps;
+
+
             }
+
 
             if (shapeIndex != (int)CentralProperties.typeShapes.complex)
             {
@@ -2514,19 +2728,23 @@ namespace Quilt
             return description;
         }
 
-        public void parsePoints(GeoLibPointF[] points, bool isText, bool vertical)
+        public void parsePoints(GeoLibPointF[] points, int layer, int datatype, bool isText, bool vertical)
         {
-            pParsePoints(points, isText, vertical:vertical);
+            pParsePoints(points, layer, datatype, isText, vertical:vertical);
         }
 
-        void pParsePoints(GeoLibPointF[] points, bool isText, bool vertical)
+        void pParsePoints(GeoLibPointF[] points, int layer, int datatype, bool isText, bool vertical)
         {
+            // Track our original layer and datatype for use on export.
+            layoutLayer = layer;
+            layoutDataType = datatype;
+
             // So this is where it gets tricky. We need to analyze our point data. We may be able to map it into a primitive type already known to us. Defer to the pattern element to sort it out.
             // This should already be the case, but let's be careful in case the caller was not kind.
             points = GeoWrangler.removeDuplicates(points);
             points = GeoWrangler.stripColinear(points);
             points = GeoWrangler.clockwiseAndReorder(points);
-            bool ortho = GeoWrangler.orthogonal(points);
+            bool ortho = GeoWrangler.orthogonal(points, angularTolerance: 0);
 
             minXPos = Convert.ToDecimal(points[0].X);
             minYPos = Convert.ToDecimal(points[0].Y);
@@ -2573,9 +2791,14 @@ namespace Quilt
                 // Run decomposition
                 decomposedPolys = new List<GeoLibPointF[]>();
                 nonOrthoGeometry = new List<GeoLibPointF[]>();
-                GeoLibPoint[] o = GeoWrangler.pointsFromPointF(points, CentralProperties.scaleFactorForOperation);
-                List<GeoLibPoint[]> t = GeoWrangler.rectangular_decomposition(o, scaling: 10, maxRayLength: 1000000, vertical: vertical);
-                decomposedPolys = GeoWrangler.pointFsFromPoints(t, CentralProperties.scaleFactorForOperation);
+                GeoLibPoint[] toKeyHoler = GeoWrangler.pointsFromPointF(points, CentralProperties.scaleFactorForOperation);
+                // Give the keyholder a whirl:
+                GeoLibPoint[] toDecomp = GeoWrangler.pointFromPath(GeoWrangler.makeKeyHole(GeoWrangler.sliverGapRemoval(GeoWrangler.pathFromPoint(toKeyHoler, 1)))[0], 1);
+
+                GeoLibPoint[]  bounds = GeoWrangler.getBounds(toDecomp);
+                GeoLibPointF dist = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+                List<GeoLibPoint[]> decompOut = GeoWrangler.rectangular_decomposition(toDecomp, scaling: 2, maxRayLength: (Int64)Math.Max(Math.Abs(dist.X), Math.Abs(dist.Y)), vertical: vertical);
+                decomposedPolys = GeoWrangler.pointFsFromPoints(decompOut, CentralProperties.scaleFactorForOperation);
                 decomposedPolys = GeoWrangler.xySequence(decomposedPolys);
 
                 if (decomposedPolys.Count == 1)
@@ -2598,7 +2821,7 @@ namespace Quilt
                 }
                 else
                 {
-                    pParsePoints(decomposedPolys[0], isText:false, vertical: vertical);
+                    pParsePoints(decomposedPolys[0], layer, datatype, isText:false, vertical: vertical);
                     if (decomposedPolys.Count > 0)
                     {
                         decomposedPolys.RemoveAt(0);

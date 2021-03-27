@@ -250,10 +250,18 @@ namespace Quilt
 
                     new XElement("arrayRef", tmp.getInt(PatternElement.properties_i.arrayRef)),
 
-                    new XElement("arrayXCount", tmp.getInt(PatternElement.properties_i.arrayXCount)),
-                    new XElement("arrayXSpace", tmp.getDecimal(PatternElement.properties_decimal.arrayXSpace)),
-                    new XElement("arrayYCount", tmp.getInt(PatternElement.properties_i.arrayYCount)),
-                    new XElement("arrayYSpace", tmp.getDecimal(PatternElement.properties_decimal.arrayYSpace)),
+                    new XElement("arrayMinXCount", tmp.getInt(PatternElement.properties_i.arrayMinXCount)),
+                    new XElement("arrayXInc", tmp.getInt(PatternElement.properties_i.arrayXInc)),
+                    new XElement("arrayXSteps", tmp.getInt(PatternElement.properties_i.arrayXSteps)),
+                    new XElement("arrayMinXSpace", tmp.getDecimal(PatternElement.properties_decimal.arrayMinXSpace)),
+                    new XElement("arrayXSpaceInc", tmp.getDecimal(PatternElement.properties_decimal.arrayXSpaceInc)),
+                    new XElement("arrayXSpaceSteps", tmp.getInt(PatternElement.properties_i.arrayXSpaceSteps)),
+                    new XElement("arrayMinYCount", tmp.getInt(PatternElement.properties_i.arrayMinYCount)),
+                    new XElement("arrayYInc", tmp.getInt(PatternElement.properties_i.arrayYInc)),
+                    new XElement("arrayYSteps", tmp.getInt(PatternElement.properties_i.arrayYSteps)),
+                    new XElement("arrayMinYSpace", tmp.getDecimal(PatternElement.properties_decimal.arrayMinYSpace)),
+                    new XElement("arrayYSpaceInc", tmp.getDecimal(PatternElement.properties_decimal.arrayYSpaceInc)),
+                    new XElement("arrayYSpaceSteps", tmp.getInt(PatternElement.properties_i.arrayYSpaceSteps)),
 
                     new XElement("minArrayRotation", tmp.getDecimal(PatternElement.properties_decimal.minArrayRotation)),
                     new XElement("arrayRotationInc", tmp.getDecimal(PatternElement.properties_decimal.arrayRotationInc)),
@@ -748,8 +756,26 @@ namespace Quilt
 
             try
             {
+                readSettings.setInt(PatternElement.properties_i.layoutLayer, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("layoutLayer").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultInt(PatternElement.properties_i.layoutLayer);
+            }
+
+            try
+            {
+                readSettings.setInt(PatternElement.properties_i.layoutDataType, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("layoutDataType").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultInt(PatternElement.properties_i.layoutDataType);
+            }
+
+            try
+            {
                 // Get geometry back from string in XML, then process only the first polygon (should only have one polygon anyway). This is not text, so mark as false.
-                readSettings.parsePoints(fileDataFromString(simulationFromFile.Descendants(layerref).Descendants("nonOrthoGeo").First().Value)[0], isText:false, vertical:quiltContext.verticalRectDecomp);
+                readSettings.parsePoints(fileDataFromString(simulationFromFile.Descendants(layerref).Descendants("nonOrthoGeo").First().Value)[0], layer: readSettings.getInt(PatternElement.properties_i.layoutLayer), datatype: readSettings.getInt(PatternElement.properties_i.layoutDataType), isText:false, vertical:quiltContext.verticalRectDecomp);
             }
             catch (Exception)
             {
@@ -977,41 +1003,139 @@ namespace Quilt
 
             try
             {
-                readSettings.setInt(PatternElement.properties_i.arrayXCount, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayXCount").First().Value));
+                readSettings.setInt(PatternElement.properties_i.arrayMinXCount, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayXCount").First().Value));
             }
             catch (Exception)
             {
-                readSettings.defaultInt(PatternElement.properties_i.arrayXCount);
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.arrayMinXCount, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayMinXCount").First().Value));
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.arrayMinXCount);
+                }
             }
 
             try
             {
-                readSettings.setDecimal(PatternElement.properties_decimal.arrayXSpace, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayXSpace").First().Value));
+                readSettings.setInt(PatternElement.properties_i.arrayXSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayXSteps").First().Value));
             }
             catch (Exception)
             {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.arrayXSpace);
-            }
-
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.arrayYCount, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayYCount").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.arrayYCount);
+                readSettings.defaultInt(PatternElement.properties_i.arrayXSteps);
             }
 
             try
             {
-                readSettings.setDecimal(PatternElement.properties_decimal.arrayYSpace, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayYSpace").First().Value));
+                readSettings.setInt(PatternElement.properties_i.arrayXInc, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayXInc").First().Value));
             }
             catch (Exception)
             {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.arrayYSpace);
+                readSettings.defaultInt(PatternElement.properties_i.arrayXInc);
             }
 
+            try
+            {
+                readSettings.setDecimal(PatternElement.properties_decimal.arrayMinXSpace, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayMinXSpace").First().Value));
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.arrayMinXSpace, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayXSpace").First().Value));
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.arrayMinXSpace);
+                }
+            }
+
+            try
+            {
+                readSettings.setInt(PatternElement.properties_i.arrayXSpaceSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayXSpaceSteps").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultInt(PatternElement.properties_i.arrayXSpaceSteps);
+            }
+
+            try
+            {
+                readSettings.setDecimal(PatternElement.properties_decimal.arrayXSpaceInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayXSpaceInc").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultDecimal(PatternElement.properties_decimal.arrayXSpaceInc);
+            }
+
+            try
+            {
+                readSettings.setInt(PatternElement.properties_i.arrayMinYCount, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayYCount").First().Value));
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.arrayMinYCount, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayMinYCount").First().Value));
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.arrayMinYCount);
+                }
+            }
+
+            try
+            {
+                readSettings.setInt(PatternElement.properties_i.arrayYSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayYSteps").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultInt(PatternElement.properties_i.arrayYSteps);
+            }
+
+            try
+            {
+                readSettings.setInt(PatternElement.properties_i.arrayYInc, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayYInc").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultInt(PatternElement.properties_i.arrayYInc);
+            }
+
+            try
+            {
+                readSettings.setDecimal(PatternElement.properties_decimal.arrayMinYSpace, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayMinYSpace").First().Value));
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.arrayMinYSpace, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayYSpace").First().Value));
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.arrayMinYSpace);
+                }
+            }
+
+            try
+            {
+                readSettings.setInt(PatternElement.properties_i.arrayYSpaceSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("arrayYSpaceSteps").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultInt(PatternElement.properties_i.arrayYSpaceSteps);
+            }
+
+            try
+            {
+                readSettings.setDecimal(PatternElement.properties_decimal.arrayYSpaceInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("arrayYSpaceInc").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultDecimal(PatternElement.properties_decimal.arrayYSpaceInc);
+            }
 
             try
             {

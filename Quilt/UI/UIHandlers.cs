@@ -106,6 +106,21 @@ namespace Quilt
                 {
                     processLayout(0);
                 }
+                else
+                {
+                    string error = "";
+                    int noOfErrors = commonVars.gCH.error_msgs.Count;
+                    for (int s = 0; s < noOfErrors; s++)
+                    {
+                        error += commonVars.gCH.error_msgs[s];
+                        if ((s > 0) && (s != noOfErrors - 1))
+                        {
+                            error += "\r\n";
+                        }
+                    }
+                    ErrorReporter.showMessage_OK(error, "Error(s) trying to load layout file");
+                    
+                }
             }
             updatePatternElementUI();
         }
@@ -538,7 +553,7 @@ namespace Quilt
             if (aboutBox == null || !aboutBox.Visible)
             {
                 string creditText = "Version " + CentralProperties.version + ", " +
-                "© " + CentralProperties.author + " 2018-2020" + "\r\n\r\n";
+                "© " + CentralProperties.author + " 2018-2021" + "\r\n\r\n";
                 creditText += "Licence: GPLv3";
                 creditText += "\r\n\r\n";
                 creditText += "Libraries used:\r\n";
@@ -567,6 +582,8 @@ namespace Quilt
 
                 lbl_minorGridColor.MouseDoubleClick += layerColorChange;
                 lbl_majorGridColor.MouseDoubleClick += layerColorChange;
+                lbl_axisColor.MouseDoubleClick += layerColorChange;
+                lbl_vpbgColor.MouseDoubleClick += layerColorChange;
 
                 lbl_enabledColor.MouseDoubleClick += layerColorChange;
                 lbl_backgroundColor.MouseDoubleClick += layerColorChange;
@@ -600,6 +617,14 @@ namespace Quilt
                 if (id == lbl_majorGridColor)
                 {
                     quiltContext.colors.major_Color = UIHelper.colorToMyColor(colDialogColor);
+                }
+                if (id == lbl_axisColor)
+                {
+                    quiltContext.colors.axis_Color = UIHelper.colorToMyColor(colDialogColor);
+                }
+                if (id == lbl_vpbgColor)
+                {
+                    quiltContext.colors.background_Color = UIHelper.colorToMyColor(colDialogColor);
                 }
                 if (id == lbl_enabledColor)
                 {
@@ -661,6 +686,10 @@ namespace Quilt
                         sourceColor = UIHelper.myColorToColor(quiltContext.colors.subshape3_Color);
                     }
 
+                    if (senderLabel == lbl_axisColor)
+                    {
+                        sourceColor = UIHelper.myColorToColor(quiltContext.colors.axis_Color);
+                    }
                     if (senderLabel == lbl_majorGridColor)
                     {
                         sourceColor = UIHelper.myColorToColor(quiltContext.colors.major_Color);
@@ -668,6 +697,10 @@ namespace Quilt
                     if (senderLabel == lbl_minorGridColor)
                     {
                         sourceColor = UIHelper.myColorToColor(quiltContext.colors.minor_Color);
+                    }
+                    if (senderLabel == lbl_vpbgColor)
+                    {
+                        sourceColor = UIHelper.myColorToColor(quiltContext.colors.background_Color);
                     }
 
                     if (senderLabel == lbl_enabledColor)
@@ -772,8 +805,10 @@ namespace Quilt
                 lbl_enabledColor.BackgroundColor = Color.FromArgb(quiltContext.colors.enabled_Color.toArgb());
                 lbl_backgroundColor.BackgroundColor = Color.FromArgb(quiltContext.colors.deselected_Color.toArgb());
                 lbl_extentsColor.BackgroundColor = Color.FromArgb(quiltContext.colors.extents_Color.toArgb());
+                lbl_axisColor.BackgroundColor = Color.FromArgb(quiltContext.colors.axis_Color.toArgb());
                 lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
                 lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
+                lbl_vpbgColor.BackgroundColor = Color.FromArgb(quiltContext.colors.background_Color.toArgb());
                 doColors();
                 colUIFrozen = false;
             });

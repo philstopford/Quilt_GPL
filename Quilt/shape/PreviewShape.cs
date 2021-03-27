@@ -14,9 +14,11 @@ namespace Quilt
     {
         public int elementIndex; // originating element.
         public int linkedElementIndex; // for tracking decomposed entries to allow for recombination later.
+        public int layoutLayer, layoutDatatype; // coming from layout originated elements, to export back to same layer/datatype.
 
         // Class for our preview shapes.
         List<GeoLibPointF[]> previewPoints; // list of polygons defining the shape(s) that will be drawn. In the complex case, we populate this from complexPoints.
+        public List<Int32> sourceIndices;
         public List<GeoLibPointF[]> getPoints()
         {
             return pGetPoints();
@@ -106,6 +108,7 @@ namespace Quilt
         void pRemovePoly(int index)
         {
             previewPoints.RemoveAt(index);
+            sourceIndices.RemoveAt(index);
             drawnPoly.RemoveAt(index);
             textEntity.RemoveAt(index);
         }
@@ -117,6 +120,7 @@ namespace Quilt
         void pAddPoints(GeoLibPointF[] poly)
         {
             previewPoints.Add(poly.ToArray());
+            sourceIndices.Add(elementIndex);
         }
 
         public void setPoints(List<GeoLibPointF[]> newPoints)
@@ -127,6 +131,10 @@ namespace Quilt
         void pSetPoints(List<GeoLibPointF[]> newPoints)
         {
             previewPoints = newPoints.ToList();
+            for (int i = 0; i < newPoints.Count; i++)
+            {
+                sourceIndices.Add(elementIndex);
+            }
         }
 
         public void clearPoints()
@@ -137,6 +145,7 @@ namespace Quilt
         void pClearPoints()
         {
             previewPoints.Clear();
+            sourceIndices.Clear();
         }
 
         List<bool> textEntity;
@@ -790,6 +799,9 @@ namespace Quilt
         {
             // Stub to enable direct drive of preview data, primarily for the implant system.
             previewPoints = new List<GeoLibPointF[]>();
+            sourceIndices = new List<Int32>();
+            layoutLayer = -1;
+            layoutDatatype = -1;
             drawnPoly = new List<bool>();
             textEntity = new List<bool>();
             color = MyColor.Black;
@@ -804,6 +816,9 @@ namespace Quilt
         void init(PreviewShape source)
         {
             previewPoints = source.previewPoints.ToList();
+            sourceIndices = source.sourceIndices.ToList();
+            layoutLayer = source.layoutLayer;
+            layoutDatatype = source.layoutDatatype;
             drawnPoly = source.drawnPoly.ToList();
             textEntity = source.textEntity.ToList();
             color = new MyColor(source.color);
@@ -1184,6 +1199,7 @@ namespace Quilt
             try
             {
                 previewPoints = new List<GeoLibPointF[]>();
+                sourceIndices = new List<Int32>();
                 drawnPoly = new List<bool>();
                 textEntity = new List<bool>();
                 color = MyColor.Black; // overridden later.
@@ -1307,9 +1323,11 @@ namespace Quilt
 
                 GeoLibPointF drawnOffset = complexPoints.getOffset();
 
+                sourceIndices.Clear();
                 for (Int32 poly = 0; poly < previewPoints.Count(); poly++)
                 {
                     textEntity.Add(textShape); // To track for output to layout.
+                    sourceIndices.Add(settingsIndex);
                     int pCount = previewPoints[poly].Count();
 #if QUILTTHREADED
                     Parallel.For(0, pCount, (point) =>

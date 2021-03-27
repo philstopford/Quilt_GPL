@@ -146,10 +146,20 @@ namespace Quilt
             checkBox_alignX.CheckedChanged += doPatternElementUI;
             checkBox_alignY.CheckedChanged += doPatternElementUI;
 
-            num_arrayXCount.LostFocus += doPatternElementUI;
-            num_arrayXSpace.LostFocus += doPatternElementUI;
-            num_arrayYCount.LostFocus += doPatternElementUI;
-            num_arrayYSpace.LostFocus += doPatternElementUI;
+            num_arrayMinXCount.LostFocus += doPatternElementUI;
+            num_arrayXInc.LostFocus += doPatternElementUI;
+            num_arrayXSteps.LostFocus += doPatternElementUI;
+            num_arrayMinXSpace.LostFocus += doPatternElementUI;
+            num_arrayXSpaceInc.LostFocus += doPatternElementUI;
+            num_arrayXSpaceSteps.LostFocus += doPatternElementUI;
+            num_arrayMinYCount.LostFocus += doPatternElementUI;
+            num_arrayYInc.LostFocus += doPatternElementUI;
+            num_arrayYSteps.LostFocus += doPatternElementUI;
+            num_arrayMinYSpace.LostFocus += doPatternElementUI;
+            num_arrayYSpaceInc.LostFocus += doPatternElementUI;
+            num_arrayYSpaceSteps.LostFocus += doPatternElementUI;
+
+            comboBox_merge.SelectedIndexChanged += doPatternElementUI;
 
             num_padding.LostFocus += setPadding;
 
@@ -302,12 +312,8 @@ namespace Quilt
             }
         }
 
-        void updatePatternElementUI_position(int index)
+        void updatePatternElementUI_positionX(int index)
         {
-            // Set the X and Y position references.
-            comboBox_subShapeRef.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.subShapeIndex);
-            comboBox_posSubShape.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.posIndex);
-
             comboBox_xPosRef.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.xPosRef);
             // Sort out the subshape combobox contents.
             commonVars.xPosRefSubShapeList.Clear();
@@ -342,7 +348,10 @@ namespace Quilt
                 comboBox_xPos_subShapeRef.SelectedIndex = 0;
                 comboBox_xPos_subShapeRefPos.SelectedIndex = (int)CommonVars.subShapeHorLocs.L;
             }
+        }
 
+        void updatePatternElementUI_positionY(int index)
+        {
             comboBox_yPosRef.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.yPosRef);
             // Sort out the subshape combobox contents.
             commonVars.yPosRefSubShapeList.Clear();
@@ -377,6 +386,18 @@ namespace Quilt
                 comboBox_yPos_subShapeRef.SelectedIndex = 0;
                 comboBox_yPos_subShapeRefPos.SelectedIndex = (int)CommonVars.subShapeVerLocs.B;
             }
+        }
+
+        void updatePatternElementUI_position(int index)
+        {
+            comboBox_merge.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.linkedElementIndex) + 1;
+
+            // Set the X and Y position references.
+            comboBox_subShapeRef.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.subShapeIndex);
+            comboBox_posSubShape.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.posIndex);
+
+            updatePatternElementUI_positionX(index);
+            updatePatternElementUI_positionY(index);
 
             num_minXPos.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.minXPos));
             num_minYPos.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.minYPos));
@@ -471,10 +492,18 @@ namespace Quilt
                 }
             }
 
-            num_arrayXCount.Enabled = bounding ? false : !isRelativeArray;
-            num_arrayYCount.Enabled = bounding ? false : !isRelativeArray;
-            num_arrayXSpace.Enabled = bounding ? false : !isRelativeArray;
-            num_arrayYSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinXCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinYCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSteps.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSteps.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinXSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinYSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSpaceInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSpaceInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSpaceSteps.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSpaceSteps.Enabled = bounding ? false : !isRelativeArray;
 
             // Register the relative array status with the pattern element.
             commonVars.stitcher.getPatternElement(patternIndex: 0, index).setInt(PatternElement.properties_i.relativeArray, isRelativeArray ? 1 : 0);
@@ -482,13 +511,30 @@ namespace Quilt
             num_minArrayRot.Enabled = isArray || isRelativeArray;
             num_incArrayRot.Enabled = isArray || isRelativeArray;
             num_stepsArrayRot.Enabled = isArray || isRelativeArray;
+
+            num_arrayMinXSpace.Enabled = isArray || isRelativeArray;
+            num_arrayXSpaceInc.Enabled = isArray || isRelativeArray;
+            num_arrayXSpaceSteps.Enabled = isArray || isRelativeArray;
+
+            num_arrayMinYSpace.Enabled = isArray || isRelativeArray;
+            num_arrayYSpaceInc.Enabled = isArray || isRelativeArray;
+            num_arrayYSpaceSteps.Enabled = isArray || isRelativeArray;
+
             comboBox_arrayRotRef.Enabled = isArray || isRelativeArray;
             checkBox_refArrayPivot.Enabled = isArray || isRelativeArray;
 
-            num_arrayXCount.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayXCount);
-            num_arrayYCount.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayYCount);
-            num_arrayXSpace.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayXSpace));
-            num_arrayYSpace.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayYSpace));
+            num_arrayMinXCount.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayMinXCount);
+            num_arrayMinYCount.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayMinYCount);
+            num_arrayXInc.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayXInc);
+            num_arrayYInc.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayYInc);
+            num_arrayXSteps.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayXSteps);
+            num_arrayYSteps.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayYSteps);
+            num_arrayMinXSpace.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayMinXSpace));
+            num_arrayMinYSpace.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayMinYSpace));
+            num_arrayXSpaceInc.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayXSpaceInc));
+            num_arrayYSpaceInc.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayYSpaceInc));
+            num_arrayXSpaceSteps.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayXSpaceSteps);
+            num_arrayYSpaceSteps.Value = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayYSpaceSteps);
             comboBox_arrayRef.SelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.arrayRef);
             num_minArrayRot.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.minArrayRotation));
             num_incArrayRot.Value = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.arrayRotationInc));
@@ -758,7 +804,420 @@ namespace Quilt
             });
         }
 
-        void subShapesTableLayout(TableCell right_tr1_0)
+        Panel minHorLengthUI()
+        {
+            Panel p = new Panel();
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_hl = new Label();
+            lbl_layer_subshape_hl.Text = "Min Hor. Length";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_hl, ScaleWidth = true });
+
+            num_layer_subshape_minhl = new NumericStepper();
+            num_layer_subshape_minhl.Increment = 0.1;
+            num_layer_subshape_minhl.DecimalPlaces = 2;
+            num_layer_subshape_minhl.MinValue = 0;
+            setSize(num_layer_subshape_minhl, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minhl });
+
+            num_layer_subshape2_minhl = new NumericStepper();
+            num_layer_subshape2_minhl.Increment = 0.1;
+            num_layer_subshape2_minhl.DecimalPlaces = 2;
+            num_layer_subshape2_minhl.MinValue = 0;
+            setSize(num_layer_subshape2_minhl, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minhl });
+
+            num_layer_subshape3_minhl = new NumericStepper();
+            num_layer_subshape3_minhl.Increment = 0.1;
+            num_layer_subshape3_minhl.DecimalPlaces = 2;
+            num_layer_subshape3_minhl.MinValue = 0;
+            setSize(num_layer_subshape3_minhl, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minhl });
+
+            return p;
+        }
+
+        Panel horLengthIncrementUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_incHL = new Label();
+            lbl_layer_subshape_incHL.Text = "Hor. Length Increment";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incHL, ScaleWidth = true });
+
+            num_layer_subshape_incHL = new NumericStepper();
+            num_layer_subshape_incHL.Increment = 0.1;
+            num_layer_subshape_incHL.DecimalPlaces = 2;
+            setSize(num_layer_subshape_incHL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incHL });
+
+            num_layer_subshape2_incHL = new NumericStepper();
+            num_layer_subshape2_incHL.Increment = 0.1;
+            num_layer_subshape2_incHL.DecimalPlaces = 2;
+            setSize(num_layer_subshape2_incHL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incHL });
+
+            num_layer_subshape3_incHL = new NumericStepper();
+            num_layer_subshape3_incHL.Increment = 0.1;
+            num_layer_subshape3_incHL.DecimalPlaces = 2;
+            setSize(num_layer_subshape3_incHL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incHL });
+
+            return p;
+        }
+
+        Panel horLengthStepsUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_stepsHL = new Label();
+            lbl_layer_subshape_stepsHL.Text = "Hor. Length Steps";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsHL, ScaleWidth = true });
+
+            num_layer_subshape_stepsHL = new NumericStepper();
+            num_layer_subshape_stepsHL.MinValue = 1;
+            num_layer_subshape_stepsHL.Increment = 1;
+            num_layer_subshape_stepsHL.DecimalPlaces = 0;
+            setSize(num_layer_subshape_stepsHL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsHL });
+
+            num_layer_subshape2_stepsHL = new NumericStepper();
+            num_layer_subshape2_stepsHL.MinValue = 1;
+            num_layer_subshape2_stepsHL.Increment = 1;
+            num_layer_subshape2_stepsHL.DecimalPlaces = 0;
+            setSize(num_layer_subshape2_stepsHL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsHL });
+
+            num_layer_subshape3_stepsHL = new NumericStepper();
+            num_layer_subshape3_stepsHL.MinValue = 1;
+            num_layer_subshape3_stepsHL.Increment = 1;
+            num_layer_subshape3_stepsHL.DecimalPlaces = 0;
+            setSize(num_layer_subshape3_stepsHL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsHL });
+
+            return p;
+        }
+
+        Panel minHorOffsetUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_ho = new Label();
+            lbl_layer_subshape_ho.Text = "Min Hor. Offset";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_ho, ScaleWidth = true });
+
+            num_layer_subshape_minho = new NumericStepper();
+            num_layer_subshape_minho.Increment = 0.1;
+            num_layer_subshape_minho.DecimalPlaces = 2;
+            setSize(num_layer_subshape_minho, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minho });
+
+            num_layer_subshape2_minho = new NumericStepper();
+            num_layer_subshape2_minho.Increment = 0.1;
+            num_layer_subshape2_minho.DecimalPlaces = 2;
+            setSize(num_layer_subshape2_minho, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minho });
+
+            num_layer_subshape3_minho = new NumericStepper();
+            num_layer_subshape3_minho.Increment = 0.1;
+            num_layer_subshape3_minho.DecimalPlaces = 2;
+            setSize(num_layer_subshape3_minho, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minho });
+
+            return p;
+        }
+
+        Panel horOffsetIncrementUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_incHO = new Label();
+            lbl_layer_subshape_incHO.Text = "Hor. Offset Increment";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incHO, ScaleWidth = true });
+
+            num_layer_subshape_incHO = new NumericStepper();
+            num_layer_subshape_incHO.Increment = 0.1;
+            num_layer_subshape_incHO.DecimalPlaces = 2;
+            setSize(num_layer_subshape_incHO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incHO });
+
+            num_layer_subshape2_incHO = new NumericStepper();
+            num_layer_subshape2_incHO.Increment = 0.1;
+            num_layer_subshape2_incHO.DecimalPlaces = 2;
+            setSize(num_layer_subshape2_incHO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incHO });
+
+            num_layer_subshape3_incHO = new NumericStepper();
+            num_layer_subshape3_incHO.Increment = 0.1;
+            num_layer_subshape3_incHO.DecimalPlaces = 2;
+            setSize(num_layer_subshape3_incHO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incHO });
+
+            return p;
+        }
+
+        Panel horOffsetStepsUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_stepsHO = new Label();
+            lbl_layer_subshape_stepsHO.Text = "Hor. Offset Steps";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsHO, ScaleWidth = true });
+
+            num_layer_subshape_stepsHO = new NumericStepper();
+            num_layer_subshape_stepsHO.MinValue = 1;
+            num_layer_subshape_stepsHO.Increment = 1;
+            num_layer_subshape_stepsHO.DecimalPlaces = 0;
+            setSize(num_layer_subshape_stepsHO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsHO });
+
+            num_layer_subshape2_stepsHO = new NumericStepper();
+            num_layer_subshape2_stepsHO.MinValue = 1;
+            num_layer_subshape2_stepsHO.Increment = 1;
+            num_layer_subshape2_stepsHO.DecimalPlaces = 0;
+            setSize(num_layer_subshape2_stepsHO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsHO });
+
+            num_layer_subshape3_stepsHO = new NumericStepper();
+            num_layer_subshape3_stepsHO.MinValue = 1;
+            num_layer_subshape3_stepsHO.Increment = 1;
+            num_layer_subshape3_stepsHO.DecimalPlaces = 0;
+            setSize(num_layer_subshape3_stepsHO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsHO });
+
+            return p;
+        }
+
+        Panel minVerLengthUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_vl = new Label();
+            lbl_layer_subshape_vl.Text = "Min Ver. Length";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_vl, ScaleWidth = true });
+
+            num_layer_subshape_minvl = new NumericStepper();
+            num_layer_subshape_minvl.Increment = 0.1;
+            num_layer_subshape_minvl.DecimalPlaces = 2;
+            num_layer_subshape_minvl.MinValue = 0;
+            setSize(num_layer_subshape_minvl, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minvl });
+
+            num_layer_subshape2_minvl = new NumericStepper();
+            num_layer_subshape2_minvl.Increment = 0.1;
+            num_layer_subshape2_minvl.DecimalPlaces = 2;
+            num_layer_subshape2_minvl.MinValue = 0;
+            setSize(num_layer_subshape2_minvl, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minvl });
+
+            num_layer_subshape3_minvl = new NumericStepper();
+            num_layer_subshape3_minvl.Increment = 0.1;
+            num_layer_subshape3_minvl.DecimalPlaces = 2;
+            num_layer_subshape3_minvl.MinValue = 0;
+            setSize(num_layer_subshape3_minvl, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minvl });
+
+            return p;
+        }
+
+        Panel verLengthIncrementUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_incVL = new Label();
+            lbl_layer_subshape_incVL.Text = "Ver. Length Increment";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incVL, ScaleWidth = true });
+
+            num_layer_subshape_incVL = new NumericStepper();
+            num_layer_subshape_incVL.Increment = 0.1;
+            num_layer_subshape_incVL.DecimalPlaces = 2;
+            setSize(num_layer_subshape_incVL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incVL });
+
+            num_layer_subshape2_incVL = new NumericStepper();
+            num_layer_subshape2_incVL.Increment = 0.1;
+            num_layer_subshape2_incVL.DecimalPlaces = 2;
+            setSize(num_layer_subshape2_incVL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incVL });
+
+            num_layer_subshape3_incVL = new NumericStepper();
+            num_layer_subshape3_incVL.Increment = 0.1;
+            num_layer_subshape3_incVL.DecimalPlaces = 2;
+            setSize(num_layer_subshape3_incVL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incVL });
+
+            return p;
+        }
+
+        Panel verLengthStepsUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_stepsVL = new Label();
+            lbl_layer_subshape_stepsVL.Text = "Ver. Length Steps";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsVL, ScaleWidth = true });
+
+            num_layer_subshape_stepsVL = new NumericStepper();
+            num_layer_subshape_stepsVL.MinValue = 1;
+            num_layer_subshape_stepsVL.Increment = 1;
+            num_layer_subshape_stepsVL.DecimalPlaces = 0;
+            setSize(num_layer_subshape_stepsVL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsVL });
+
+            num_layer_subshape2_stepsVL = new NumericStepper();
+            num_layer_subshape2_stepsVL.MinValue = 1;
+            num_layer_subshape2_stepsVL.Increment = 1;
+            num_layer_subshape2_stepsVL.DecimalPlaces = 0;
+            setSize(num_layer_subshape2_stepsVL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsVL });
+
+            num_layer_subshape3_stepsVL = new NumericStepper();
+            num_layer_subshape3_stepsVL.MinValue = 1;
+            num_layer_subshape3_stepsVL.Increment = 1;
+            num_layer_subshape3_stepsVL.DecimalPlaces = 0;
+            setSize(num_layer_subshape3_stepsVL, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsVL });
+
+            return p;
+        }
+
+        Panel minVerOffsetUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_vo = new Label();
+            lbl_layer_subshape_vo.Text = "Min Ver. Offset";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_vo, ScaleWidth = true });
+
+            num_layer_subshape_minvo = new NumericStepper();
+            num_layer_subshape_minvo.Increment = 0.1;
+            num_layer_subshape_minvo.DecimalPlaces = 2;
+            setSize(num_layer_subshape_minvo, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minvo });
+
+            num_layer_subshape2_minvo = new NumericStepper();
+            num_layer_subshape2_minvo.Increment = 0.1;
+            num_layer_subshape2_minvo.DecimalPlaces = 2;
+            setSize(num_layer_subshape2_minvo, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minvo });
+
+            num_layer_subshape3_minvo = new NumericStepper();
+            num_layer_subshape3_minvo.Increment = 0.1;
+            num_layer_subshape3_minvo.DecimalPlaces = 2;
+            setSize(num_layer_subshape3_minvo, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minvo });
+
+            return p;
+        }
+
+        Panel verOffsetIncrementUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_incVO = new Label();
+            lbl_layer_subshape_incVO.Text = "Ver. Offset Increment";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incVO, ScaleWidth = true });
+
+            num_layer_subshape_incVO = new NumericStepper();
+            num_layer_subshape_incVO.Increment = 0.1;
+            num_layer_subshape_incVO.DecimalPlaces = 2;
+            setSize(num_layer_subshape_incVO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incVO });
+
+            num_layer_subshape2_incVO = new NumericStepper();
+            num_layer_subshape2_incVO.Increment = 0.1;
+            num_layer_subshape2_incVO.DecimalPlaces = 2;
+            setSize(num_layer_subshape2_incVO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incVO });
+
+            num_layer_subshape3_incVO = new NumericStepper();
+            num_layer_subshape3_incVO.Increment = 0.1;
+            num_layer_subshape3_incVO.DecimalPlaces = 2;
+            setSize(num_layer_subshape3_incVO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incVO });
+
+            return p;
+        }
+
+        Panel verOffsetStepsUI()
+        {
+            Panel p = new Panel();
+
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+
+            lbl_layer_subshape_stepsVO = new Label();
+            lbl_layer_subshape_stepsVO.Text = "Ver. Offset Steps";
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsVO, ScaleWidth = true });
+
+            num_layer_subshape_stepsVO = new NumericStepper();
+            num_layer_subshape_stepsVO.MinValue = 1;
+            num_layer_subshape_stepsVO.Increment = 1;
+            num_layer_subshape_stepsVO.DecimalPlaces = 0;
+            setSize(num_layer_subshape_stepsVO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsVO });
+
+            num_layer_subshape2_stepsVO = new NumericStepper();
+            num_layer_subshape2_stepsVO.MinValue = 1;
+            num_layer_subshape2_stepsVO.Increment = 1;
+            num_layer_subshape2_stepsVO.DecimalPlaces = 0;
+            setSize(num_layer_subshape2_stepsVO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsVO });
+
+            num_layer_subshape3_stepsVO = new NumericStepper();
+            num_layer_subshape3_stepsVO.MinValue = 1;
+            num_layer_subshape3_stepsVO.Increment = 1;
+            num_layer_subshape3_stepsVO.DecimalPlaces = 0;
+            setSize(num_layer_subshape3_stepsVO, numWidth, num_Height);
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsVO });
+
+            return p;
+        }
+
+        void subShapesTableLayout(TableCell tc)
         {
             Application.Instance.Invoke(() =>
             {
@@ -766,403 +1225,55 @@ namespace Quilt
                 groupBox_subShapes_table = new TableLayout();
                 groupBox_properties.Content = groupBox_subShapes_table;
                 groupBox_properties.Text = "SubShapes";
-                right_tr1_0.Control = groupBox_properties;
-
-                int numWidth = 55;
+                tc.Control = groupBox_properties;
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row0 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row0 });
-
-                Scrollable s = new Scrollable();
-
-                TableLayout row0_tl = new TableLayout();
-                row0_tl.Rows.Add(new TableRow());
-                s.Content = row0_tl;
-
-                row0.Content = s;
-
-                lbl_layer_subshape_hl = new Label();
-                lbl_layer_subshape_hl.Text = "Min Hor. Length";
-                row0_tl.Rows[row0_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_hl, ScaleWidth = true });
-
-                num_layer_subshape_minhl = new NumericStepper();
-                num_layer_subshape_minhl.Increment = 0.1;
-                num_layer_subshape_minhl.DecimalPlaces = 2;
-                num_layer_subshape_minhl.MinValue = 0;
-                setSize(num_layer_subshape_minhl, numWidth, num_Height);
-                row0_tl.Rows[row0_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minhl });
-
-                num_layer_subshape2_minhl = new NumericStepper();
-                num_layer_subshape2_minhl.Increment = 0.1;
-                num_layer_subshape2_minhl.DecimalPlaces = 2;
-                num_layer_subshape2_minhl.MinValue = 0;
-                setSize(num_layer_subshape2_minhl, numWidth, num_Height);
-                row0_tl.Rows[row0_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minhl });
-
-                num_layer_subshape3_minhl = new NumericStepper();
-                num_layer_subshape3_minhl.Increment = 0.1;
-                num_layer_subshape3_minhl.DecimalPlaces = 2;
-                num_layer_subshape3_minhl.MinValue = 0;
-                setSize(num_layer_subshape3_minhl, numWidth, num_Height);
-                row0_tl.Rows[row0_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minhl });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = minHorLengthUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row1 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row1 });
-
-                TableLayout row1_tl = new TableLayout();
-                row1_tl.Rows.Add(new TableRow());
-                row1.Content = row1_tl;
-
-                lbl_layer_subshape_incHL = new Label();
-                lbl_layer_subshape_incHL.Text = "Hor. Length Increment";
-                row1_tl.Rows[row1_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incHL, ScaleWidth = true });
-
-                num_layer_subshape_incHL = new NumericStepper();
-                num_layer_subshape_incHL.Increment = 0.1;
-                num_layer_subshape_incHL.DecimalPlaces = 2;
-                setSize(num_layer_subshape_incHL, numWidth, num_Height);
-                row1_tl.Rows[row1_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incHL });
-
-                num_layer_subshape2_incHL = new NumericStepper();
-                num_layer_subshape2_incHL.Increment = 0.1;
-                num_layer_subshape2_incHL.DecimalPlaces = 2;
-                setSize(num_layer_subshape2_incHL, numWidth, num_Height);
-                row1_tl.Rows[row1_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incHL });
-
-                num_layer_subshape3_incHL = new NumericStepper();
-                num_layer_subshape3_incHL.Increment = 0.1;
-                num_layer_subshape3_incHL.DecimalPlaces = 2;
-                setSize(num_layer_subshape3_incHL, numWidth, num_Height);
-                row1_tl.Rows[row1_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incHL });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = horLengthIncrementUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row2 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row2 });
-
-                TableLayout row2_tl = new TableLayout();
-                row2_tl.Rows.Add(new TableRow());
-                row2.Content = row2_tl;
-
-                lbl_layer_subshape_stepsHL = new Label();
-                lbl_layer_subshape_stepsHL.Text = "Hor. Length Steps";
-                row2_tl.Rows[row2_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsHL, ScaleWidth = true });
-
-                num_layer_subshape_stepsHL = new NumericStepper();
-                num_layer_subshape_stepsHL.MinValue = 1;
-                num_layer_subshape_stepsHL.Increment = 1;
-                num_layer_subshape_stepsHL.DecimalPlaces = 0;
-                setSize(num_layer_subshape_stepsHL, numWidth, num_Height);
-                row2_tl.Rows[row2_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsHL });
-
-                num_layer_subshape2_stepsHL = new NumericStepper();
-                num_layer_subshape2_stepsHL.MinValue = 1;
-                num_layer_subshape2_stepsHL.Increment = 1;
-                num_layer_subshape2_stepsHL.DecimalPlaces = 0;
-                setSize(num_layer_subshape2_stepsHL, numWidth, num_Height);
-                row2_tl.Rows[row2_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsHL });
-
-                num_layer_subshape3_stepsHL = new NumericStepper();
-                num_layer_subshape3_stepsHL.MinValue = 1;
-                num_layer_subshape3_stepsHL.Increment = 1;
-                num_layer_subshape3_stepsHL.DecimalPlaces = 0;
-                setSize(num_layer_subshape3_stepsHL, numWidth, num_Height);
-                row2_tl.Rows[row2_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsHL });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = horLengthStepsUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row3 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row3 });
-
-                TableLayout row3_tl = new TableLayout();
-                row3_tl.Rows.Add(new TableRow());
-                row3.Content = row3_tl;
-
-                lbl_layer_subshape_ho = new Label();
-                lbl_layer_subshape_ho.Text = "Min Hor. Offset";
-                row3_tl.Rows[row3_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_ho, ScaleWidth = true });
-
-                num_layer_subshape_minho = new NumericStepper();
-                num_layer_subshape_minho.Increment = 0.1;
-                num_layer_subshape_minho.DecimalPlaces = 2;
-                setSize(num_layer_subshape_minho, numWidth, num_Height);
-                row3_tl.Rows[row3_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minho });
-
-                num_layer_subshape2_minho = new NumericStepper();
-                num_layer_subshape2_minho.Increment = 0.1;
-                num_layer_subshape2_minho.DecimalPlaces = 2;
-                setSize(num_layer_subshape2_minho, numWidth, num_Height);
-                row3_tl.Rows[row3_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minho });
-
-                num_layer_subshape3_minho = new NumericStepper();
-                num_layer_subshape3_minho.Increment = 0.1;
-                num_layer_subshape3_minho.DecimalPlaces = 2;
-                setSize(num_layer_subshape3_minho, numWidth, num_Height);
-                row3_tl.Rows[row3_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minho });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = minHorOffsetUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row4 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row4 });
-
-                TableLayout row4_tl = new TableLayout();
-                row4_tl.Rows.Add(new TableRow());
-                row4.Content = row4_tl;
-
-                lbl_layer_subshape_incHO = new Label();
-                lbl_layer_subshape_incHO.Text = "Hor. Offset Increment";
-                row4_tl.Rows[row4_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incHO, ScaleWidth = true });
-
-                num_layer_subshape_incHO = new NumericStepper();
-                num_layer_subshape_incHO.Increment = 0.1;
-                num_layer_subshape_incHO.DecimalPlaces = 2;
-                setSize(num_layer_subshape_incHO, numWidth, num_Height);
-                row4_tl.Rows[row4_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incHO });
-
-                num_layer_subshape2_incHO = new NumericStepper();
-                num_layer_subshape2_incHO.Increment = 0.1;
-                num_layer_subshape2_incHO.DecimalPlaces = 2;
-                setSize(num_layer_subshape2_incHO, numWidth, num_Height);
-                row4_tl.Rows[row4_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incHO });
-
-                num_layer_subshape3_incHO = new NumericStepper();
-                num_layer_subshape3_incHO.Increment = 0.1;
-                num_layer_subshape3_incHO.DecimalPlaces = 2;
-                setSize(num_layer_subshape3_incHO, numWidth, num_Height);
-                row4_tl.Rows[row4_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incHO });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = horOffsetIncrementUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row5 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row5 });
-
-                TableLayout row5_tl = new TableLayout();
-                row5_tl.Rows.Add(new TableRow());
-                row5.Content = row5_tl;
-
-                lbl_layer_subshape_stepsHO = new Label();
-                lbl_layer_subshape_stepsHO.Text = "Hor. Offset Steps";
-                row5_tl.Rows[row5_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsHO, ScaleWidth = true });
-
-                num_layer_subshape_stepsHO = new NumericStepper();
-                num_layer_subshape_stepsHO.MinValue = 1;
-                num_layer_subshape_stepsHO.Increment = 1;
-                num_layer_subshape_stepsHO.DecimalPlaces = 0;
-                setSize(num_layer_subshape_stepsHO, numWidth, num_Height);
-                row5_tl.Rows[row5_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsHO });
-
-                num_layer_subshape2_stepsHO = new NumericStepper();
-                num_layer_subshape2_stepsHO.MinValue = 1;
-                num_layer_subshape2_stepsHO.Increment = 1;
-                num_layer_subshape2_stepsHO.DecimalPlaces = 0;
-                setSize(num_layer_subshape2_stepsHO, numWidth, num_Height);
-                row5_tl.Rows[row5_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsHO });
-
-                num_layer_subshape3_stepsHO = new NumericStepper();
-                num_layer_subshape3_stepsHO.MinValue = 1;
-                num_layer_subshape3_stepsHO.Increment = 1;
-                num_layer_subshape3_stepsHO.DecimalPlaces = 0;
-                setSize(num_layer_subshape3_stepsHO, numWidth, num_Height);
-                row5_tl.Rows[row5_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsHO });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = horOffsetStepsUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row6 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row6 });
-
-                TableLayout row6_tl = new TableLayout();
-                row6_tl.Rows.Add(new TableRow());
-                row6.Content = row6_tl;
-
-                lbl_layer_subshape_vl = new Label();
-                lbl_layer_subshape_vl.Text = "Min Ver. Length";
-                row6_tl.Rows[row6_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_vl, ScaleWidth = true });
-
-                num_layer_subshape_minvl = new NumericStepper();
-                num_layer_subshape_minvl.Increment = 0.1;
-                num_layer_subshape_minvl.DecimalPlaces = 2;
-                num_layer_subshape_minvl.MinValue = 0;
-                setSize(num_layer_subshape_minvl, numWidth, num_Height);
-                row6_tl.Rows[row6_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minvl });
-
-                num_layer_subshape2_minvl = new NumericStepper();
-                num_layer_subshape2_minvl.Increment = 0.1;
-                num_layer_subshape2_minvl.DecimalPlaces = 2;
-                num_layer_subshape2_minvl.MinValue = 0;
-                setSize(num_layer_subshape2_minvl, numWidth, num_Height);
-                row6_tl.Rows[row6_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minvl });
-
-                num_layer_subshape3_minvl = new NumericStepper();
-                num_layer_subshape3_minvl.Increment = 0.1;
-                num_layer_subshape3_minvl.DecimalPlaces = 2;
-                num_layer_subshape3_minvl.MinValue = 0;
-                setSize(num_layer_subshape3_minvl, numWidth, num_Height);
-                row6_tl.Rows[row6_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minvl });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = minVerLengthUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row7 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row7 });
-
-                TableLayout row7_tl = new TableLayout();
-                row7_tl.Rows.Add(new TableRow());
-                row7.Content = row7_tl;
-
-                lbl_layer_subshape_incVL = new Label();
-                lbl_layer_subshape_incVL.Text = "Ver. Length Increment";
-                row7_tl.Rows[row7_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incVL, ScaleWidth = true });
-
-                num_layer_subshape_incVL = new NumericStepper();
-                num_layer_subshape_incVL.Increment = 0.1;
-                num_layer_subshape_incVL.DecimalPlaces = 2;
-                setSize(num_layer_subshape_incVL, numWidth, num_Height);
-                row7_tl.Rows[row7_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incVL });
-
-                num_layer_subshape2_incVL = new NumericStepper();
-                num_layer_subshape2_incVL.Increment = 0.1;
-                num_layer_subshape2_incVL.DecimalPlaces = 2;
-                setSize(num_layer_subshape2_incVL, numWidth, num_Height);
-                row7_tl.Rows[row7_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incVL });
-
-                num_layer_subshape3_incVL = new NumericStepper();
-                num_layer_subshape3_incVL.Increment = 0.1;
-                num_layer_subshape3_incVL.DecimalPlaces = 2;
-                setSize(num_layer_subshape3_incVL, numWidth, num_Height);
-                row7_tl.Rows[row7_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incVL });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = verLengthIncrementUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row8 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row8 });
-
-                TableLayout row8_tl = new TableLayout();
-                row8_tl.Rows.Add(new TableRow());
-                row8.Content = row8_tl;
-
-                lbl_layer_subshape_stepsVL = new Label();
-                lbl_layer_subshape_stepsVL.Text = "Ver. Length Steps";
-                row8_tl.Rows[row8_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsVL, ScaleWidth = true });
-
-                num_layer_subshape_stepsVL = new NumericStepper();
-                num_layer_subshape_stepsVL.MinValue = 1;
-                num_layer_subshape_stepsVL.Increment = 1;
-                num_layer_subshape_stepsVL.DecimalPlaces = 0;
-                setSize(num_layer_subshape_stepsVL, numWidth, num_Height);
-                row8_tl.Rows[row8_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsVL });
-
-                num_layer_subshape2_stepsVL = new NumericStepper();
-                num_layer_subshape2_stepsVL.MinValue = 1;
-                num_layer_subshape2_stepsVL.Increment = 1;
-                num_layer_subshape2_stepsVL.DecimalPlaces = 0;
-                setSize(num_layer_subshape2_stepsVL, numWidth, num_Height);
-                row8_tl.Rows[row8_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsVL });
-
-                num_layer_subshape3_stepsVL = new NumericStepper();
-                num_layer_subshape3_stepsVL.MinValue = 1;
-                num_layer_subshape3_stepsVL.Increment = 1;
-                num_layer_subshape3_stepsVL.DecimalPlaces = 0;
-                setSize(num_layer_subshape3_stepsVL, numWidth, num_Height);
-                row8_tl.Rows[row8_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsVL });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = verLengthStepsUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row9 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row9 });
-
-                TableLayout row9_tl = new TableLayout();
-                row9_tl.Rows.Add(new TableRow());
-                row9.Content = row9_tl;
-
-                lbl_layer_subshape_vo = new Label();
-                lbl_layer_subshape_vo.Text = "Min Ver. Offset";
-                row9_tl.Rows[row9_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_vo, ScaleWidth = true });
-
-                num_layer_subshape_minvo = new NumericStepper();
-                num_layer_subshape_minvo.Increment = 0.1;
-                num_layer_subshape_minvo.DecimalPlaces = 2;
-                setSize(num_layer_subshape_minvo, numWidth, num_Height);
-                row9_tl.Rows[row9_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_minvo });
-
-                num_layer_subshape2_minvo = new NumericStepper();
-                num_layer_subshape2_minvo.Increment = 0.1;
-                num_layer_subshape2_minvo.DecimalPlaces = 2;
-                setSize(num_layer_subshape2_minvo, numWidth, num_Height);
-                row9_tl.Rows[row9_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_minvo });
-
-                num_layer_subshape3_minvo = new NumericStepper();
-                num_layer_subshape3_minvo.Increment = 0.1;
-                num_layer_subshape3_minvo.DecimalPlaces = 2;
-                setSize(num_layer_subshape3_minvo, numWidth, num_Height);
-                row9_tl.Rows[row9_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_minvo });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = minVerOffsetUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row10 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row10 });
-
-                TableLayout row10_tl = new TableLayout();
-                row10_tl.Rows.Add(new TableRow());
-                row10.Content = row10_tl;
-
-                lbl_layer_subshape_incVO = new Label();
-                lbl_layer_subshape_incVO.Text = "Ver. Offset Increment";
-                row10_tl.Rows[row10_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_incVO, ScaleWidth = true });
-
-                num_layer_subshape_incVO = new NumericStepper();
-                num_layer_subshape_incVO.Increment = 0.1;
-                num_layer_subshape_incVO.DecimalPlaces = 2;
-                setSize(num_layer_subshape_incVO, numWidth, num_Height);
-                row10_tl.Rows[row10_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_incVO });
-
-                num_layer_subshape2_incVO = new NumericStepper();
-                num_layer_subshape2_incVO.Increment = 0.1;
-                num_layer_subshape2_incVO.DecimalPlaces = 2;
-                setSize(num_layer_subshape2_incVO, numWidth, num_Height);
-                row10_tl.Rows[row10_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_incVO });
-
-                num_layer_subshape3_incVO = new NumericStepper();
-                num_layer_subshape3_incVO.Increment = 0.1;
-                num_layer_subshape3_incVO.DecimalPlaces = 2;
-                setSize(num_layer_subshape3_incVO, numWidth, num_Height);
-                row10_tl.Rows[row10_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_incVO });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = verOffsetIncrementUI() });
 
                 groupBox_subShapes_table.Rows.Add(new TableRow());
 
-                Panel row11 = new Panel();
-                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row11 });
-
-                TableLayout row11_tl = new TableLayout();
-                row11_tl.Rows.Add(new TableRow());
-                row11.Content = row11_tl;
-
-                lbl_layer_subshape_stepsVO = new Label();
-                lbl_layer_subshape_stepsVO.Text = "Ver. Offset Steps";
-                row11_tl.Rows[row11_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_layer_subshape_stepsVO, ScaleWidth = true });
-
-                num_layer_subshape_stepsVO = new NumericStepper();
-                num_layer_subshape_stepsVO.MinValue = 1;
-                num_layer_subshape_stepsVO.Increment = 1;
-                num_layer_subshape_stepsVO.DecimalPlaces = 0;
-                setSize(num_layer_subshape_stepsVO, numWidth, num_Height);
-                row11_tl.Rows[row11_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape_stepsVO });
-
-                num_layer_subshape2_stepsVO = new NumericStepper();
-                num_layer_subshape2_stepsVO.MinValue = 1;
-                num_layer_subshape2_stepsVO.Increment = 1;
-                num_layer_subshape2_stepsVO.DecimalPlaces = 0;
-                setSize(num_layer_subshape2_stepsVO, numWidth, num_Height);
-                row11_tl.Rows[row11_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape2_stepsVO });
-
-                num_layer_subshape3_stepsVO = new NumericStepper();
-                num_layer_subshape3_stepsVO.MinValue = 1;
-                num_layer_subshape3_stepsVO.Increment = 1;
-                num_layer_subshape3_stepsVO.DecimalPlaces = 0;
-                setSize(num_layer_subshape3_stepsVO, numWidth, num_Height);
-                row11_tl.Rows[row11_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsVO });
+                groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = verOffsetStepsUI() });
 
                 num_externalGeoCoordsX = new NumericStepper[1];
                 num_externalGeoCoordsY = new NumericStepper[1];
@@ -1201,21 +1312,20 @@ namespace Quilt
                 sp3_RelRot(groupBox_position_table);
                 sp3_Flip(groupBox_position_table);
                 sp3_Array(groupBox_position_table);
+                sp3_Merge(groupBox_position_table);
             });
         }
 
-        void sp3_subShapeRef(TableLayout groupBox_position_table)
+        void sp3_subShapeRef(TableLayout tl)
         {
-            TableRow tr0 = new TableRow();
-            groupBox_position_table.Rows.Add(tr0);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_subShapeRef = new Label();
             lbl_subShapeRef.Text = "Subshape Reference";
             lbl_subShapeRef.ToolTip = "Which subshape to use for placement with respect to the world origin";
 
-            TableCell tr0_0 = new TableCell();
-            tr0_0.Control = lbl_subShapeRef;
-            tr0.Cells.Add(tr0_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_subShapeRef });
 
             comboBox_subShapeRef = new DropDown();
             comboBox_subShapeRef.DataContext = DataContext;
@@ -1223,32 +1333,21 @@ namespace Quilt
             comboBox_subShapeRef.SelectedIndex = 0;
             comboBox_subShapeRef.ToolTip = "Which subshape to use for placement with respect to the world origin";
 
-            TableCell tr0_1 = new TableCell();
-            Panel tr0_1p = new Panel();
-            PixelLayout tr0_1pl = new PixelLayout();
-            tr0_1p.Content = tr0_1pl;
-            tr0_1.Control = tr0_1p;
-            tr0_1pl.Add(comboBox_subShapeRef, 0, 0);
-            tr0.Cells.Add(tr0_1);
+            tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_subShapeRef) });
+
+            tr.Cells.Add(new TableCell() { Control = null });
         }
 
-        void sp3_subShapePos(TableLayout groupBox_position_table)
+        void sp3_subShapePos(TableLayout tl)
         {
-            TableRow tr1 = new TableRow();
-            groupBox_position_table.Rows.Add(tr1);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_posSubShape = new Label();
             lbl_posSubShape.Text = "Subshape Position";
             lbl_posSubShape.ToolTip = "Which element of the subshape to use for placement with respect to the world origin";
 
-            TableCell tr1_0 = new TableCell();
-            Panel tr1_0p = new Panel();
-            PixelLayout tr1_0pl = new PixelLayout();
-            tr1_0p.Content = tr1_0pl;
-            tr1_0.Control = tr1_0p;
-            tr1_0pl.Add(lbl_posSubShape, 0, 0);
-            tr1.Cells.Add(tr1_0);
-
+            tr.Cells.Add(new TableCell() { Control = lbl_posSubShape });
 
             comboBox_posSubShape = new DropDown();
             comboBox_posSubShape.DataContext = DataContext;
@@ -1256,71 +1355,40 @@ namespace Quilt
             comboBox_posSubShape.SelectedIndex = 0;
             comboBox_posSubShape.ToolTip = "Which element of the subshape to use for placement with respect to the world origin";
 
-            TableCell tr1_1 = new TableCell();
-            Panel tr1_1p = new Panel();
-            PixelLayout tr1_1pl = new PixelLayout();
-            tr1_1p.Content = tr1_1pl;
-            tr1_1.Control = tr1_1p;
-            tr1_1pl.Add(comboBox_posSubShape, 0, 0);
-            tr1.Cells.Add(tr1_1);
+            tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_posSubShape) });
+
+            tr.Cells.Add(new TableCell() { Control = null });
         }
 
-        void sp3_subShapeXPos(TableLayout groupBox_position_table)
+        void sp3_subShapeXPos(TableLayout tl)
         {
-            TableRow tr2 = new TableRow();
-            groupBox_position_table.Rows.Add(tr2);
-
-            TableCell tr2_0 = new TableCell();
-            Panel tr2_0p = new Panel();
-            tr2_0.Control = tr2_0p;
-
-            TableLayout tr2_0tl = new TableLayout();
-            tr2_0p.Content = tr2_0tl;
-            tr2.Cells.Add(tr2_0);
-
-            tr2_0tl.Rows.Add(new TableRow());
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_xPosRef = new Label();
             lbl_xPosRef.Text = "X Pos Ref";
             lbl_xPosRef.ToolTip = "Position this element in X relative to a different element, or world origin";
-            tr2_0tl.Rows[tr2_0tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_xPosRef });
+            tr.Cells.Add(new TableCell() { Control = lbl_xPosRef });
 
-            TableCell tr2_1 = new TableCell();
-            Panel tr2_1p = new Panel();
-            TableLayout tr2_container = new TableLayout();
-            tr2_1p.Content = tr2_container;
-            tr2_1.Control = tr2_1p;
-            TableRow tr2_c_0 = new TableRow();
-            tr2_container.Rows.Add(tr2_c_0);
-            tr2.Cells.Add(tr2_1);
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            ptl.Rows.Add(new TableRow());
+            tr.Cells.Add(new TableCell() { Control = p });
 
             num_minXPos = new NumericStepper();
             num_minXPos.Increment = 0.1;
             num_minXPos.DecimalPlaces = 2;
             setSize(num_minXPos, numWidth, num_Height);
 
-            TableCell tr2_1_0 = new TableCell();
-            Panel tr2_1_0p = new Panel();
-            PixelLayout tr2_1_0pl = new PixelLayout();
-            tr2_1_0p.Content = tr2_1_0pl;
-            tr2_1_0.Control = tr2_1_0p;
-            tr2_1_0pl.Add(num_minXPos, 0, 0);
-            tr2_c_0.Cells.Add(tr2_1_0);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_minXPos });
 
             num_incXPos = new NumericStepper();
             num_incXPos.Increment = 0.1;
             num_incXPos.DecimalPlaces = 2;
             setSize(num_incXPos, numWidth, num_Height);
 
-            TableCell tr2_1_1 = new TableCell();
-            Panel tr2_1_1p = new Panel();
-            PixelLayout tr2_1_1pl = new PixelLayout();
-            tr2_1_1p.Content = tr2_1_1pl;
-            tr2_1_1.Control = tr2_1_1p;
-            tr2_1_1pl.Add(num_incXPos, 0, 0);
-            tr2_c_0.Cells.Add(tr2_1_1);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_incXPos });
 
             num_stepsXPos = new NumericStepper();
             num_stepsXPos.Increment = 1;
@@ -1328,74 +1396,48 @@ namespace Quilt
             num_stepsXPos.MinValue = 1;
             setSize(num_stepsXPos, numWidth, num_Height);
 
-            TableCell tr2_1_2 = new TableCell();
-            Panel tr2_1_2p = new Panel();
-            PixelLayout tr2_1_2pl = new PixelLayout();
-            tr2_1_2p.Content = tr2_1_2pl;
-            tr2_1_2.Control = tr2_1_2p;
-            tr2_1_2pl.Add(num_stepsXPos, 0, 0);
-            tr2_c_0.Cells.Add(tr2_1_2);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_stepsXPos });
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
+
         }
 
-        void sp3_subShapeXRelPos(TableLayout groupBox_position_table)
+        void sp3_subShapeXRelPos(TableLayout tl)
         {
-            TableRow tr3 = new TableRow();
-            groupBox_position_table.Rows.Add(tr3);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             Label lbl_relXPos = new Label();
             lbl_relXPos.Text = "Relative Position";
             lbl_relXPos.ToolTip = "Relative Positioning";
 
-            TableCell tr3_0 = new TableCell();
-            Panel tr3_0p = new Panel();
-            PixelLayout tr3_0pl = new PixelLayout();
-            tr3_0p.Content = tr3_0pl;
-            tr3_0.Control = tr3_0p;
-            tr3_0pl.Add(lbl_relXPos, 0, 0);
-            tr3.Cells.Add(tr3_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_relXPos });
 
             comboBox_xPosRef = new DropDown();
             comboBox_xPosRef.DataContext = DataContext;
             comboBox_xPosRef.BindDataContext(c => c.DataStore, (UIStringLists m) => m.patternElementNames_filtered);
             comboBox_xPosRef.ToolTip = "Position in X relative to this pattern element";
 
-            TableCell tr3_1 = new TableCell();
-            Panel tr3_1p = new Panel();
-            PixelLayout tr3_1pl = new PixelLayout();
-            tr3_1p.Content = tr3_1pl;
-            tr3_1.Control = tr3_1p;
-            tr3_1pl.Add(comboBox_xPosRef, 0, 0);
-            tr3.Cells.Add(tr3_1);
+            tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_xPosRef) });
+
+            tr.Cells.Add(new TableCell() { Control = null });
         }
 
-        void sp3_subShapeXRelPosSS(TableLayout groupBox_position_table)
+        void sp3_subShapeXRelPosSS(TableLayout tl)
         {
-            TableRow tr4 = new TableRow();
-            groupBox_position_table.Rows.Add(tr4);
-
-            TableCell tr4_0 = new TableCell();
-            Panel tr4_0p = new Panel();
-            tr4_0.Control = tr4_0p;
-
-            TableLayout tr4_0tl = new TableLayout();
-            tr4_0p.Content = tr4_0tl;
-            tr4.Cells.Add(tr4_0);
-
-            tr4_0tl.Rows.Add(new TableRow());
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             Label lbl_subShapeXPos = new Label();
             lbl_subShapeXPos.Text = "Subshape Ref";
             lbl_subShapeXPos.ToolTip = "Reference subshape";
-            tr4_0tl.Rows[tr4_0tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_subShapeXPos });
+            tr.Cells.Add(new TableCell() { Control = lbl_subShapeXPos });
 
-            TableCell tr4_1 = new TableCell();
-            Panel tr4_1p = new Panel();
-            TableLayout tr4_container = new TableLayout();
-            tr4_1p.Content = tr4_container;
-            tr4_1.Control = tr4_1p;
-            TableRow tr4_c_0 = new TableRow();
-            tr4_container.Rows.Add(tr4_c_0);
-            tr4.Cells.Add(tr4_1);
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            ptl.Rows.Add(new TableRow());
+            tr.Cells.Add(new TableCell() { Control = p });
 
             comboBox_xPos_subShapeRef = new DropDown();
             comboBox_xPos_subShapeRef.DataContext = DataContext;
@@ -1403,14 +1445,7 @@ namespace Quilt
             comboBox_xPos_subShapeRef.SelectedIndex = 0;
             comboBox_xPos_subShapeRef.ToolTip = "Subshape reference";
 
-            TableCell tr4_1_0 = new TableCell();
-            Panel tr4_1_0p = new Panel();
-            PixelLayout tr4_1_0pl = new PixelLayout();
-            tr4_1_0p.Content = tr4_1_0pl;
-            tr4_1_0.Control = tr4_1_0p;
-            tr4_1_0pl.Add(comboBox_xPos_subShapeRef, 0, 0);
-            tr4_c_0.Cells.Add(tr4_1_0);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_xPos_subShapeRef) });
 
             comboBox_xPos_subShapeRefPos = new DropDown();
             comboBox_xPos_subShapeRefPos.DataContext = DataContext;
@@ -1418,69 +1453,41 @@ namespace Quilt
             comboBox_xPos_subShapeRefPos.SelectedIndex = (int)CommonVars.subShapeHorLocs.L;
             comboBox_xPos_subShapeRefPos.ToolTip = "Which element of the subshape to use for placement with respect to the world origin";
 
-            TableCell tr4_1_1 = new TableCell();
-            Panel tr4_1_1p = new Panel();
-            PixelLayout tr4_1_1pl = new PixelLayout();
-            tr4_1_1p.Content = tr4_1_1pl;
-            tr4_1_1.Control = tr4_1_1p;
-            tr4_1_1pl.Add(comboBox_xPos_subShapeRefPos, 0, 0);
-            tr4_c_0.Cells.Add(tr4_1_1);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_xPos_subShapeRefPos) });
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
         }
 
-        void sp3_subShapeYPos(TableLayout groupBox_position_table)
+        void sp3_subShapeYPos(TableLayout tl)
         {
-            TableRow tr5 = new TableRow();
-            groupBox_position_table.Rows.Add(tr5);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_yPosRef = new Label();
             lbl_yPosRef.Text = "Y Pos Ref";
             lbl_yPosRef.ToolTip = "Position this element in Y relative to a different element, or world origin";
 
-            TableCell tr5_0 = new TableCell();
-            Panel tr5_0p = new Panel();
-            PixelLayout tr5_0pl = new PixelLayout();
-            tr5_0p.Content = tr5_0pl;
-            tr5_0.Control = tr5_0p;
-            tr5_0pl.Add(lbl_yPosRef, 0, 0);
-            tr5.Cells.Add(tr5_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_yPosRef });
 
-
-            TableCell tr5_1 = new TableCell();
-            Panel tr5_1p = new Panel();
-            TableLayout tr5_container = new TableLayout();
-            tr5_1p.Content = tr5_container;
-            tr5_1.Control = tr5_1p;
-            TableRow tr5_c_0 = new TableRow();
-            tr5_container.Rows.Add(tr5_c_0);
-            tr5.Cells.Add(tr5_1);
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            ptl.Rows.Add(new TableRow());
+            tr.Cells.Add(new TableCell() { Control = p });
 
             num_minYPos = new NumericStepper();
             num_minYPos.Increment = 0.1;
             num_minYPos.DecimalPlaces = 2;
             setSize(num_minYPos, numWidth, num_Height);
 
-            TableCell tr5_1_0 = new TableCell();
-            Panel tr5_1_0p = new Panel();
-            PixelLayout tr5_1_0pl = new PixelLayout();
-            tr5_1_0p.Content = tr5_1_0pl;
-            tr5_1_0.Control = tr5_1_0p;
-            tr5_1_0pl.Add(num_minYPos, 0, 0);
-            tr5_c_0.Cells.Add(tr5_1_0);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_minYPos });
 
             num_incYPos = new NumericStepper();
             num_incYPos.Increment = 0.1;
             num_incYPos.DecimalPlaces = 2;
             setSize(num_incYPos, numWidth, num_Height);
 
-            TableCell tr5_1_1 = new TableCell();
-            Panel tr5_1_1p = new Panel();
-            PixelLayout tr5_1_1pl = new PixelLayout();
-            tr5_1_1p.Content = tr5_1_1pl;
-            tr5_1_1.Control = tr5_1_1p;
-            tr5_1_1pl.Add(num_incYPos, 0, 0);
-            tr5_c_0.Cells.Add(tr5_1_1);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_incYPos });
 
             num_stepsYPos = new NumericStepper();
             num_stepsYPos.Increment = 1;
@@ -1488,31 +1495,19 @@ namespace Quilt
             num_stepsYPos.MinValue = 1;
             setSize(num_stepsYPos, numWidth, num_Height);
 
-            TableCell tr5_1_2 = new TableCell();
-            Panel tr5_1_2p = new Panel();
-            PixelLayout tr5_1_2pl = new PixelLayout();
-            tr5_1_2p.Content = tr5_1_2pl;
-            tr5_1_2.Control = tr5_1_2p;
-            tr5_1_2pl.Add(num_stepsYPos, 0, 0);
-            tr5_c_0.Cells.Add(tr5_1_2);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_stepsYPos });
         }
 
-        void sp3_subShapeYRelPos(TableLayout groupBox_position_table)
+        void sp3_subShapeYRelPos(TableLayout tl)
         {
-            TableRow tr6 = new TableRow();
-            groupBox_position_table.Rows.Add(tr6);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             Label lbl_relYPos = new Label();
             lbl_relYPos.Text = "Relative Position";
             lbl_relYPos.ToolTip = "Relative Positioning";
 
-            TableCell tr6_0 = new TableCell();
-            Panel tr6_0p = new Panel();
-            PixelLayout tr6_0pl = new PixelLayout();
-            tr6_0p.Content = tr6_0pl;
-            tr6_0.Control = tr6_0p;
-            tr6_0pl.Add(lbl_relYPos, 0, 0);
-            tr6.Cells.Add(tr6_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_relYPos });
 
             comboBox_yPosRef = new DropDown();
             comboBox_yPosRef.DataContext = DataContext;
@@ -1520,43 +1515,28 @@ namespace Quilt
             comboBox_yPosRef.SelectedIndex = 0;
             comboBox_yPosRef.ToolTip = "Position in Y relative to this pattern element";
 
-            TableCell tr6_1 = new TableCell();
-            Panel tr6_1p = new Panel();
-            PixelLayout tr6_1pl = new PixelLayout();
-            tr6_1p.Content = tr6_1pl;
-            tr6_1.Control = tr6_1p;
-            tr6_1pl.Add(comboBox_yPosRef, 0, 0);
-            tr6.Cells.Add(tr6_1);
+            tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_yPosRef) });
+
+            tr.Cells.Add(new TableCell() { Control = null });
         }
 
-        void sp3_subShapeYRelPosSS(TableLayout groupBox_position_table)
+        void sp3_subShapeYRelPosSS(TableLayout tl)
         {
-            TableRow tr7 = new TableRow();
-            groupBox_position_table.Rows.Add(tr7);
-
-            TableCell tr7_0 = new TableCell();
-            Panel tr7_0p = new Panel();
-            tr7_0.Control = tr7_0p;
-
-            TableLayout tr7_0tl = new TableLayout();
-            tr7_0p.Content = tr7_0tl;
-            tr7.Cells.Add(tr7_0);
-
-            tr7_0tl.Rows.Add(new TableRow());
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             Label lbl_subShapeYPos = new Label();
             lbl_subShapeYPos.Text = "Subshape Ref";
             lbl_subShapeYPos.ToolTip = "Reference subshape";
-            tr7_0tl.Rows[tr7_0tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_subShapeYPos });
+            tr.Cells.Add(new TableCell() { Control = lbl_subShapeYPos });
 
-            TableCell tr7_1 = new TableCell();
-            Panel tr7_1p = new Panel();
-            TableLayout tr7_container = new TableLayout();
-            tr7_1p.Content = tr7_container;
-            tr7_1.Control = tr7_1p;
-            TableRow tr7_c_0 = new TableRow();
-            tr7_container.Rows.Add(tr7_c_0);
-            tr7.Cells.Add(tr7_1);
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            TableRow ptl_tr = new TableRow();
+            ptl.Rows.Add(ptl_tr);
+
+            tr.Cells.Add(new TableCell() { Control = p });
 
             comboBox_yPos_subShapeRef = new DropDown();
             comboBox_yPos_subShapeRef.DataContext = DataContext;
@@ -1564,14 +1544,7 @@ namespace Quilt
             comboBox_yPos_subShapeRef.SelectedIndex = 0;
             comboBox_yPos_subShapeRef.ToolTip = "Subshape reference";
 
-            TableCell tr7_1_0 = new TableCell();
-            Panel tr7_1_0p = new Panel();
-            PixelLayout tr7_1_0pl = new PixelLayout();
-            tr7_1_0p.Content = tr7_1_0pl;
-            tr7_1_0.Control = tr7_1_0p;
-            tr7_1_0pl.Add(comboBox_yPos_subShapeRef, 0, 0);
-            tr7_c_0.Cells.Add(tr7_1_0);
-
+            ptl_tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_yPos_subShapeRef) });
 
             comboBox_yPos_subShapeRefPos = new DropDown();
             comboBox_yPos_subShapeRefPos.DataContext = DataContext;
@@ -1579,69 +1552,41 @@ namespace Quilt
             comboBox_yPos_subShapeRefPos.SelectedIndex = (int)CommonVars.subShapeVerLocs.B;
             comboBox_yPos_subShapeRefPos.ToolTip = "Which element of the subshape to use for placement with respect to the world origin";
 
-            TableCell tr7_1_1 = new TableCell();
-            Panel tr7_1_1p = new Panel();
-            PixelLayout tr7_1_1pl = new PixelLayout();
-            tr7_1_1p.Content = tr7_1_1pl;
-            tr7_1_1.Control = tr7_1_1p;
-            tr7_1_1pl.Add(comboBox_yPos_subShapeRefPos, 0, 0);
-            tr7_c_0.Cells.Add(tr7_1_1);
+            ptl_tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_yPos_subShapeRefPos) });
+
+            ptl_tr.Cells.Add(new TableCell() { Control = null });
         }
 
-        void sp3_Rot(TableLayout groupBox_position_table)
+        void sp3_Rot(TableLayout tl)
         {
-            TableRow tr8 = new TableRow();
-            groupBox_position_table.Rows.Add(tr8);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_rotation = new Label();
             lbl_rotation.Text = "Rotation";
             lbl_rotation.ToolTip = "Rotation";
 
-            TableCell tr8_0 = new TableCell();
-            Panel tr8_0p = new Panel();
-            PixelLayout tr8_0pl = new PixelLayout();
-            tr8_0p.Content = tr8_0pl;
-            tr8_0.Control = tr8_0p;
-            tr8_0pl.Add(lbl_rotation, 0, 0);
-            tr8.Cells.Add(tr8_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_rotation });
 
-
-            TableCell tr8_1 = new TableCell();
-            Panel tr8_1p = new Panel();
-            TableLayout tr8_container = new TableLayout();
-            tr8_1p.Content = tr8_container;
-            tr8_1.Control = tr8_1p;
-            TableRow tr8_c_0 = new TableRow();
-            tr8_container.Rows.Add(tr8_c_0);
-            tr8.Cells.Add(tr8_1);
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            ptl.Rows.Add(new TableRow());
+            tr.Cells.Add(new TableCell() { Control = p });
 
             num_minRot = new NumericStepper();
             num_minRot.Increment = 0.1;
             num_minRot.DecimalPlaces = 2;
             setSize(num_minRot, numWidth, num_Height);
 
-            TableCell tr8_1_0 = new TableCell();
-            Panel tr8_1_0p = new Panel();
-            PixelLayout tr8_1_0pl = new PixelLayout();
-            tr8_1_0p.Content = tr8_1_0pl;
-            tr8_1_0.Control = tr8_1_0p;
-            tr8_1_0pl.Add(num_minRot, 0, 0);
-            tr8_c_0.Cells.Add(tr8_1_0);
-
+            ptl.Rows[ptl.Rows.Count -1].Cells.Add(new TableCell() { Control = num_minRot });
 
             num_incRot = new NumericStepper();
             num_incRot.Increment = 0.1;
             num_incRot.DecimalPlaces = 2;
             setSize(num_incRot, numWidth, num_Height);
 
-            TableCell tr8_1_1 = new TableCell();
-            Panel tr8_1_1p = new Panel();
-            PixelLayout tr8_1_1pl = new PixelLayout();
-            tr8_1_1p.Content = tr8_1_1pl;
-            tr8_1_1.Control = tr8_1_1p;
-            tr8_1_1pl.Add(num_incRot, 0, 0);
-            tr8_c_0.Cells.Add(tr8_1_1);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_incRot });
 
             num_stepsRot = new NumericStepper();
             num_stepsRot.Increment = 1;
@@ -1649,31 +1594,19 @@ namespace Quilt
             num_stepsRot.MinValue = 1;
             setSize(num_stepsRot, numWidth, num_Height);
 
-            TableCell tr8_1_2 = new TableCell();
-            Panel tr8_1_2p = new Panel();
-            PixelLayout tr8_1_2pl = new PixelLayout();
-            tr8_1_2p.Content = tr8_1_2pl;
-            tr8_1_2.Control = tr8_1_2p;
-            tr8_1_2pl.Add(num_stepsRot, 0, 0);
-            tr8_c_0.Cells.Add(tr8_1_2);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_stepsRot });
         }
 
-        void sp3_RelRot(TableLayout groupBox_position_table)
+        void sp3_RelRot(TableLayout tl)
         {
-            TableRow tr9 = new TableRow();
-            groupBox_position_table.Rows.Add(tr9);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             Label lbl_relRot = new Label();
             lbl_relRot.Text = "Relative Rotation";
             lbl_relRot.ToolTip = "Relative Rotation";
 
-            TableCell tr9_0 = new TableCell();
-            Panel tr9_0p = new Panel();
-            PixelLayout tr9_0pl = new PixelLayout();
-            tr9_0p.Content = tr9_0pl;
-            tr9_0.Control = tr9_0p;
-            tr9_0pl.Add(lbl_relRot, 0, 0);
-            tr9.Cells.Add(tr9_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_relRot });
 
             comboBox_rotRef = new DropDown();
             comboBox_rotRef.DataContext = DataContext;
@@ -1681,147 +1614,103 @@ namespace Quilt
             comboBox_rotRef.SelectedIndex = 0;
             comboBox_rotRef.ToolTip = "Rotation relative to this pattern element";
 
-            TableCell tr9_1 = new TableCell();
-            Panel tr9_1p = new Panel();
-            TableLayout tr9_1tl = new TableLayout();
-            tr9_1tl.Rows.Add(new TableRow());
-            tr9_1p.Content = tr9_1tl;
-            tr9_1.Control = tr9_1p;
-            tr9_1tl.Rows[tr9_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = comboBox_rotRef });
-            tr9.Cells.Add(tr9_1);
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            ptl.Rows.Add(new TableRow());
+            p.Content = ptl;
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_rotRef) });
+            tr.Cells.Add(new TableCell() { Control = p });
 
-            TableRow tr9b = new TableRow();
-            tr9_1tl.Rows.Add(tr9b);
+            ptl.Rows.Add(new TableRow());
 
-            TableLayout tr9b_1tl = new TableLayout();
-            tr9b_1tl.Rows.Add(new TableRow());
+            TableLayout tl0 = new TableLayout();
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(tl0) });
 
-            tr9b.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(tr9b_1tl) });
+            tl0.Rows.Add(new TableRow());
 
             lbl_use = new Label();
             lbl_use.Text = "Use";
-            tr9b_1tl.Rows[tr9b_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_use });
+            tl0.Rows[tl0.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_use });
 
             checkBox_refPivot = new CheckBox();
             checkBox_refPivot.Text = "Pivot";
             checkBox_refPivot.Enabled = false;
             checkBox_refPivot.ToolTip = "Use pivot point from reference.";
 
-            tr9b_1tl.Rows[tr9b_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refPivot });
+            tl0.Rows[tl0.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refPivot });
 
             checkBox_rotRef = new CheckBox();
             checkBox_rotRef.Text = "Array";
             checkBox_rotRef.Enabled = false;
             checkBox_rotRef.ToolTip = "Use array rotation rather than shape.";
 
-            tr9b_1tl.Rows[tr9b_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_rotRef });
+            tl0.Rows[tl0.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_rotRef });
 
-            tr9_1tl.Rows.Add(new TableRow());
+            ptl.Rows.Add(new TableRow());
 
             checkBox_refBoundsAfterRotation = new CheckBox();
             checkBox_refBoundsAfterRotation.Text = "Bounds after rotation";
             checkBox_refBoundsAfterRotation.Enabled = false;
             checkBox_refBoundsAfterRotation.ToolTip = "Perform rotation before bounding box. This affects the pivot.";
 
-            tr9_1tl.Rows[tr9_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refBoundsAfterRotation });
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refBoundsAfterRotation });
 
-            tr9_1tl.Rows[tr9_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null, ScaleWidth = true });
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null, ScaleWidth = true });
         }
 
-        void sp3_Flip(TableLayout groupBox_position_table)
+        void sp3_Flip(TableLayout tl)
         {
-            TableRow tr11 = new TableRow();
-            groupBox_position_table.Rows.Add(tr11);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_flip = new Label();
             lbl_flip.Text = "Flip";
             lbl_flip.ToolTip = "Flip";
 
-            TableCell tr11_0 = new TableCell();
-            Panel tr11_0p = new Panel();
-            PixelLayout tr11_0pl = new PixelLayout();
-            tr11_0p.Content = tr11_0pl;
-            tr11_0.Control = tr11_0p;
-            tr11_0pl.Add(lbl_flip, 0, 0);
-            tr11.Cells.Add(tr11_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_flip });
 
-
-            TableCell tr11_1 = new TableCell();
-            Panel tr11_1p = new Panel();
-            TableLayout tr11_container = new TableLayout();
-            tr11_1p.Content = tr11_container;
-            tr11_1.Control = tr11_1p;
-            TableRow tr11_c_0 = new TableRow();
-            tr11_container.Rows.Add(tr11_c_0);
-            tr11.Cells.Add(tr11_1);
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            TableRow ptl_tr = new TableRow();
+            ptl.Rows.Add(ptl_tr);
+            tr.Cells.Add(new TableCell() { Control = p });
 
             checkBox_flipH = new CheckBox();
             checkBox_flipH.Text = "H";
             checkBox_flipH.ToolTip = "Flip horizontally";
 
-            TableCell tr11_1_0 = new TableCell();
-            Panel tr11_1_0p = new Panel();
-            PixelLayout tr11_1_0pl = new PixelLayout();
-            tr11_1_0p.Content = tr11_1_0pl;
-            tr11_1_0.Control = tr11_1_0p;
-            tr11_1_0pl.Add(checkBox_flipH, 0, 0);
-            tr11_c_0.Cells.Add(tr11_1_0);
-
+            ptl_tr.Cells.Add(new TableCell() { Control = checkBox_flipH });
 
             checkBox_flipV = new CheckBox();
             checkBox_flipV.Text = "V";
             checkBox_flipV.ToolTip = "Flip vertically";
 
-            TableCell tr11_1_1 = new TableCell();
-            Panel tr11_1_1p = new Panel();
-            PixelLayout tr11_1_1pl = new PixelLayout();
-            tr11_1_1p.Content = tr11_1_1pl;
-            tr11_1_1.Control = tr11_1_1p;
-            tr11_1_1pl.Add(checkBox_flipV, 0, 0);
-            tr11_c_0.Cells.Add(tr11_1_1);
-
+            ptl_tr.Cells.Add(new TableCell() { Control = checkBox_flipV });
 
             checkBox_alignX = new CheckBox();
             checkBox_alignX.Text = "Align X";
             checkBox_alignX.ToolTip = "Align flipped shape with original in X";
 
-            TableCell tr11_1_2 = new TableCell();
-            Panel tr11_1_2p = new Panel();
-            PixelLayout tr11_1_2pl = new PixelLayout();
-            tr11_1_2p.Content = tr11_1_2pl;
-            tr11_1_2.Control = tr11_1_2p;
-            tr11_1_2pl.Add(checkBox_alignX, 0, 0);
-            tr11_c_0.Cells.Add(tr11_1_2);
+            ptl_tr.Cells.Add(new TableCell() { Control = checkBox_alignX });
 
             checkBox_alignY = new CheckBox();
             checkBox_alignY.Text = "Align Y";
             checkBox_alignY.ToolTip = "Align flipped shape with original in Y";
 
-            TableCell tr11_1_3 = new TableCell();
-            Panel tr11_1_3p = new Panel();
-            PixelLayout tr11_1_3pl = new PixelLayout();
-            tr11_1_3p.Content = tr11_1_3pl;
-            tr11_1_3.Control = tr11_1_3p;
-            tr11_1_3pl.Add(checkBox_alignY, 0, 0);
-            tr11_c_0.Cells.Add(tr11_1_3);
+            ptl_tr.Cells.Add(new TableCell() { Control = checkBox_alignY });
         }
 
-        void sp3_Array(TableLayout groupBox_position_table)
+        void sp3_Array(TableLayout tl)
         {
-            TableRow tr10 = new TableRow();
-            groupBox_position_table.Rows.Add(tr10);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             Label lbl_relArray = new Label();
             lbl_relArray.Text = "Relative Array Definition";
             lbl_relArray.ToolTip = "Relative Array Definition";
 
-            TableCell tr10_0 = new TableCell();
-            Panel tr10_0p = new Panel();
-            PixelLayout tr10_0pl = new PixelLayout();
-            tr10_0p.Content = tr10_0pl;
-            tr10_0.Control = tr10_0p;
-            tr10_0pl.Add(lbl_relArray, 0, 0);
-            tr10.Cells.Add(tr10_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_relArray });
 
             comboBox_arrayRef = new DropDown();
             comboBox_arrayRef.DataContext = DataContext;
@@ -1829,193 +1718,238 @@ namespace Quilt
             comboBox_arrayRef.SelectedIndex = 0;
             comboBox_arrayRef.ToolTip = "Take array definition from this element";
 
-            TableCell tr10_1 = new TableCell();
-            Panel tr10_1p = new Panel();
-            PixelLayout tr10_1pl = new PixelLayout();
-            tr10_1p.Content = tr10_1pl;
-            tr10_1.Control = tr10_1p;
-            tr10_1pl.Add(comboBox_arrayRef, 0, 0);
-            tr10.Cells.Add(tr10_1);
+            tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_arrayRef) });
 
-            sp3_ArrayX(groupBox_position_table);
-            sp3_ArrayY(groupBox_position_table);
-            sp3_ArrayRot(groupBox_position_table);
+            tr.Cells.Add(new TableCell() { Control = null });
+            sp3_ArrayX(tl);
+            sp3_ArrayY(tl);
+            sp3_ArrayRot(tl);
         }
 
-        void sp3_ArrayX(TableLayout groupBox_position_table)
+        void sp3_ArrayX(TableLayout tl)
         {
-            TableRow tr12 = new TableRow();
-            groupBox_position_table.Rows.Add(tr12);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_arrayX = new Label();
             lbl_arrayX.Text = "Array X";
             lbl_arrayX.ToolTip = "Array X";
 
-            TableCell tr12_0 = new TableCell();
-            Panel tr12_0p = new Panel();
-            PixelLayout tr12_0pl = new PixelLayout();
-            tr12_0p.Content = tr12_0pl;
-            tr12_0.Control = tr12_0p;
-            tr12_0pl.Add(lbl_arrayX, 0, 0);
-            tr12.Cells.Add(tr12_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_arrayX });
 
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            ptl.Rows.Add(new TableRow());
+            tr.Cells.Add(new TableCell() { Control = p });
 
-            TableCell tr12_1 = new TableCell();
-            Panel tr12_1p = new Panel();
-            TableLayout tr12_container = new TableLayout();
-            tr12_1p.Content = tr12_container;
-            tr12_1.Control = tr12_1p;
-            TableRow tr12_c_0 = new TableRow();
-            tr12_container.Rows.Add(tr12_c_0);
-            tr12.Cells.Add(tr12_1);
+            num_arrayMinXCount = new NumericStepper();
+            num_arrayMinXCount.Value = 1;
+            num_arrayMinXCount.MinValue = 1;
+            num_arrayMinXCount.Increment = 1;
+            num_arrayMinXCount.DecimalPlaces = 0;
+            num_arrayMinXCount.ToolTip = "Array X Count";
+            setSize(num_arrayMinXCount, numWidth, num_Height);
 
-            num_arrayXCount = new NumericStepper();
-            num_arrayXCount.Value = 1;
-            num_arrayXCount.MinValue = 1;
-            num_arrayXCount.Increment = 1;
-            num_arrayXCount.DecimalPlaces = 0;
-            num_arrayXCount.ToolTip = "Array X Count";
-            setSize(num_arrayXCount, numWidth, num_Height);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayMinXCount });
 
-            TableCell tr12_1_0 = new TableCell();
-            Panel tr12_1_0p = new Panel();
-            PixelLayout tr12_1_0pl = new PixelLayout();
-            tr12_1_0p.Content = tr12_1_0pl;
-            tr12_1_0.Control = tr12_1_0p;
-            tr12_1_0pl.Add(num_arrayXCount, 0, 0);
-            tr12_c_0.Cells.Add(tr12_1_0);
+            num_arrayXInc = new NumericStepper();
+            num_arrayXInc.Value = 0;
+            num_arrayXInc.MinValue = 0;
+            num_arrayXInc.Increment = 1;
+            num_arrayXInc.DecimalPlaces = 0;
+            num_arrayXInc.ToolTip = "Array X Increment";
+            setSize(num_arrayXInc, numWidth, num_Height);
 
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayXInc });
 
-            num_arrayXSpace = new NumericStepper();
-            num_arrayXSpace.Value = 0.00;
-            num_arrayXSpace.Increment = 0.1;
-            num_arrayXSpace.DecimalPlaces = 2;
-            num_arrayXSpace.ToolTip = "Array X Space";
-            setSize(num_arrayXSpace, numWidth, num_Height);
+            num_arrayXSteps = new NumericStepper();
+            num_arrayXSteps.Value = 1;
+            num_arrayXSteps.MinValue = 1;
+            num_arrayXSteps.Increment = 1;
+            num_arrayXSteps.DecimalPlaces = 0;
+            num_arrayXSteps.ToolTip = "Array X Steps";
+            setSize(num_arrayXSteps, numWidth, num_Height);
 
-            TableCell tr12_1_1 = new TableCell();
-            Panel tr12_1_1p = new Panel();
-            PixelLayout tr12_1_1pl = new PixelLayout();
-            tr12_1_1p.Content = tr12_1_1pl;
-            tr12_1_1.Control = tr12_1_1p;
-            tr12_1_1pl.Add(num_arrayXSpace, 0, 0);
-            tr12_c_0.Cells.Add(tr12_1_1);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayXSteps });
+
+            sp3_ArrayXSpace(tl);
         }
 
-        void sp3_ArrayY(TableLayout groupBox_position_table)
+        void sp3_ArrayXSpace(TableLayout tl)
         {
-            TableRow tr13 = new TableRow();
-            groupBox_position_table.Rows.Add(tr13);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
+
+            lbl_arrayX = new Label();
+            lbl_arrayX.Text = "Array X Space";
+            lbl_arrayX.ToolTip = "Array X Space";
+            tr.Cells.Add(new TableCell() { Control = lbl_arrayX });
+
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            ptl.Rows.Add(new TableRow());
+            tr.Cells.Add(new TableCell() { Control = p });
+
+            num_arrayMinXSpace = new NumericStepper();
+            num_arrayMinXSpace.Value = 0;
+            num_arrayMinXSpace.MinValue = 0;
+            num_arrayMinXSpace.Increment = 0.01f; ;
+            num_arrayMinXSpace.DecimalPlaces = 2;
+            num_arrayMinXSpace.ToolTip = "Array X Space";
+            setSize(num_arrayMinXSpace, numWidth, num_Height);
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayMinXSpace });
+
+            num_arrayXSpaceInc = new NumericStepper();
+            num_arrayXSpaceInc.Value = 0;
+            num_arrayXSpaceInc.MinValue = 0;
+            num_arrayXSpaceInc.Increment = 0.01f;
+            num_arrayXSpaceInc.DecimalPlaces = 2;
+            num_arrayXSpaceInc.ToolTip = "Array X Space Increment";
+            setSize(num_arrayXSpaceInc, numWidth, num_Height);
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayXSpaceInc });
+
+            num_arrayXSpaceSteps = new NumericStepper();
+            num_arrayXSpaceSteps.Value = 1;
+            num_arrayXSpaceSteps.MinValue = 1;
+            num_arrayXSpaceSteps.Increment = 1;
+            num_arrayXSpaceSteps.DecimalPlaces = 0;
+            num_arrayXSpaceSteps.ToolTip = "Array X Space Steps";
+            setSize(num_arrayXSpaceSteps, numWidth, num_Height);
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayXSpaceSteps });
+        }
+
+        void sp3_ArrayY(TableLayout tl)
+        {
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
             lbl_arrayY = new Label();
             lbl_arrayY.Text = "Array Y";
             lbl_arrayY.ToolTip = "Array Y";
 
-            TableCell tr13_0 = new TableCell();
-            Panel tr13_0p = new Panel();
-            PixelLayout tr13_0pl = new PixelLayout();
-            tr13_0p.Content = tr13_0pl;
-            tr13_0.Control = tr13_0p;
-            tr13_0pl.Add(lbl_arrayY, 0, 0);
-            tr13.Cells.Add(tr13_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_arrayY });
 
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            TableRow tr0 = new TableRow();
+            ptl.Rows.Add(tr0);
+            tr.Cells.Add(new TableCell() { Control = p });
 
-            TableCell tr13_1 = new TableCell();
-            Panel tr13_1p = new Panel();
-            TableLayout tr13_container = new TableLayout();
-            tr13_1p.Content = tr13_container;
-            tr13_1.Control = tr13_1p;
-            TableRow tr13_c_0 = new TableRow();
-            tr13_container.Rows.Add(tr13_c_0);
-            tr13.Cells.Add(tr13_1);
+            num_arrayMinYCount = new NumericStepper();
+            num_arrayMinYCount.Value = 1;
+            num_arrayMinYCount.MinValue = 1;
+            num_arrayMinYCount.Increment = 1;
+            num_arrayMinYCount.DecimalPlaces = 0;
+            num_arrayMinYCount.ToolTip = "Array Y Count";
+            setSize(num_arrayMinYCount, numWidth, num_Height);
 
-            num_arrayYCount = new NumericStepper();
-            num_arrayYCount.Value = 1;
-            num_arrayYCount.MinValue = 1;
-            num_arrayYCount.Increment = 1;
-            num_arrayYCount.DecimalPlaces = 0;
-            num_arrayYCount.ToolTip = "Array Y Count";
-            setSize(num_arrayYCount, numWidth, num_Height);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayMinYCount });
 
-            TableCell tr13_1_0 = new TableCell();
-            Panel tr13_1_0p = new Panel();
-            PixelLayout tr13_1_0pl = new PixelLayout();
-            tr13_1_0p.Content = tr13_1_0pl;
-            tr13_1_0.Control = tr13_1_0p;
-            tr13_1_0pl.Add(num_arrayYCount, 0, 0);
-            tr13_c_0.Cells.Add(tr13_1_0);
+            num_arrayYInc = new NumericStepper();
+            num_arrayYInc.Value = 0;
+            num_arrayYInc.MinValue = 0;
+            num_arrayYInc.Increment = 1;
+            num_arrayYInc.DecimalPlaces = 0;
+            num_arrayYInc.ToolTip = "Array Y Increment";
+            setSize(num_arrayYInc, numWidth, num_Height);
 
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayYInc });
 
-            num_arrayYSpace = new NumericStepper();
-            num_arrayYSpace.Value = 0.00;
-            num_arrayYSpace.Increment = 0.1;
-            num_arrayYSpace.DecimalPlaces = 2;
-            num_arrayYSpace.ToolTip = "Array Y Space";
-            setSize(num_arrayYSpace, numWidth, num_Height);
+            num_arrayYSteps = new NumericStepper();
+            num_arrayYSteps.Value = 1;
+            num_arrayYSteps.MinValue = 1;
+            num_arrayYSteps.Increment = 1;
+            num_arrayYSteps.DecimalPlaces = 0;
+            num_arrayYSteps.ToolTip = "Array Y Steps";
+            setSize(num_arrayYSteps, numWidth, num_Height);
 
-            TableCell tr13_1_1 = new TableCell();
-            Panel tr13_1_1p = new Panel();
-            PixelLayout tr13_1_1pl = new PixelLayout();
-            tr13_1_1p.Content = tr13_1_1pl;
-            tr13_1_1.Control = tr13_1_1p;
-            tr13_1_1pl.Add(num_arrayYSpace, 0, 0);
-            tr13_c_0.Cells.Add(tr13_1_1);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayYSteps });
+
+            sp3_ArrayYSpace(tl);
         }
 
-        void sp3_ArrayRot(TableLayout groupBox_position_table)
+        void sp3_ArrayYSpace(TableLayout tl)
         {
-            TableRow tr10pre = new TableRow();
-            groupBox_position_table.Rows.Add(tr10pre);
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
 
+            lbl_arrayY = new Label();
+            lbl_arrayY.Text = "Array Y Space";
+            lbl_arrayY.ToolTip = "Array Y Space";
+            tr.Cells.Add(new TableCell() { Control = lbl_arrayY });
+
+            Panel p = new Panel();
+            TableLayout ptl = new TableLayout();
+            p.Content = ptl;
+            TableRow tr0 = new TableRow();
+            ptl.Rows.Add(tr0);
+            tr.Cells.Add(new TableCell() { Control = p });
+
+            num_arrayMinYSpace = new NumericStepper();
+            num_arrayMinYSpace.Value = 0;
+            num_arrayMinYSpace.MinValue = 0;
+            num_arrayMinYSpace.Increment = 0.01f;
+            num_arrayMinYSpace.DecimalPlaces = 2;
+            num_arrayMinYSpace.ToolTip = "Array Y Space";
+            setSize(num_arrayMinYSpace, numWidth, num_Height);
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayMinYSpace });
+
+            num_arrayYSpaceInc = new NumericStepper();
+            num_arrayYSpaceInc.Value = 0;
+            num_arrayYSpaceInc.MinValue = 0;
+            num_arrayYSpaceInc.Increment = 0.01f;
+            num_arrayYSpaceInc.DecimalPlaces = 2;
+            num_arrayYSpaceInc.ToolTip = "Array Y Space Increment";
+            setSize(num_arrayYSpaceInc, numWidth, num_Height);
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayYSpaceInc });
+
+            num_arrayYSpaceSteps = new NumericStepper();
+            num_arrayYSpaceSteps.Value = 1;
+            num_arrayYSpaceSteps.MinValue = 1;
+            num_arrayYSpaceSteps.Increment = 1;
+            num_arrayYSpaceSteps.DecimalPlaces = 0;
+            num_arrayYSpaceSteps.ToolTip = "Array Y Space Steps";
+            setSize(num_arrayYSpaceSteps, numWidth, num_Height);
+
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_arrayYSpaceSteps });
+        }
+
+        TableRow arrayRotationUI_1()
+        {
+            TableRow tr = new TableRow();
             lbl_arrayRotation = new Label();
             lbl_arrayRotation.Text = "Array Rotation";
             lbl_arrayRotation.ToolTip = "Array Rotation";
 
-            TableCell tr10pre_0 = new TableCell();
-            Panel tr10pre_0p = new Panel();
-            PixelLayout tr10pre_0pl = new PixelLayout();
-            tr10pre_0p.Content = tr10pre_0pl;
-            tr10pre_0.Control = tr10pre_0p;
-            tr10pre_0pl.Add(lbl_arrayRotation, 0, 0);
-            tr10pre.Cells.Add(tr10pre_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_arrayRotation });
 
-
-            TableCell tr10pre_1 = new TableCell();
-            Panel tr10pre_1p = new Panel();
-            TableLayout tr10pre_container = new TableLayout();
-            tr10pre_1p.Content = tr10pre_container;
-            tr10pre_1.Control = tr10pre_1p;
-            TableRow tr10pre_c_0 = new TableRow();
-            tr10pre_container.Rows.Add(tr10pre_c_0);
-            tr10pre.Cells.Add(tr10pre_1);
+            Panel p1 = new Panel();
+            TableLayout ptl = new TableLayout();
+            p1.Content = ptl;
+            ptl.Rows.Add(new TableRow());
+            tr.Cells.Add(new TableCell() { Control = p1 });
 
             num_minArrayRot = new NumericStepper();
             num_minArrayRot.Increment = 0.1;
             num_minArrayRot.DecimalPlaces = 2;
             setSize(num_minArrayRot, numWidth, num_Height);
 
-            TableCell tr10pre_1_0 = new TableCell();
-            Panel tr10pre_1_0p = new Panel();
-            PixelLayout tr10pre_1_0pl = new PixelLayout();
-            tr10pre_1_0p.Content = tr10pre_1_0pl;
-            tr10pre_1_0.Control = tr10pre_1_0p;
-            tr10pre_1_0pl.Add(num_minArrayRot, 0, 0);
-            tr10pre_c_0.Cells.Add(tr10pre_1_0);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_minArrayRot });
 
             num_incArrayRot = new NumericStepper();
             num_incArrayRot.Increment = 0.1;
             num_incArrayRot.DecimalPlaces = 2;
             setSize(num_incArrayRot, numWidth, num_Height);
 
-            TableCell tr10pre_1_1 = new TableCell();
-            Panel tr10pre_1_1p = new Panel();
-            PixelLayout tr10pre_1_1pl = new PixelLayout();
-            tr10pre_1_1p.Content = tr10pre_1_1pl;
-            tr10pre_1_1.Control = tr10pre_1_1p;
-            tr10pre_1_1pl.Add(num_incArrayRot, 0, 0);
-            tr10pre_c_0.Cells.Add(tr10pre_1_1);
-
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_incArrayRot });
 
             num_stepsArrayRot = new NumericStepper();
             num_stepsArrayRot.Increment = 1;
@@ -2023,36 +1957,27 @@ namespace Quilt
             num_stepsArrayRot.MinValue = 1;
             setSize(num_stepsArrayRot, numWidth, num_Height);
 
-            TableCell tr10pre_1_2 = new TableCell();
-            Panel tr10pre_1_2p = new Panel();
-            PixelLayout tr10pre_1_2pl = new PixelLayout();
-            tr10pre_1_2p.Content = tr10pre_1_2pl;
-            tr10pre_1_2.Control = tr10pre_1_2p;
-            tr10pre_1_2pl.Add(num_stepsArrayRot, 0, 0);
-            tr10pre_c_0.Cells.Add(tr10pre_1_2);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_stepsArrayRot });
 
-            TableRow tr10 = new TableRow();
-            groupBox_position_table.Rows.Add(tr10);
+            ptl.Rows[ptl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
+            return tr;
+        }
+
+        TableRow arrayRotationUI_2()
+        {
+            TableRow tr = new TableRow();
 
             Label lbl_relArrayRot = new Label();
             lbl_relArrayRot.Text = "Relative Array Rotation";
             lbl_relArrayRot.ToolTip = "Relative Array Rotation";
 
-            TableCell tr10_0 = new TableCell();
-            Panel tr10_0p = new Panel();
-            PixelLayout tr10_0pl = new PixelLayout();
-            tr10_0p.Content = tr10_0pl;
-            tr10_0.Control = tr10_0p;
-            tr10_0pl.Add(lbl_relArrayRot, 0, 0);
-            tr10.Cells.Add(tr10_0);
+            tr.Cells.Add(new TableCell() { Control = lbl_relArrayRot });
 
-            TableCell tr10_1 = new TableCell();
-            Panel tr10_1p = new Panel();
-            TableLayout tr10_1tl = new TableLayout();
-            tr10_1tl.Rows.Add(new TableRow());
-            tr10_1p.Content = tr10_1tl;
-            tr10_1.Control = tr10_1p;
-            tr10.Cells.Add(tr10_1);
+            Panel p = new Panel();
+            TableLayout tl = new TableLayout();
+            tl.Rows.Add(new TableRow());
+            p.Content = tl;
+            tr.Cells.Add(new TableCell() { Control = p });
 
             comboBox_arrayRotRef = new DropDown();
             comboBox_arrayRotRef.DataContext = DataContext;
@@ -2060,46 +1985,77 @@ namespace Quilt
             comboBox_arrayRotRef.SelectedIndex = 0;
             comboBox_arrayRotRef.ToolTip = "Rotation relative to this pattern element";
 
-            tr10_1tl.Rows[tr10_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = comboBox_arrayRotRef });
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_arrayRotRef) });
 
-            TableRow tr10b = new TableRow();
-            tr10_1tl.Rows.Add(tr10b);
+            TableRow tr1 = new TableRow();
+            tl.Rows.Add(tr1);
 
-            TableLayout tr10b_1tl = new TableLayout();
-            tr10b_1tl.Rows.Add(new TableRow());
+            TableLayout tr1_tl = new TableLayout();
+            tr1_tl.Rows.Add(new TableRow());
 
-            tr10b.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(tr10b_1tl) });
+            tr1.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(tr1_tl) });
 
             lbl_arrayUse = new Label();
             lbl_arrayUse.Text = "Use";
-            tr10b_1tl.Rows[tr10b_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_arrayUse });
+            tr1_tl.Rows[tr1_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_arrayUse });
 
             checkBox_refArrayPivot = new CheckBox();
             checkBox_refArrayPivot.Text = "Pivot";
             checkBox_refArrayPivot.Enabled = false;
             checkBox_refArrayPivot.ToolTip = "Use pivot point from reference.";
 
-            tr10b_1tl.Rows[tr10b_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refArrayPivot });
+            tr1_tl.Rows[tr1_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refArrayPivot });
 
             checkBox_arrayRotRef = new CheckBox();
             checkBox_arrayRotRef.Text = "Array";
             checkBox_arrayRotRef.Enabled = false;
             checkBox_arrayRotRef.ToolTip = "Use array rotation rather than shape.";
 
-            tr10b_1tl.Rows[tr10b_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_arrayRotRef });
+            tr1_tl.Rows[tr1_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_arrayRotRef });
 
-            tr10_1tl.Rows.Add(new TableRow());
+            tl.Rows.Add(new TableRow());
 
             checkBox_refArrayBoundsAfterRotation = new CheckBox();
             checkBox_refArrayBoundsAfterRotation.Text = "Bounds after rotation";
             checkBox_refArrayBoundsAfterRotation.Enabled = false;
             checkBox_refArrayBoundsAfterRotation.ToolTip = "Perform rotation before bounding box. This affects the pivot.";
 
-            tr10_1tl.Rows[tr10_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refArrayBoundsAfterRotation });
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_refArrayBoundsAfterRotation });
 
-            tr10_1tl.Rows[tr10_1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null, ScaleWidth = true });
+            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null, ScaleWidth = true });
 
-            groupBox_position_table.Rows.Add(new TableRow() { ScaleHeight = true });
+            return tr;
+        }
+
+        void sp3_ArrayRot(TableLayout tl)
+        {
+            tl.Rows.Add(arrayRotationUI_1());
+
+            tl.Rows.Add(arrayRotationUI_2());
+
+            tl.Rows.Add(new TableRow() { ScaleHeight = true });
+        }
+
+        void sp3_Merge(TableLayout tl)
+        {
+            TableRow tr = new TableRow();
+            tl.Rows.Add(tr);
+
+            Label lbl_merge = new Label();
+            lbl_merge.Text = "Merge";
+            lbl_merge.ToolTip = "Merge";
+
+            tr.Cells.Add(new TableCell() { Control = lbl_merge });
+
+            comboBox_merge = new DropDown();
+            comboBox_merge.DataContext = DataContext;
+            comboBox_merge.BindDataContext(c => c.DataStore, (UIStringLists m) => m.patternElementNamesForMerge_filtered);
+            comboBox_merge.SelectedIndex = 0;
+            comboBox_merge.ToolTip = "Union with this element on export";
+
+            tr.Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_merge) });
+
+            tr.Cells.Add(new TableCell() { Control = null });
         }
 
         void setupPatternElementUI_4()
@@ -2315,6 +2271,8 @@ namespace Quilt
 
             ovpSettings.minorGridColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
             ovpSettings.majorGridColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
+            ovpSettings.axisColor = Color.FromArgb(quiltContext.colors.axis_Color.toArgb());
+            ovpSettings.backColor = Color.FromArgb(quiltContext.colors.background_Color.toArgb());
             ovpSettings.reset(false);
 
         }
@@ -2343,6 +2301,289 @@ namespace Quilt
             updateLBContextMenu();
         }
 
+        void doPatternElementUI_num(string shapeString)
+        {
+            groupBox_properties.Content = groupBox_subShapes_table;
+            comboBox_patternElementShape.Visible = true;
+
+            num_layer_subshape_minhl.Enabled = true;
+            num_layer_subshape_incHL.Enabled = true;
+            num_layer_subshape_stepsHL.Enabled = true;
+
+            num_layer_subshape_minvl.Enabled = true;
+            num_layer_subshape_incVL.Enabled = true;
+            num_layer_subshape_stepsVL.Enabled = true;
+
+            num_layer_subshape_minho.Enabled = true;
+            num_layer_subshape_incHO.Enabled = true;
+            num_layer_subshape_stepsHO.Enabled = true;
+
+            num_layer_subshape_minvo.Enabled = true;
+            num_layer_subshape_incVO.Enabled = true;
+            num_layer_subshape_stepsVO.Enabled = true;
+
+            // Any configuration beyond the first couple requires a second shape to be defined so we need to display that part of the interface.
+            if ((shapeString != "none") && (shapeString != "rectangle"))
+            {
+                // Let's display the subshape 2 section if a shape configuration is chosen that requires it.
+                num_layer_subshape2_minhl.Enabled = true;
+                num_layer_subshape2_incHL.Enabled = true;
+                num_layer_subshape2_stepsHL.Enabled = true;
+
+                num_layer_subshape2_minvl.Enabled = true;
+                num_layer_subshape2_incVL.Enabled = true;
+                num_layer_subshape2_stepsVL.Enabled = true;
+
+                num_layer_subshape2_minho.Enabled = true;
+                num_layer_subshape2_incHO.Enabled = true;
+                num_layer_subshape2_stepsHO.Enabled = true;
+
+                num_layer_subshape2_minvo.Enabled = true;
+                num_layer_subshape2_incVO.Enabled = true;
+                num_layer_subshape2_stepsVO.Enabled = true;
+
+                if (shapeString == "S")
+                {
+                    num_layer_subshape3_minhl.Enabled = true;
+                    num_layer_subshape3_incHL.Enabled = true;
+                    num_layer_subshape3_stepsHL.Enabled = true;
+
+                    num_layer_subshape3_minvl.Enabled = true;
+                    num_layer_subshape3_incVL.Enabled = true;
+                    num_layer_subshape3_stepsVL.Enabled = true;
+
+                    num_layer_subshape3_minho.Enabled = true;
+                    num_layer_subshape3_incHO.Enabled = true;
+                    num_layer_subshape3_stepsHO.Enabled = true;
+
+                    num_layer_subshape3_minvo.Enabled = true;
+                    num_layer_subshape3_incVO.Enabled = true;
+                    num_layer_subshape3_stepsVO.Enabled = true;
+
+                    commonVars.subshapes.Clear();
+                    commonVars.subshapes.Add("1");
+                    commonVars.subshapes.Add("2");
+                    commonVars.subshapes.Add("3");
+                }
+                else
+                {
+                    num_layer_subshape3_minhl.Enabled = false;
+                    num_layer_subshape3_incHL.Enabled = false;
+                    num_layer_subshape3_stepsHL.Enabled = false;
+
+                    num_layer_subshape3_minvl.Enabled = false;
+                    num_layer_subshape3_incVL.Enabled = false;
+                    num_layer_subshape3_stepsVL.Enabled = false;
+
+                    num_layer_subshape3_minho.Enabled = false;
+                    num_layer_subshape3_incHO.Enabled = false;
+                    num_layer_subshape3_stepsHO.Enabled = false;
+
+                    num_layer_subshape3_minvo.Enabled = false;
+                    num_layer_subshape3_incVO.Enabled = false;
+                    num_layer_subshape3_stepsVO.Enabled = false;
+
+                    commonVars.subshapes.Clear();
+                    commonVars.subshapes.Add("1");
+                    commonVars.subshapes.Add("2");
+                }
+            }
+            else
+            {
+                num_layer_subshape2_minhl.Enabled = false;
+                num_layer_subshape2_incHL.Enabled = false;
+                num_layer_subshape2_stepsHL.Enabled = false;
+
+                num_layer_subshape2_minvl.Enabled = false;
+                num_layer_subshape2_incVL.Enabled = false;
+                num_layer_subshape2_stepsVL.Enabled = false;
+
+                num_layer_subshape2_minho.Enabled = false;
+                num_layer_subshape2_incHO.Enabled = false;
+                num_layer_subshape2_stepsHO.Enabled = false;
+
+                num_layer_subshape2_minvo.Enabled = false;
+                num_layer_subshape2_incVO.Enabled = false;
+                num_layer_subshape2_stepsVO.Enabled = false;
+
+                num_layer_subshape3_minhl.Enabled = false;
+                num_layer_subshape3_incHL.Enabled = false;
+                num_layer_subshape3_stepsHL.Enabled = false;
+
+                num_layer_subshape3_minvl.Enabled = false;
+                num_layer_subshape3_incVL.Enabled = false;
+                num_layer_subshape3_stepsVL.Enabled = false;
+
+                num_layer_subshape3_minho.Enabled = false;
+                num_layer_subshape3_incHO.Enabled = false;
+                num_layer_subshape3_stepsHO.Enabled = false;
+
+                num_layer_subshape3_minvo.Enabled = false;
+                num_layer_subshape3_incVO.Enabled = false;
+                num_layer_subshape3_stepsVO.Enabled = false;
+
+                commonVars.subshapes.Clear();
+                commonVars.subshapes.Add("1");
+            }
+        }
+
+        void doPatternElementUI_baseShape(int pattern, int index, bool updateUI, string shapeString)
+        {
+            doPatternElementUI_baseShape1(pattern, index, updateUI, shapeString);
+            doPatternElementUI_baseShape2(pattern, index, updateUI, shapeString);
+        }
+
+        void doPatternElementUI_baseShape1(int pattern, int index, bool updateUI, string shapeString)
+        {
+            if ((shapeString == "none") || (shapeString == "rectangle"))
+            {
+                clampSubShape2(minHLength: 0,
+                    maxHLength: 1000000,
+                    minVLength: 0,
+                    maxVLength: 1000000,
+                    minHOffset: -1000000,
+                    maxHOffset: 1000000,
+                    minVOffset: -1000000,
+                    maxVOffset: 1000000
+                );
+                clampSubShape3(minHLength: 0,
+                    maxHLength: 1000000,
+                    minVLength: 0,
+                    maxVLength: 1000000,
+                    minHOffset: -1000000,
+                    maxHOffset: 1000000,
+                    minVOffset: -1000000,
+                    maxVOffset: 1000000
+                );
+
+                if (shapeString == "none")
+                {
+                    num_layer_subshape_minhl.Value = 0;
+                    num_layer_subshape_minvl.Value = 0;
+                    num_layer_subshape_minho.Value = 0;
+                    num_layer_subshape_minvo.Value = 0;
+                }
+
+                num_layer_subshape2_minhl.Value = 0;
+                num_layer_subshape2_minvl.Value = 0;
+                num_layer_subshape2_minho.Value = 0;
+                num_layer_subshape2_minvo.Value = 0;
+
+                num_layer_subshape3_minhl.Value = 0;
+                num_layer_subshape3_minvl.Value = 0;
+                num_layer_subshape3_minho.Value = 0;
+                num_layer_subshape3_minvo.Value = 0;
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinHorLength, Convert.ToDecimal(num_layer_subshape2_minhl.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1HorLengthInc, Convert.ToDecimal(num_layer_subshape2_incHL.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1HorLengthSteps, Convert.ToInt32(num_layer_subshape2_stepsHL.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinHorOffset, Convert.ToDecimal(num_layer_subshape2_minho.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1HorOffsetInc, Convert.ToDecimal(num_layer_subshape2_incHO.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1HorOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsHO.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinVerLength, Convert.ToDecimal(num_layer_subshape2_minvl.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1VerLengthInc, Convert.ToDecimal(num_layer_subshape2_incVL.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1VerLengthSteps, Convert.ToInt32(num_layer_subshape2_stepsVL.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinVerOffset, Convert.ToDecimal(num_layer_subshape2_minvo.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1VerOffsetInc, Convert.ToDecimal(num_layer_subshape2_incVO.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1VerOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsVO.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape1Tip, (int)CommonVars.tipLocations.none);
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinHorLength, Convert.ToDecimal(num_layer_subshape3_minhl.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2HorLengthInc, Convert.ToDecimal(num_layer_subshape3_incHL.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2HorLengthSteps, Convert.ToInt32(num_layer_subshape3_stepsHL.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinHorOffset, Convert.ToDecimal(num_layer_subshape3_minho.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2HorOffsetInc, Convert.ToDecimal(num_layer_subshape3_incHO.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2HorOffsetSteps, Convert.ToInt32(num_layer_subshape3_stepsHO.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinVerLength, Convert.ToDecimal(num_layer_subshape3_minvl.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2VerLengthInc, Convert.ToDecimal(num_layer_subshape3_incVL.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2VerLengthSteps, Convert.ToInt32(num_layer_subshape3_stepsVL.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinVerOffset, Convert.ToDecimal(num_layer_subshape3_minvo.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2VerOffsetInc, Convert.ToDecimal(num_layer_subshape3_incVO.Value));
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2VerOffsetSteps, Convert.ToInt32(num_layer_subshape3_stepsVO.Value));
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape2Tip, (int)CommonVars.tipLocations.none);
+            }
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinHorLength, Convert.ToDecimal(num_layer_subshape_minhl.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0HorLengthInc, Convert.ToDecimal(num_layer_subshape_incHL.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0HorLengthSteps, Convert.ToInt32(num_layer_subshape_stepsHL.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinHorOffset, Convert.ToDecimal(num_layer_subshape_minho.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0HorOffsetInc, Convert.ToDecimal(num_layer_subshape_incHO.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0HorOffsetSteps, Convert.ToInt32(num_layer_subshape_stepsHO.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinVerLength, Convert.ToDecimal(num_layer_subshape_minvl.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0VerLengthInc, Convert.ToDecimal(num_layer_subshape_incVL.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0VerLengthSteps, Convert.ToInt32(num_layer_subshape_stepsVL.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinVerOffset, Convert.ToDecimal(num_layer_subshape_minvo.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0VerOffsetInc, Convert.ToDecimal(num_layer_subshape_incVO.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0VerOffsetSteps, Convert.ToInt32(num_layer_subshape_stepsVO.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape0Tip, (int)CommonVars.tipLocations.none);
+        }
+
+        void doPatternElementUI_baseShape2(int pattern, int index, bool updateUI, string shapeString)
+        {
+            // Subshape 2 offsets contingent on shape selection choice
+            if ((shapeString != "none") && (shapeString != "rectangle") && (shapeString != "GEOCORE") && (shapeString != "BOOLEAN"))
+            {
+                clampSubShape(minHLength: 0.01,
+                    maxHLength: 1000000,
+                    minVLength: 0.01,
+                    maxVLength: 1000000,
+                    minHOffset: -1000000,
+                    maxHOffset: 1000000,
+                    minVOffset: -1000000,
+                    maxVOffset: 1000000
+                );
+
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape1Tip, (int)CommonVars.tipLocations.none);
+                if (shapeString == "X") // Limit offsets of subshape 2 for X-shape.
+                {
+                    doUI_X(pattern, index);
+                }
+                else if (shapeString == "T") // Disabled horizontal offset of subshape 2 for T-shape.
+                {
+                    doUI_T(pattern, index);
+                }
+                else if (shapeString == "L") // Disable horizontal and vertical offsets of subshape 2 for L-shape
+                {
+                    doUI_L(pattern, index);
+                }
+                else if (shapeString == "U") // U-shape
+                {
+                    doUI_U(pattern, index);
+                }
+                else if (shapeString == "S") // S-shape
+                {
+                    doUI_S(pattern, index);
+                }
+                else
+                {
+                    if (updateUI)
+                    {
+                        num_layer_subshape2_minho.Enabled = true;
+                        num_layer_subshape2_minvo.Enabled = true;
+                    }
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinHorOffset, Convert.ToDecimal(num_layer_subshape2_minho.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1HorOffsetInc, Convert.ToDecimal(num_layer_subshape2_incHO.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1HorOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsHO.Value));
+
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinVerOffset, Convert.ToDecimal(num_layer_subshape2_minvo.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1VerOffsetInc, Convert.ToDecimal(num_layer_subshape2_incVO.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1VerOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsVO.Value));
+                }
+            }
+        }
+
         void doPatternElementUI_subshape(int pattern, int index, bool updateUI, string shapeString)
         {
             int previousIndex = comboBox_subShapeRef.SelectedIndex;
@@ -2351,128 +2592,7 @@ namespace Quilt
             {
                 if ((shapeString != "bounding") && (shapeString != "complex"))
                 {
-                    groupBox_properties.Content = groupBox_subShapes_table;
-                    comboBox_patternElementShape.Visible = true;
-
-                    num_layer_subshape_minhl.Enabled = true;
-                    num_layer_subshape_incHL.Enabled = true;
-                    num_layer_subshape_stepsHL.Enabled = true;
-
-                    num_layer_subshape_minvl.Enabled = true;
-                    num_layer_subshape_incVL.Enabled = true;
-                    num_layer_subshape_stepsVL.Enabled = true;
-
-                    num_layer_subshape_minho.Enabled = true;
-                    num_layer_subshape_incHO.Enabled = true;
-                    num_layer_subshape_stepsHO.Enabled = true;
-
-                    num_layer_subshape_minvo.Enabled = true;
-                    num_layer_subshape_incVO.Enabled = true;
-                    num_layer_subshape_stepsVO.Enabled = true;
-
-                    // Any configuration beyond the first couple requires a second shape to be defined so we need to display that part of the interface.
-                    if ((shapeString != "none") && (shapeString != "rectangle"))
-                    {
-                        // Let's display the subshape 2 section if a shape configuration is chosen that requires it.
-                        num_layer_subshape2_minhl.Enabled = true;
-                        num_layer_subshape2_incHL.Enabled = true;
-                        num_layer_subshape2_stepsHL.Enabled = true;
-
-                        num_layer_subshape2_minvl.Enabled = true;
-                        num_layer_subshape2_incVL.Enabled = true;
-                        num_layer_subshape2_stepsVL.Enabled = true;
-
-                        num_layer_subshape2_minho.Enabled = true;
-                        num_layer_subshape2_incHO.Enabled = true;
-                        num_layer_subshape2_stepsHO.Enabled = true;
-
-                        num_layer_subshape2_minvo.Enabled = true;
-                        num_layer_subshape2_incVO.Enabled = true;
-                        num_layer_subshape2_stepsVO.Enabled = true;
-
-                        if (shapeString == "S")
-                        {
-                            num_layer_subshape3_minhl.Enabled = true;
-                            num_layer_subshape3_incHL.Enabled = true;
-                            num_layer_subshape3_stepsHL.Enabled = true;
-
-                            num_layer_subshape3_minvl.Enabled = true;
-                            num_layer_subshape3_incVL.Enabled = true;
-                            num_layer_subshape3_stepsVL.Enabled = true;
-
-                            num_layer_subshape3_minho.Enabled = true;
-                            num_layer_subshape3_incHO.Enabled = true;
-                            num_layer_subshape3_stepsHO.Enabled = true;
-
-                            num_layer_subshape3_minvo.Enabled = true;
-                            num_layer_subshape3_incVO.Enabled = true;
-                            num_layer_subshape3_stepsVO.Enabled = true;
-
-                            commonVars.subshapes.Clear();
-                            commonVars.subshapes.Add("1");
-                            commonVars.subshapes.Add("2");
-                            commonVars.subshapes.Add("3");
-                        }
-                        else
-                        {
-                            num_layer_subshape3_minhl.Enabled = false;
-                            num_layer_subshape3_incHL.Enabled = false;
-                            num_layer_subshape3_stepsHL.Enabled = false;
-
-                            num_layer_subshape3_minvl.Enabled = false;
-                            num_layer_subshape3_incVL.Enabled = false;
-                            num_layer_subshape3_stepsVL.Enabled = false;
-
-                            num_layer_subshape3_minho.Enabled = false;
-                            num_layer_subshape3_incHO.Enabled = false;
-                            num_layer_subshape3_stepsHO.Enabled = false;
-
-                            num_layer_subshape3_minvo.Enabled = false;
-                            num_layer_subshape3_incVO.Enabled = false;
-                            num_layer_subshape3_stepsVO.Enabled = false;
-
-                            commonVars.subshapes.Clear();
-                            commonVars.subshapes.Add("1");
-                            commonVars.subshapes.Add("2");
-                        }
-                    }
-                    else
-                    {
-                        num_layer_subshape2_minhl.Enabled = false;
-                        num_layer_subshape2_incHL.Enabled = false;
-                        num_layer_subshape2_stepsHL.Enabled = false;
-
-                        num_layer_subshape2_minvl.Enabled = false;
-                        num_layer_subshape2_incVL.Enabled = false;
-                        num_layer_subshape2_stepsVL.Enabled = false;
-
-                        num_layer_subshape2_minho.Enabled = false;
-                        num_layer_subshape2_incHO.Enabled = false;
-                        num_layer_subshape2_stepsHO.Enabled = false;
-
-                        num_layer_subshape2_minvo.Enabled = false;
-                        num_layer_subshape2_incVO.Enabled = false;
-                        num_layer_subshape2_stepsVO.Enabled = false;
-
-                        num_layer_subshape3_minhl.Enabled = false;
-                        num_layer_subshape3_incHL.Enabled = false;
-                        num_layer_subshape3_stepsHL.Enabled = false;
-
-                        num_layer_subshape3_minvl.Enabled = false;
-                        num_layer_subshape3_incVL.Enabled = false;
-                        num_layer_subshape3_stepsVL.Enabled = false;
-
-                        num_layer_subshape3_minho.Enabled = false;
-                        num_layer_subshape3_incHO.Enabled = false;
-                        num_layer_subshape3_stepsHO.Enabled = false;
-
-                        num_layer_subshape3_minvo.Enabled = false;
-                        num_layer_subshape3_incVO.Enabled = false;
-                        num_layer_subshape3_stepsVO.Enabled = false;
-
-                        commonVars.subshapes.Clear();
-                        commonVars.subshapes.Add("1");
-                    }
+                    doPatternElementUI_num(shapeString);
                 }
                 else
                 {
@@ -2498,185 +2618,25 @@ namespace Quilt
 
             if ((shapeString != "bounding") && (shapeString != "complex"))
             {
-                if ((shapeString == "none") || (shapeString == "rectangle"))
-                {
-                    clampSubShape2(minHLength: 0,
-                        maxHLength: 1000000,
-                        minVLength: 0,
-                        maxVLength: 1000000,
-                        minHOffset: -1000000,
-                        maxHOffset: 1000000,
-                        minVOffset: -1000000,
-                        maxVOffset: 1000000
-                    );
-                    clampSubShape3(minHLength: 0,
-                        maxHLength: 1000000,
-                        minVLength: 0,
-                        maxVLength: 1000000,
-                        minHOffset: -1000000,
-                        maxHOffset: 1000000,
-                        minVOffset: -1000000,
-                        maxVOffset: 1000000
-                    );
-
-                    if (shapeString == "none")
-                    {
-                        num_layer_subshape_minhl.Value = 0;
-                        num_layer_subshape_minvl.Value = 0;
-                        num_layer_subshape_minho.Value = 0;
-                        num_layer_subshape_minvo.Value = 0;
-                    }
-
-                    num_layer_subshape2_minhl.Value = 0;
-                    num_layer_subshape2_minvl.Value = 0;
-                    num_layer_subshape2_minho.Value = 0;
-                    num_layer_subshape2_minvo.Value = 0;
-
-                    num_layer_subshape3_minhl.Value = 0;
-                    num_layer_subshape3_minvl.Value = 0;
-                    num_layer_subshape3_minho.Value = 0;
-                    num_layer_subshape3_minvo.Value = 0;
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinHorLength, Convert.ToDecimal(num_layer_subshape2_minhl.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1HorLengthInc, Convert.ToDecimal(num_layer_subshape2_incHL.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1HorLengthSteps, Convert.ToInt32(num_layer_subshape2_stepsHL.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinHorOffset, Convert.ToDecimal(num_layer_subshape2_minho.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1HorOffsetInc, Convert.ToDecimal(num_layer_subshape2_incHO.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1HorOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsHO.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinVerLength, Convert.ToDecimal(num_layer_subshape2_minvl.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1VerLengthInc, Convert.ToDecimal(num_layer_subshape2_incVL.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1VerLengthSteps, Convert.ToInt32(num_layer_subshape2_stepsVL.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinVerOffset, Convert.ToDecimal(num_layer_subshape2_minvo.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1VerOffsetInc, Convert.ToDecimal(num_layer_subshape2_incVO.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1VerOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsVO.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape1Tip, (int)CommonVars.tipLocations.none);
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinHorLength, Convert.ToDecimal(num_layer_subshape3_minhl.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2HorLengthInc, Convert.ToDecimal(num_layer_subshape3_incHL.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2HorLengthSteps, Convert.ToInt32(num_layer_subshape3_stepsHL.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinHorOffset, Convert.ToDecimal(num_layer_subshape3_minho.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2HorOffsetInc, Convert.ToDecimal(num_layer_subshape3_incHO.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2HorOffsetSteps, Convert.ToInt32(num_layer_subshape3_stepsHO.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinVerLength, Convert.ToDecimal(num_layer_subshape3_minvl.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2VerLengthInc, Convert.ToDecimal(num_layer_subshape3_incVL.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2VerLengthSteps, Convert.ToInt32(num_layer_subshape3_stepsVL.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2MinVerOffset, Convert.ToDecimal(num_layer_subshape3_minvo.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2VerOffsetInc, Convert.ToDecimal(num_layer_subshape3_incVO.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2VerOffsetSteps, Convert.ToInt32(num_layer_subshape3_stepsVO.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape2Tip, (int)CommonVars.tipLocations.none);
-                }
-
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinHorLength, Convert.ToDecimal(num_layer_subshape_minhl.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0HorLengthInc, Convert.ToDecimal(num_layer_subshape_incHL.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0HorLengthSteps, Convert.ToInt32(num_layer_subshape_stepsHL.Value));
-
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinHorOffset, Convert.ToDecimal(num_layer_subshape_minho.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0HorOffsetInc, Convert.ToDecimal(num_layer_subshape_incHO.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0HorOffsetSteps, Convert.ToInt32(num_layer_subshape_stepsHO.Value));
-
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinVerLength, Convert.ToDecimal(num_layer_subshape_minvl.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0VerLengthInc, Convert.ToDecimal(num_layer_subshape_incVL.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0VerLengthSteps, Convert.ToInt32(num_layer_subshape_stepsVL.Value));
-
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0MinVerOffset, Convert.ToDecimal(num_layer_subshape_minvo.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s0VerOffsetInc, Convert.ToDecimal(num_layer_subshape_incVO.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s0VerOffsetSteps, Convert.ToInt32(num_layer_subshape_stepsVO.Value));
-
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape0Tip, (int)CommonVars.tipLocations.none);
-
-                // Subshape 2 offsets contingent on shape selection choice
-                if ((shapeString != "none") && (shapeString != "rectangle") && (shapeString != "GEOCORE") && (shapeString != "BOOLEAN"))
-                {
-                    clampSubShape(minHLength: 0.01,
-                        maxHLength: 1000000,
-                        minVLength: 0.01,
-                        maxVLength: 1000000,
-                        minHOffset: -1000000,
-                        maxHOffset: 1000000,
-                        minVOffset: -1000000,
-                        maxVOffset: 1000000
-                    );
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.shape1Tip, (int)CommonVars.tipLocations.none);
-                    if (shapeString == "X") // Limit offsets of subshape 2 for X-shape.
-                    {
-                        doUI_X(pattern, index);
-                    }
-                    else if (shapeString == "T") // Disabled horizontal offset of subshape 2 for T-shape.
-                    {
-                        doUI_T(pattern, index);
-                    }
-                    else if (shapeString == "L") // Disable horizontal and vertical offsets of subshape 2 for L-shape
-                    {
-                        doUI_L(pattern, index);
-                    }
-                    else if (shapeString == "U") // U-shape
-                    {
-                        doUI_U(pattern, index);
-                    }
-                    else if (shapeString == "S") // S-shape
-                    {
-                        do_S(pattern, index);
-                    }
-                    else
-                    {
-                        if (updateUI)
-                        {
-                            num_layer_subshape2_minho.Enabled = true;
-                            num_layer_subshape2_minvo.Enabled = true;
-                        }
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinHorOffset, Convert.ToDecimal(num_layer_subshape2_minho.Value));
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1HorOffsetInc, Convert.ToDecimal(num_layer_subshape2_incHO.Value));
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1HorOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsHO.Value));
-
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1MinVerOffset, Convert.ToDecimal(num_layer_subshape2_minvo.Value));
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s1VerOffsetInc, Convert.ToDecimal(num_layer_subshape2_incVO.Value));
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s1VerOffsetSteps, Convert.ToInt32(num_layer_subshape2_stepsVO.Value));
-                    }
-                }
+                doPatternElementUI_baseShape(pattern, index, updateUI, shapeString);
             }
             else
             {
                 if (shapeString == "bounding")
                 {
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingLeftSteps, (int)num_layer_bblsteps.Value);
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeft, Convert.ToDecimal(num_layer_minbbl.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeftInc, Convert.ToDecimal(num_layer_bblinc.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingRightSteps, (int)num_layer_bbrsteps.Value);
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRight, Convert.ToDecimal(num_layer_minbbr.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRightInc, Convert.ToDecimal(num_layer_bbrinc.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingTopSteps, (int)num_layer_bbtsteps.Value);
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTop, Convert.ToDecimal(num_layer_minbbt.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTopInc, Convert.ToDecimal(num_layer_bbtinc.Value));
-
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingBottomSteps, (int)num_layer_bbbsteps.Value);
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottom, Convert.ToDecimal(num_layer_minbbb.Value));
-                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottomInc, Convert.ToDecimal(num_layer_bbbinc.Value));
+                    doUI_bounding(pattern, index);
                 }
                 if (shapeString == "complex")
                 {
-                    for (int i = 0; i < commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getInt(PatternElement.properties_i.externalGeoVertexCount); i++)
-                    {
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.externalGeoCoordX, Convert.ToDecimal(num_externalGeoCoordsX[i].Value), i);
-                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.externalGeoCoordY, Convert.ToDecimal(num_externalGeoCoordsY[i].Value), i);
-                    }
+                    doUI_complex(pattern, index);
                 }
             }
-
         }
 
         void doPatternElementUI_position(int pattern, int index)
         {
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.linkedElementIndex, comboBox_merge.SelectedIndex - 1);
+
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.subShapeIndex, comboBox_subShapeRef.SelectedIndex);
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.posIndex, comboBox_posSubShape.SelectedIndex);
 
@@ -2773,10 +2733,18 @@ namespace Quilt
                 }
             }
 
-            num_arrayXCount.Enabled = bounding ? false : !isRelativeArray;
-            num_arrayYCount.Enabled = bounding ? false : !isRelativeArray;
-            num_arrayXSpace.Enabled = bounding ? false : !isRelativeArray;
-            num_arrayYSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinXCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinYCount.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSteps.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSteps.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinXSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayMinYSpace.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSpaceInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSpaceInc.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayXSpaceSteps.Enabled = bounding ? false : !isRelativeArray;
+            num_arrayYSpaceSteps.Enabled = bounding ? false : !isRelativeArray;
 
             // Register the relative array status with the pattern element.
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.relativeArray, isRelativeArray ? 1 : 0);
@@ -2784,14 +2752,35 @@ namespace Quilt
             num_minArrayRot.Enabled = isArray || isRelativeArray;
             num_incArrayRot.Enabled = isArray || isRelativeArray;
             num_stepsArrayRot.Enabled = isArray || isRelativeArray;
+
+            num_arrayMinXSpace.Enabled = isArray || isRelativeArray;
+            num_arrayXSpaceInc.Enabled = isArray || isRelativeArray;
+            num_arrayXSpaceSteps.Enabled = isArray || isRelativeArray;
+
+            num_arrayMinYSpace.Enabled = isArray || isRelativeArray;
+            num_arrayYSpaceInc.Enabled = isArray || isRelativeArray;
+            num_arrayYSpaceSteps.Enabled = isArray || isRelativeArray;
+
             comboBox_arrayRotRef.Enabled = isArray || isRelativeArray;
             checkBox_refArrayPivot.Enabled = isArray || isRelativeArray;
 
-            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayXCount, Convert.ToInt32(num_arrayXCount.Value));
-            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayYCount, Convert.ToInt32(num_arrayYCount.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayMinXCount, Convert.ToInt32(num_arrayMinXCount.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayMinYCount, Convert.ToInt32(num_arrayMinYCount.Value));
 
-            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.arrayXSpace, Convert.ToDecimal(num_arrayXSpace.Value));
-            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.arrayYSpace, Convert.ToDecimal(num_arrayYSpace.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayXInc, Convert.ToInt32(num_arrayXInc.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayYInc, Convert.ToInt32(num_arrayYInc.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayXSteps, Convert.ToInt32(num_arrayXSteps.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayYSteps, Convert.ToInt32(num_arrayYSteps.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.arrayMinXSpace, Convert.ToDecimal(num_arrayMinXSpace.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.arrayMinYSpace, Convert.ToDecimal(num_arrayMinYSpace.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.arrayXSpaceInc, Convert.ToDecimal(num_arrayXSpaceInc.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.arrayYSpaceInc, Convert.ToDecimal(num_arrayYSpaceInc.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayXSpaceSteps, Convert.ToInt32(num_arrayXSpaceSteps.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.arrayYSpaceSteps, Convert.ToInt32(num_arrayYSpaceSteps.Value));
 
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.minArrayRotation, Convert.ToDecimal(num_minArrayRot.Value));
 
@@ -3268,7 +3257,7 @@ namespace Quilt
             num_layer_subshape2_incVO.Enabled = false;
         }
 
-        void do_S(int pattern, int index)
+        void doUI_S(int pattern, int index)
         {
             // Validate our settings and clamp the inputs as needed.
             clampSubShape(minHLength: 0.04, 
@@ -3380,49 +3369,48 @@ namespace Quilt
             num_layer_subshape3_incVO.Enabled = true;
         }
 
+        void doUI_bounding(int pattern, int index)
+        {
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingLeftSteps, (int)num_layer_bblsteps.Value);
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeft, Convert.ToDecimal(num_layer_minbbl.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeftInc, Convert.ToDecimal(num_layer_bblinc.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingRightSteps, (int)num_layer_bbrsteps.Value);
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRight, Convert.ToDecimal(num_layer_minbbr.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRightInc, Convert.ToDecimal(num_layer_bbrinc.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingTopSteps, (int)num_layer_bbtsteps.Value);
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTop, Convert.ToDecimal(num_layer_minbbt.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTopInc, Convert.ToDecimal(num_layer_bbtinc.Value));
+
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingBottomSteps, (int)num_layer_bbbsteps.Value);
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottom, Convert.ToDecimal(num_layer_minbbb.Value));
+            commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottomInc, Convert.ToDecimal(num_layer_bbbinc.Value));
+        }
+
+        void doUI_complex(int pattern, int index)
+        {
+            for (int i = 0; i < commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getInt(PatternElement.properties_i.externalGeoVertexCount); i++)
+            {
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.externalGeoCoordX, Convert.ToDecimal(num_externalGeoCoordsX[i].Value), i);
+                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.externalGeoCoordY, Convert.ToDecimal(num_externalGeoCoordsY[i].Value), i);
+            }
+        }
+
+        void clampNumeric(ref NumericStepper num, double min, double max)
+        {
+            num.Value = Math.Max(min, num.Value);
+            num.Value = Math.Min(max, num.Value);
+        }
+
         void clampSubShape(double minHLength, double maxHLength, double minVLength, double maxVLength, double minHOffset, double maxHOffset, double minVOffset, double maxVOffset)
         {
             Application.Instance.Invoke(() =>
             {
-                if (num_layer_subshape_minhl.Value < minHLength)
-                {
-                    num_layer_subshape_minhl.Value = minHLength;
-                }
-
-                if (num_layer_subshape_minhl.Value > maxHLength)
-                {
-                    num_layer_subshape_minhl.Value = maxHLength;
-                }
-
-                if (num_layer_subshape_minvl.Value < minVLength)
-                {
-                    num_layer_subshape_minvl.Value = minVLength;
-                }
-
-                if (num_layer_subshape_minvl.Value > maxVLength)
-                {
-                    num_layer_subshape_minvl.Value = maxVLength;
-                }
-
-                if (num_layer_subshape_minho.Value < minHOffset)
-                {
-                    num_layer_subshape_minho.Value = minHOffset;
-                }
-
-                if (num_layer_subshape_minho.Value > maxHOffset)
-                {
-                    num_layer_subshape_minho.Value = maxHOffset;
-                }
-
-                if (num_layer_subshape_minvo.Value < minVOffset)
-                {
-                    num_layer_subshape_minvo.Value = minVOffset;
-                }
-
-                if (num_layer_subshape_minvo.Value > maxVOffset)
-                {
-                    num_layer_subshape_minvo.Value = maxVOffset;
-                }
+                clampNumeric(ref num_layer_subshape_minhl, minHLength, maxHLength);
+                clampNumeric(ref num_layer_subshape_minvl, minVLength, maxVLength);
+                clampNumeric(ref num_layer_subshape_minho, minHOffset, maxHOffset);
+                clampNumeric(ref num_layer_subshape_minvo, minVOffset, maxVOffset);
             });
         }
 
@@ -3430,45 +3418,11 @@ namespace Quilt
         {
             Application.Instance.Invoke(() =>
             {
-                if (num_layer_subshape2_minhl.Value < minHLength)
-                {
-                    num_layer_subshape2_minhl.Value = minHLength;
-                }
 
-                if (num_layer_subshape2_minhl.Value > maxHLength)
-                {
-                    num_layer_subshape2_minhl.Value = maxHLength;
-                }
-
-                if (num_layer_subshape2_minvl.Value < minVLength)
-                {
-                    num_layer_subshape2_minvl.Value = minVLength;
-                }
-
-                if (num_layer_subshape2_minvl.Value > maxVLength)
-                {
-                    num_layer_subshape2_minvl.Value = maxVLength;
-                }
-
-                if (num_layer_subshape2_minho.Value < minHOffset)
-                {
-                    num_layer_subshape2_minho.Value = minHOffset;
-                }
-
-                if (num_layer_subshape2_minho.Value > maxHOffset)
-                {
-                    num_layer_subshape2_minho.Value = maxHOffset;
-                }
-
-                if (num_layer_subshape2_minvo.Value < minVOffset)
-                {
-                    num_layer_subshape2_minvo.Value = minVOffset;
-                }
-
-                if (num_layer_subshape2_minvo.Value > maxVOffset)
-                {
-                    num_layer_subshape2_minvo.Value = maxVOffset;
-                }
+                clampNumeric(ref num_layer_subshape2_minhl, minHLength, maxHLength);
+                clampNumeric(ref num_layer_subshape2_minvl, minVLength, maxVLength);
+                clampNumeric(ref num_layer_subshape2_minho, minHOffset, maxHOffset);
+                clampNumeric(ref num_layer_subshape2_minvo, minVOffset, maxVOffset);
             });
         }
 
@@ -3476,45 +3430,10 @@ namespace Quilt
         {
             Application.Instance.Invoke(() =>
             {
-                if (num_layer_subshape3_minhl.Value < minHLength)
-                {
-                    num_layer_subshape3_minhl.Value = minHLength;
-                }
-
-                if (num_layer_subshape3_minhl.Value > maxHLength)
-                {
-                    num_layer_subshape3_minhl.Value = maxHLength;
-                }
-
-                if (num_layer_subshape3_minvl.Value < minVLength)
-                {
-                    num_layer_subshape3_minvl.Value = minVLength;
-                }
-
-                if (num_layer_subshape3_minvl.Value > maxVLength)
-                {
-                    num_layer_subshape3_minvl.Value = maxVLength;
-                }
-
-                if (num_layer_subshape3_minho.Value < minHOffset)
-                {
-                    num_layer_subshape3_minho.Value = minHOffset;
-                }
-
-                if (num_layer_subshape3_minho.Value > maxHOffset)
-                {
-                    num_layer_subshape3_minho.Value = maxHOffset;
-                }
-
-                if (num_layer_subshape3_minvo.Value < minVOffset)
-                {
-                    num_layer_subshape3_minvo.Value = minVOffset;
-                }
-
-                if (num_layer_subshape3_minvo.Value > maxVOffset)
-                {
-                    num_layer_subshape3_minvo.Value = maxVOffset;
-                }
+                clampNumeric(ref num_layer_subshape3_minhl, minHLength, maxHLength);
+                clampNumeric(ref num_layer_subshape3_minvl, minVLength, maxVLength);
+                clampNumeric(ref num_layer_subshape3_minho, minHOffset, maxHOffset);
+                clampNumeric(ref num_layer_subshape3_minvo, minVOffset, maxVOffset);
             });
         }
     }

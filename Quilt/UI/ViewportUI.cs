@@ -39,6 +39,8 @@ namespace Quilt
             // Brute force setting, to ensure we're aligned with user preferences that might have changed.
             ovpSettings.minorGridColor = Color.FromArgb(commonVars.getColors().minor_Color.toArgb());
             ovpSettings.majorGridColor = Color.FromArgb(commonVars.getColors().major_Color.toArgb());
+            ovpSettings.axisColor = Color.FromArgb(commonVars.getColors().axis_Color.toArgb());
+            ovpSettings.backColor = Color.FromArgb(commonVars.getColors().background_Color.toArgb());
             ovpSettings.reset();
 
             if (suspendBuild)

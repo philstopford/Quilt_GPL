@@ -189,24 +189,72 @@ img {
 
   <p class="western" style=" line-height: 100%">When a layout file is opened for pattern definition, the cell is queried for its geometry. Quilt will attempt to discover compatible geometry for mapping to Quilt primitives (rectangle, L, U, S, X, U, T). This includes transformation extractions (rotations, etc.). Note that the same result can occur for combinations of transformations; the simplest form will be chosen. Colinear points are removed during the processing, using the angular tolerance value to handle marginal cases.</p>
 
-  <p class="western" style=" line-height: 100%">For geometry that is orthogonal, but which cannot be described in primitive terms, rectangular decomposition is used. This will turn the complex geometry into a series of rectangular primitives. These will be ordered based on the bottom left corner of each rectangle, starting with the lower-left and working towards upper right in the layout. Each rectangle will have its position and rotation defined relative to the prior rectangle, in order to ease pattern variation set-up; it may be that you need to adjust these default relationships, however. Best effort is made to create a minimal representation, but this is not guaranteed.</p>
+  <p class="western" style=" line-height: 100%">For geometry that is orthogonal, and axis-aligned(*), but which cannot be described in primitive terms, rectangular decomposition is used. This will turn the complex geometry into a series of rectangular primitives. These will be ordered based on the bottom left corner of each rectangle, starting with the lower-left and working towards upper right in the layout. Each rectangle will have its position and rotation defined relative to the prior rectangle, in order to ease pattern variation set-up; it may be that you need to adjust these default relationships, however. Considerable effort is made to create a minimal representation, in the chosen orientation.</p>
 
-  <p style="page-break-before: always"><img src="images/layout_in.png" size="80%" alt=""/></p>
+  <table>
+  	<tr>
+  		<td width="50%"><img src="images/layout_in.png" size="80%" alt=""/>
+  		</td>
+  		<td width="50%"><img src="images/layout_decomp.png" size="100%" alt=""/>
+  		</td>
+  	</tr>
+  </table>
 
-  <p style="page-break-before: always"><img src="images/layout_decomp.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">NOTE: The requirement for axis-alignment comes from the underlying grid used by layout files. When initially-orthogonal geometry is rotated, the grid placement can result in non-orthogonal geometry when the transformed points are snapped to the nearest grid location. These errors can be significant, depending on the amount of rotation and the grid spacing involved, as illustrated below on 1 nm grid with 15 degree rotation. In the end, the rotated geometry has become non-orthogonal and cannot be subjected to decomposition.</p>
+  <p class="western" style=" line-height: 100%">NOTE: Cell references in input layout do not allow for a workaround for this, arising from the potential for stacked transforms (e.g. cell reference hierarchy, with various transforms and their own geometry, to the cell that has the polygons). The decomposition system receives the geometry after full evaluation, including transforms.</p>
+
+  <table>
+  	<tr>
+  		<td width="50%"><img src="images/ortho_layout_axisaligned.png" size="80%" alt=""/>
+  		</td>
+  		<td width="50%"><img src="images/ortho_layout_rot15deg.png" size="80%" alt=""/>
+  		</td>
+  	</tr>
+  </table>
 
   <p class="western" style=" line-height: 100%">By default, the decomposition will produce vertically oriented rectangles. If desired, horizontal orientation can be chosen by deselecting the 'vertical decomp' option in the preferences tab. Changing this option will not cause a re-evaluation of existing decomposition; re-create the pattern from the layout file to see the change.</p>
 
-  <p style="page-break-before: always"><img src="images/layout_decomp_hor.png" size="100%" alt=""/></p>
+  <table>
+  	<tr>
+  		<td width="50%"><img src="images/layout_decomp_hor.png" size="100%" alt=""/>
+  		</td>
+  		<td width="50%">
+  		</td>
+  	</tr>
+  </table>
 
   <p class="western" style=" line-height: 100%">The decomposed rectangles are displayed in both 'input' and 'final' display modes, to keep consistency with the way that the tool works generally. On export, however, the decomposed rectangles will be subject to a Union to reduce the output to the minimum number of polygons.</p>
 
-  <p style="page-break-before: always"><img src="images/layout_out.png" size="80%" alt=""/></p>
+  <table>
+  	<tr>
+  		<td width="50%"><img src="images/layout_out.png" size="100%" alt=""/>
+  		</td>
+  		<td width="50%">
+  		</td>
+  	</tr>
+  </table>
 
+  <p class="western" style=" line-height: 100%">The relative transforms are intended to make set-up of patterns simple. When multiple same-layer polygons are decomposed, the relative transforms are independently defined. The decomposition process works on individual polygons. Existing keyholes are collapsed for the decomposition.</p>
 
-  <p class="western" style=" line-height: 100%">The relative transforms are intended to make set-up of patterns simple.</p>
+  <table>
+  	<tr>
+  		<td width="50%"><img src="images/layout_decomp_2.png" size="100%" alt=""/>
+  		</td>
+  		<td width="50%"><img src="images/layout_decomp_samelayer_reltransform.png" size="100%" alt=""/>
+  		</td>
+  	</tr>
+  </table>
 
-  <p style="page-break-before: always"><img src="images/layout_decomp_2.png" size="100%" alt=""/></p>
+  <p class="western" style=" line-height: 100%">Loops are handled by a keyholing pass, allowing for decomposition of complex cases.</p>
+
+  <table>
+  	<tr>
+  		<td width="50%"><img src="images/layout_decomp_3.png" size="100%" alt=""/>
+  		</td>
+  		<td width="50%"><img src="images/layout_decomp_4.png" size="100%" alt=""/>
+  		</td>
+  	</tr>
+  </table>
 
   <a name="layout"></a>
   <p class="western" style=" line-height: 100%">For non-orthogonal primitives coming from a loaded layout file, the shapes will be presented as a list of point coordinates using the reserved 'layout' shape type. The coordinates can be changed as desired, and the shape will always be closed by the system. The 'layout' shape type is reserved only for this situation and is not otherwise usable.</p>

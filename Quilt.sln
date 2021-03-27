@@ -48,6 +48,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "resources", "resources\reso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KDTree", "..\DesignLibs_GPL\Common\KDTree\KDTree.csproj", "{6C43C080-CAF4-484E-95FB-5EFBF061F2B9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamicAero2", "..\DesignLibs_GPL\Eto\DynamicAero2\DynamicAero2.csproj", "{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -184,6 +186,14 @@ Global
 		{6C43C080-CAF4-484E-95FB-5EFBF061F2B9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C43C080-CAF4-484E-95FB-5EFBF061F2B9}.Release|x64.ActiveCfg = Release|Any CPU
 		{6C43C080-CAF4-484E-95FB-5EFBF061F2B9}.Release|x64.Build.0 = Release|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Debug|x64.Build.0 = Debug|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Release|x64.ActiveCfg = Release|Any CPU
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -202,6 +212,7 @@ Global
 		{5B49D25C-E388-48D5-9CAE-F963D79C7FE9} = {1B134C71-29F9-41B6-8D99-B6B464261072}
 		{EE8649CC-CD79-4496-AFB1-3642C632E29F} = {1B134C71-29F9-41B6-8D99-B6B464261072}
 		{6C43C080-CAF4-484E-95FB-5EFBF061F2B9} = {5B49D25C-E388-48D5-9CAE-F963D79C7FE9}
+		{AFF221FE-1178-4B3C-AB6A-730EDCC0FF52} = {EE8649CC-CD79-4496-AFB1-3642C632E29F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5A78575C-F4D7-475D-B6DC-82388A494829}

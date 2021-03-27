@@ -1,5 +1,53 @@
 Changelog for Quilt. A pattern generator.
 
+3.1
+
+	- Refactoring UI for shape inputs. Makes adjustments easier in future and reduces complexity of code.
+
+3.1b3
+
+	- Refactored export pipeline to ease maintenance.
+	- Allow imported layer/datatype information to be carried through the tool pipeline to export.
+	- Fix to ensure text labels survive merging operation on output.
+
+3.1b2
+
+	- DesignLibs fixes for resizing of box and text entities.
+	- DesignLibs workaround for not-yet-understood fail to register layer/datatype.
+	- Allow for export layer/datatype definition through 'LxxxDxxx' element naming.
+
+3.1b1
+
+	- Improved handling of pre-keyholed geometry in decomposition pipeline.
+	- Bug fix for multi-entry decomposition, where relative transforms were incorrectly registered for subsequent decomp passes.
+	- Bug fix for merge handling of multi-island, same-layer, decomposition results.
+
+3.1a3
+
+	- Various small fixes and upstream enhancements.
+	- Allow axis color to be changed.
+	- Allow viewport background color to be changed.
+	- Allow merge reference to be set on regular shapes.
+	 - Exploit existing pipeline where decomposed geometry is recombined (if possible).
+	> Experimental dark UI mode for Windows.
+	 - macOS already supports dark mode.
+
+3.1a2
+
+	- Make use of error message reporting through DesignLibs for invalid layout files which previously silently failed, or worse, crashed the tool.
+	- Bug fix in GeoCore where wrong variable was used to access members of tmpCel.
+	- Targetting .NET 5.0.
+	 - Yields a 10% performance boost.
+	- Enabled independent X and Y spacing variations for arrays.
+
+3.1a1
+
+	- Run the keyholer before decomposition to enable loop handling.
+	- Rectangular decomposition enhancements to reduce surplus rectangles.
+	 - Results are going to be different from 3.0 as a result.
+	 - Decomposer and raycaster have become more robust at filtering rays and screening results, to avoid undesired results and failed intersections. 
+	- Variable array definition support.
+
 3.0
 
 	- Layout output enhancements.
