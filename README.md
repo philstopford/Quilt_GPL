@@ -20,6 +20,9 @@ Relative transforms:
 Element array, with relative transform:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/array_rel_rot_3.png)
 
+Variable array dimensions:
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/versions/3.1_variable_array.png)
+
 Output hierarchy, in KLayout
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/hierarchical_oasis_2.PNG)
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/hierarchical_oasis_3.PNG)
