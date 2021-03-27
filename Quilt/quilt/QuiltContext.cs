@@ -16,10 +16,12 @@ namespace Quilt
         public Int32 openGLZoomFactor;
         public double FGOpacity;
         public double BGOpacity;
+        public double angularTolerance;
         public bool AA;
         public bool filledPolygons;
         public bool drawPoints;
         public bool drawExtents;
+        public bool verticalRectDecomp;
         public Colors colors;
         public Int32 HTCount;
         public GraphicsBackend backend;
@@ -39,12 +41,14 @@ namespace Quilt
             filledPolygons = false;
             drawPoints = false;
             drawExtents = true;
+            verticalRectDecomp = true;
             AA = true;
             FGOpacity = 0.7;
             BGOpacity = 0.5;
+            angularTolerance = 0.2;
             colors = new Colors();
             backend = _backend;
-            licenceName = "GPLv3";
+            licenceName = "internal";
         }
     }
 }

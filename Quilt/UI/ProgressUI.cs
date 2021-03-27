@@ -18,6 +18,8 @@ namespace Quilt
             commonVars.stitcher.stitchingQuiltUI = stitchingQuiltUI;
             commonVars.stitcher.viewport = updateViewport_2;
             commonVars.stitcher.doneQuiltUI = doneQuiltUI;
+
+            commonVars.storage.updateUIProgress = updateProgressBar;
         }
 
         void preLoad_Storage()
@@ -36,7 +38,6 @@ namespace Quilt
             {
                 if (loadOK != "")
                 {
-                    //updateStatusLine("Project loaded successfully");
                     commonVars.projectFileName = loadOK;
                     Title = commonVars.titleText + " - " + commonVars.projectFileName;
                     commonVars.stitcher.reset(true);
@@ -49,7 +50,6 @@ namespace Quilt
                     commonVars.reset();
                     Title = commonVars.titleText;
                     viewPort.reset();
-                    //updateStatusLine("Project loading failed.");
 
                 }
                 num_padding.Value = commonVars.stitcher.getPadding();
@@ -142,6 +142,7 @@ namespace Quilt
                 progressBar.ToolTip = "";
                 updateProgressLabel(text);
                 setUI(true);
+                updatePatternElementUI();
             });
         }
 

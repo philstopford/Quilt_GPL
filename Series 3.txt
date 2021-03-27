@@ -1,0 +1,127 @@
+Changelog for Quilt. A pattern generator.
+
+3.0
+
+	- Layout output enhancements.
+	 - Support output to GZIP-compressed layout files.
+	 - Expand the list of recognized file extensions.	
+	- Layout input enhancements.
+	 - Support GZIP-compressed layout files as input to layers.
+	 - Expand the list of recognized file extensions.
+	- Quilt multithreading enablement (build directive was lost).
+
+3.0b4
+
+	- Bug fix for dependent references when removing elements.
+	- Code now considers linked element references when removing pattern elements.
+	- For manual selection of 'layout' shape type, display guidance and tidy UI.
+	 - Misc related bug fixes / checks and balances to avoid export fails.
+	- Prevent any export for no pattern elements.
+	- Viewport-based selection, using middle, or ctrl-left, mouse button to select pattern element by a proximity search to the click location.
+	 - Search is multi-threaded.
+	- Added an option to set the dominant direction of the rectangular decomposition raycast.
+	 - Layout will need to be reloaded to re-process the decomposition when this has been changed.
+	- More tooltips in UI.
+
+	(Backported select changes from 3.0 to 2.5)
+
+3.0b3
+
+	- Viewport enhancements:
+	 - Tooltip added.
+	 - Context menu updated and now also provides hotkeys
+	 - Implemented zoom-to-selected. This works in combination with the 'go to pattern' value to find the element in the given pattern and frame it in the viewport.
+	 - Added 'background color' which is used in non-input mode, to mark polygons from the not-selected element.
+	- Lots of work on the nested / reference layout handling.
+	 - Significant work in DesignLibs to more cleanly handle these complex scenarios and to support different situations.
+	 - Nested arrays are fully resolved because each element can only be a single element (or an array of single elements).
+	- Fixed text entity handling for pattern definition from layout.
+
+3.0b2
+
+	- Added context menu entries to duplicate pattern element.
+	- Strip colinear points from layout geometry being read in, using angular tolerance in the process.
+	- Initial handling of cellref arrays in the pattern-from-layout system.
+	 - Track the array state through from DesignLibs to Quilt. Needs some careful QA for mixed situation cases.
+	 ! Recursive CellRefArray usage is not currently supported.
+
+3.0b1
+
+	- Context menu added to the listbox.
+	- Added angular tolerance value to UI.
+	 - This controls the tolerance for colinear vertex removal. Default value is 0.2, from experimentation. This is needed primarily on edges that are not axis-aligned.
+	- Misc optimizations and bug fixes:
+	 - GeoCore had an issue in the circle check code. This hasn't been well used before and only with certain patterns in this new usage model was the problem apparent.
+	 - Insufficient decoupling of the core preview shapes list during export processing was leading to some unexpected output behavior when recomposing geometry.
+	 - Enhanced the GeoWrangler method for stripping colinear vertices to improve results in angled geometry exports.
+	- Storage improvements.
+	 - Multi-threaded the loader, to massively improve performance loading extremely large patterns.
+	- Moved pattern-from-layout to background task and introduced indeterminate progress bar to indicate work is underway.
+	- Revisited non-orthogonal handling.
+	 - Moved to coordinates rather than edge lengths. Coordinates can be changed, but these are not variation sources at the moment.
+	 - Added support to save/load for non-orthogonal geometry.
+	 - Resolved issues for mixed configurations (multi-layer, mix of ortho and non-ortho in various ways, including decomp)
+	- Fix for crash related to toggling filled polygon display.
+	- Fixed relative rotation regression from 2.x where reference element was in an array, but this was not array-relative.
+	 - Regression introduced during the transformation pipeline overhaul. Showed in test case.
+	- Fixed duplicate patterns showing up for rotations in the Quilt.
+	- Added display of the quilt's pattern extent used for placement of patterns. This is not exported - it is purely a display element. Intent is to eliminate confusion about pattern placements in quilt.
+	 - Configuration options (draw, color) added.
+	- Optimized the relative rotation evaluation.
+	 - Deep hierarchies with relative rotations used to be extremely slow. Resolved by avoiding needless recalculation of midpoints, caching the midpoint for each element during build.
+	- Multiple serious issues identified and addressed with a rework of the positioning and transforms of input and final elements. QA ongoing. Backported fix to 2.x release given the serious issues identified.
+
+3.0a5
+
+	- Bug fix for pattern placement, backported to 2.x
+	- Unify elements with same name during export.
+	
+3.0a4
+
+	- Minor UI adjustment.
+	- In export, the tool will track decomposed elements and unify them.
+	 - Not quite as elegant as I would like, but it works and optimization can be done later.
+	 - This diverges from the 'what you see is what you get' design, but decomposition is a tool approach to design definition, and reconstructing the output seems reasonable in this situation.
+
+3.0a3
+
+	- Support renaming of pattern elements.
+	- Decomposed elements get relative positioning to the prior decomposed element. This may not be optimal, but is a general approach to try and retain general form during variations. User review will be required to adjust as-needed.
+	- Decomposed elements are ordered by ascending X,Y values of lower left point.
+	- Resolved issue with status label breaking layout if the content becomes large (seen primarily during testing of decomposition where many elements resulted).
+	- Implemented rectangular decomposition of orthogonal geometry in geoWrangler.
+	 - Required changes to the raycaster so that it could be used for the same emitter and cutter, with appropriate ray direction.
+	 - Recursively carves up arbitrary orthogonal geometry to provide minimal representation.
+	- Enable use of decomposed geometry in Quilt.
+	 - Decomposed rectangles will show up as individual elements in the pattern.
+	 - Geometry with more vertices than for a rectangle will show up as an edge list.
+
+3.0a2
+
+	- Support text entries from layout.
+	- Replaced 'Layout' command in File menu with button and menu above the pattern list.
+	  - Button will summon file dialog.
+	  - Menu will show structure list from layout (when loaded). Changing structure will change the pattern.
+	- Unclamped subshape 1 horizontal and vertical offset min and increment values (similar to the X and Y positions).
+	- Unclamped X and Y position numeric inputs (min value and offset needed to be >= zero before).
+	 - Still recommended to keep min placement values at 0, but layout patterns and other scenarios might make this useful.
+	- Working to try and avoid progress bar and status bar stretching in some situations.
+	- Complex pipeline overhauled.
+
+3.0a1
+
+	- Unlock U subshape 2 horizontal offset.
+	- Prototyping work for loading in external layout for pattern construction:
+	 - Can now load GDSII or Oasis using Layout option under File.
+	 - Populate list of elements with polygons. Elements are type 'complex' by default in case characterization fails.
+	 - Loading from layout will trigger a geometry evaluation to see whether polygons in the layout can be mapped to internal primitives (rectangle, L, T, X, S, U). In case evaluation fails (non-orthogonal or more complex transforms), a 'complex' primitive is used.
+	  - Evaluation can be complex. Limited to orthogonal shapes, and grid-aligned transforms (90 degree rotation increments, flipping).
+	  - For X-shapes, no transformation can be identified due to symmetry (rotation and limited clamping).
+	  - For L-shapes, some combinations of flip and rotation provide indistinguishable shapes. Simplest transformation is chosen for the L constraints.
+	  - For S-shapes, only 0 and 90 degree rotations can be distinguished.
+	  - Geometry clean-up attempted during import (union of shapes, keyhole evaluation if required).
+	 - For complex primitives, the workflow is pretty raw :
+	  - UI shows edge length/increment/step values for each edge in the polygon, without awareness of how the edges might be related.
+	 - Each polygon in a design layer leads to a new pattern element entry, with the LxDx name preserved.
+	 - Validated that offset values construct new pattern elements, as expected.
+

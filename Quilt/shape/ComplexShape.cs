@@ -49,6 +49,21 @@ namespace Quilt
             List<GeoLibPointF> mcPoints = new List<GeoLibPointF>(); // overall points container. We'll use this to populate and send back our Point array later. Ints only...
 
             Vertex = shape.Vertex;
+
+            // If we have a complex shape, we cannot infer anything from it, so just take the geometry as-is and ship it out.
+            if (shape.shapeIndex == (int)CommonVars.shapeNames.complex)
+            {
+                mcPoints.Clear();
+                for (Int32 i = 0; i < Vertex.Count(); i++)
+                {
+                    if (Vertex[i] != null)
+                    {
+                        mcPoints.Add(new GeoLibPointF(Vertex[i].X, Vertex[i].Y));
+                    }
+                }
+                return GeoWrangler.close(mcPoints);
+            }
+
             round1 = shape.round1;
 
             // Iterate the corners to apply the bias from the edges.

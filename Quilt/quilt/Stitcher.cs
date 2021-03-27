@@ -67,6 +67,7 @@ namespace Quilt
         public List<PreviewShape>[] previewShapes { get; set; }
         public PreviewShape[] backgroundShapes { get; set; }
         QuiltContext quiltContext;
+
         PatternElement copyBuffer;
 
         System.Timers.Timer timer;
@@ -386,6 +387,8 @@ namespace Quilt
 
             showInput = 1;
 
+            copyBuffer = null;
+
             if (!empty)
             {
                 pUpdateQuilt();
@@ -400,7 +403,6 @@ namespace Quilt
         void pSetPadding(double value)
         {
             padding = value;
-            // updateQuilt();
         }
 
         public double getPadding()
@@ -421,7 +423,6 @@ namespace Quilt
         void pSetShowInput(int value)
         {
             showInput = value;
-            // updateQuilt();
         }
 
         public int getShowInput()
@@ -492,8 +493,24 @@ namespace Quilt
 
         void pAddPatternElement(string name)
         {
-            patternElementNames.Add(name);
             patternElements.Add(new PatternElement());
+            postAdd(name);
+        }
+
+        public void addPatternElement(PatternElement source)
+        {
+            pAddPatternElement(source);
+        }
+
+        void pAddPatternElement(PatternElement source)
+        {
+            patternElements.Add(new PatternElement(source));
+            postAdd(source.getString(PatternElement.properties_s.name));
+        }
+
+        void postAdd(string name)
+        {
+            patternElementNames.Add(name);
             patternElementNames_filtered.Add(name);
             pUpdateQuilt();
         }
@@ -517,18 +534,6 @@ namespace Quilt
 
         void pRemovePatternElement(int index)
         {
-            /*
-            try
-            {
-                // We need to do a look up of the index here because we are not sure where the string is in the filtered collection.
-                patternElementNames_filtered.RemoveAt(patternElementNames_filtered.IndexOf(patternElementNames[index]));
-            }
-            catch (Exception)
-            {
-                // Ignore any exception in case the sought item isn't in the filtered list. No effect on the users.
-            }
-            */
-
             // We need to adjust any other elements in the pattern that have references to the element being removed.
 #if QUILTTHREADED
             Parallel.For(0, patternElements.Count, (i) =>
@@ -539,7 +544,6 @@ namespace Quilt
                 if (i != index)
                 {
                     bool changed = false;
-
                     int xRef = patternElements[i].getInt(PatternElement.properties_i.xPosRef);
                     if (xRef == index)
                     {
@@ -624,6 +628,21 @@ namespace Quilt
                         changed = true;
                     }
 
+                    int linkedElement = patternElements[i].getInt(PatternElement.properties_i.linkedElementIndex);
+                    if (linkedElement != -1)
+                    {
+                        if (linkedElement == index)
+                        {
+                            patternElements[i].setInt(PatternElement.properties_i.linkedElementIndex, -1); // drop referencee as the linked element layer will be removed.
+                            changed = true;
+                        }
+                        else if (linkedElement > index)
+                        {
+                            patternElements[i].setInt(PatternElement.properties_i.linkedElementIndex, linkedElement - 1); // decrement the reference as the reference layer below this point is being removed.
+                            changed = true;
+                        }
+                    }
+
                     if (changed)
                     {
                         // Clear midpoint to force a recompute
@@ -695,7 +714,7 @@ namespace Quilt
 
                 if (patternElements.Count == 0)
                 {
-                    doneQuiltUI?.Invoke("No pattern elements defined. Nothing to do.");
+                    doneQuiltUI?.Invoke("No pattern elements!");
                     return;
                 }
 
@@ -909,16 +928,11 @@ namespace Quilt
                     {
                         previewShapes[entry][ps].move(x, y);
                     });
-                    // patterns[entry].setPos(x, y);
                     GeoLibPointF[] pBB = GeoWrangler.move(bb.ToArray(), x, y);
                     backgroundShapes[entry] = new PreviewShape();
-                    backgroundShapes[entry].addPoints(pBB); Interlocked.Increment(ref counter);
-                    /*
-                    if ((c % progressChunk) == 0)
-                    {
-                        updateUIProgress?.Invoke(c / patternCount);
-                    }
-                    */
+                    backgroundShapes[entry].addPoints(pBB);
+                    Interlocked.Increment(ref counter);
+
                 }
                 );
                 timer.Stop();
@@ -988,10 +1002,146 @@ namespace Quilt
                 drawing_.userunits = 0.001 / scale;
                 drawing_.libname = "quilt";
 
-                // Register layer names with geoCore.
-                for (int i = 0; i < patternElementNames.Count; i++)
+                // Decomposition means that we need to unify output.
+                List<List<PreviewShape>> consolidated = new List<List<PreviewShape>>();
+
+                for (int pattern = 0; pattern < previewShapes.Count(); pattern++)
                 {
-                    g.addLayerName("L" + (i + 1).ToString() + "D0", patternElementNames[i]);
+                    List<PreviewShape> previewShapesForPattern = new List<PreviewShape>();
+                    previewShapesForPattern.AddRange(previewShapes[pattern]);
+
+                    int previewShapesForPatternCount = previewShapesForPattern.Count;
+
+                    // Strip drawn elements to reduce confusion
+
+                    for (int element = previewShapesForPatternCount - 1; element >= 0; element--)
+                    {
+                        int polyCount = previewShapesForPattern[element].getPoints().Count();
+
+                        for (int poly = polyCount - 1; poly >= 0; poly--)
+                        {
+                            try
+                            {
+                                if (previewShapesForPattern[element].getDrawnPoly(poly))
+                                {
+                                    previewShapesForPattern[element].removePoly(poly);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // Had no drawn polygon, possibly due to not-configured layout case.
+                            }
+                        }
+                    }
+
+                    for (int element = previewShapesForPatternCount - 1; element >= 0; element--)
+                    {
+                        int linkedElementIndex = previewShapesForPattern[element].linkedElementIndex;
+
+                        if (linkedElementIndex != -1)
+                        {
+                            List<GeoLibPointF[]> geo = previewShapesForPattern[element].getPoints();
+                            for (int poly = 0; poly < geo.Count; poly++)
+                            {
+                                previewShapesForPattern[linkedElementIndex].addPoints(geo[poly].ToArray(), false, text: previewShapesForPattern[element].isText(poly));
+                            }
+
+                            previewShapesForPattern.RemoveAt(element);
+                        }
+                    }
+                    consolidated.Add(previewShapesForPattern.ToList());
+                }
+
+                // We now need to crunch our unified polygons. Currently using a second state here for testing purposes.
+                for (int pattern = 0; pattern < consolidated.Count; pattern++)
+                {
+                    for (int element = 0; element < consolidated[pattern].Count; element++)
+                    {
+                        List<GeoLibPointF[]> geo = consolidated[pattern][element].getPoints().ToList();
+                        int geoCount = geo.Count;
+                        for (int poly = geoCount - 1; poly >= 0; poly--)
+                        {
+                            // Avoid allowing text shapes to be considered for consolidation.
+                            if (consolidated[pattern][element].isText(poly))
+                            {
+                                geo.RemoveAt(poly);
+                            }
+                            else
+                            {
+                                consolidated[pattern][element].removePoly(poly);
+                            }
+                        }
+
+                        // Now consolidate our 'not drawn' elements.
+                        List<GeoLibPointF[]> c = GeoWrangler.clean_and_flatten(geo, CentralProperties.scaleFactorForOperation).ToList();
+
+                        for (int poly = 0; poly < c.Count; poly++)
+                        {
+                            consolidated[pattern][element].addPoints(c[poly], false);
+                        }
+                    }
+                }
+
+                // Get a list of our current element names
+                List<string> consolidated_elementNames = new List<string>();
+                for (int i = 0; i < consolidated[0].Count; i++)
+                {
+                    consolidated_elementNames.Add(patternElements[consolidated[0][i].elementIndex].getString(PatternElement.properties_s.name));
+                }
+
+                // Scan our element names to see if we have any duplicates.
+                bool changed = true;
+                int startIndex = 0;
+                while (changed)
+                {
+                    changed = false;
+                    int elementsCount = consolidated_elementNames.Count;
+
+                    for (int index = startIndex; index < elementsCount; index++)
+                    {
+                        string name = consolidated_elementNames[index];
+
+                        for (int element = elementsCount - 1; element >= 0; element--)
+                        {
+                            if (element == index)
+                            {
+                                continue;
+                            }
+                            if (consolidated_elementNames[element] == name)
+                            {
+                                // Duplicate name, need to merge the geometry.
+                                for (int pattern = 0; pattern < consolidated.Count; pattern++)
+                                {
+                                    List<GeoLibPointF[]> geoFromSameNamedElement = consolidated[pattern][element].getPoints().ToList();
+                                    for (int poly = 0; poly < geoFromSameNamedElement.Count; poly++)
+                                    {
+                                        if (!consolidated[pattern][element].getDrawnPoly(poly))
+                                        {
+                                            consolidated[pattern][index].addPoints(geoFromSameNamedElement[poly], false);
+                                        }
+                                    }
+
+                                    // Remove same-named pattern element.
+                                    consolidated[pattern].RemoveAt(element);
+                                }
+
+                                // Remove our duplicate name.
+                                consolidated_elementNames.RemoveAt(element);
+
+                                changed = true;
+                            }
+                        }
+                        if (changed)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                // Register layer names with geoCore.
+                for (int i = 0; i < consolidated_elementNames.Count; i++)
+                {
+                    g.addLayerName("L" + (i + 1).ToString() + "D0", consolidated_elementNames[i]);
                 }
 
                 // The quilt is already consistent with the UI, so we can use it without a rebuild.
@@ -1005,11 +1155,13 @@ namespace Quilt
                 // Set our parallel task options based on user settings.
                 ParallelOptions po = new ParallelOptions();
 
-                drawing_.addCells(previewShapes.Length);
+                int consolidatedCount = consolidated.Count;
+
+                drawing_.addCells(consolidatedCount);
 
                 progress = 0;
 
-                Parallel.For(0, previewShapes.Length, po, (i, loopState) =>
+                Parallel.For(0, consolidatedCount, po, (i, loopState) =>
                 {
                     drawing_.cellList[i] = new GCCell();
                     drawing_.cellList[i].accyear = (short)DateTime.Now.Year;
@@ -1029,30 +1181,26 @@ namespace Quilt
 
                     GeoLibPointF loc = patterns[i].getPos();
 
-                    //for (int element = 0; element < previewShapes[i].Count; element++)
-                    Parallel.For(0, previewShapes[i].Count, po, (element, loopState2) =>
+                    Parallel.For(0, consolidated[i].Count, po, (element, loopState2) =>
                     {
-                        List<GeoLibPointF[]> polys = previewShapes[i][element].getPoints();
+                        List<GeoLibPointF[]> polys = consolidated[i][element].getPoints().ToList();
                         for (int poly = 0; poly < polys.Count; poly++)
                         {
-                            // No drawn polygons desired.
-                            if (!previewShapes[i][element].getDrawnPoly(poly))
+                            GeoLibPoint[] ePoly = GeoWrangler.resize_to_int(polys[poly], scale);
+
+                            ePoly = GeoWrangler.simplify(ePoly);
+                            ePoly = GeoWrangler.stripColinear(ePoly, tolerance:quiltContext.angularTolerance);
+
+                            drawing_.cellList[i].addPolygon(ePoly.ToArray(), element + 1, 0); // layer is 1-index based for output, so need to offset element value accordingly.
+
+                            if (consolidated[i][element].isText(poly))
                             {
-                                GeoLibPoint[] ePoly = GeoWrangler.resize_to_int(polys[poly], scale);
-
-                                ePoly = GeoWrangler.simplify(ePoly);
-
-                                drawing_.cellList[i].addPolygon(ePoly.ToArray(), element + 1, 0); // layer is 1-index based for output, so need to offset element value accordingly.
-
-                                if (previewShapes[i][element].isText(poly))
-                                {
-                                    // Get midpoint of geometry.
-                                    GeoLibPointF bb = GeoWrangler.midPoint(polys[poly]);
-                                    // We should only have one polygon here, so naively assume that.
-                                    // Pin text coming from the element variable for now.
-                                    string pinName = patternElementNames[element];
-                                    drawing_.cellList[i].addText(element + 1, 0, new GeoLibPoint((int)((bb.X - loc.X) * scale), (int)((bb.Y - loc.Y) * scale)), pinName);
-                                }
+                                // Get midpoint of geometry.
+                                GeoLibPointF bb = GeoWrangler.midPoint(polys[poly]);
+                                // We should only have one polygon here, so naively assume that.
+                                // Pin text coming from the element variable for now.
+                                string pinName = consolidated_elementNames[element];
+                                drawing_.cellList[i].addText(element + 1, 0, new GeoLibPoint((int)((bb.X - loc.X) * scale), (int)((bb.Y - loc.Y) * scale)), pinName);
                             }
                         }
                     });
@@ -1075,16 +1223,13 @@ namespace Quilt
 
                 gcell_root.addCellrefs(patterns.Count);
 
-                // for (int i = 0; i < patterns.Count; i++)
                 Parallel.For(0, patterns.Count, po, (i, loopState) =>
                 {
                     GeoLibPointF loc = patterns[i].getPos();
                     gcell_root.elementList[i] = new GCCellref();
                     gcell_root.elementList[i].setPos(new GeoLibPoint(loc.X * scale, loc.Y * scale));
-                    /*
-                    gcell_root.elementList[i].setCellRef(drawing_.findCell("pattern" + i.ToString()));
-                    */
-                    gcell_root.elementList[i].setCellRef(drawing_.cellList[i]); // drawing_.findCell("pattern" + i.ToString()));
+
+                    gcell_root.elementList[i].setCellRef(drawing_.cellList[i]);
                     gcell_root.elementList[i].setName("pattern" + i.ToString());
                     gcell_root.elementList[i].rotate(0);
                     gcell_root.elementList[i].scale(1);

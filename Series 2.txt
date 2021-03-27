@@ -1,13 +1,8 @@
 Changelog for Quilt. A pattern generator.
 
-2.5.1
-
-	- Targetting .NET 5.0.
-	 - Yields a 10% performance boost.
-
 2.5
 
-	- Backports from custom development branch:
+	- Backports from 3.0 development branch:
 	 - Bug fix for dependent references when removing elements.
 	 - Viewport-based selection, using middle, or ctrl-left, mouse button to select pattern element by a proximity search to the click location.
 	  - Search is multi-threaded.
@@ -20,25 +15,24 @@ Changelog for Quilt. A pattern generator.
 	 - Multi-threaded loader.
 	 - Color preference for geometry not coming from selected element.
 	 - ListBox context menu.
-	 - Quilt multithreading enablement (build directive was lost).
-	 - Layout output enhancements.
-	  - Support output to GZIP-compressed layout files.
-	  - Expand the list of recognized file extensions.	
 
 2.3
 
-	- Fix for crash related to toggling filled polygon display.
-	- Fixed duplicate patterns showing up for rotations in the Quilt.
-	- Implement pattern extent drawing.
-	 - Configurable color and whether it draws at all.
+	- Backports from 3.0 development branch:
+  	 - Fix for crash related to toggling filled polygon display.
+	 - Fixed duplicate patterns showing up for rotations in the Quilt.
+	 - Implement pattern extent drawing.
+	  - Configurable color and whether it draws at all.
 
 2.2.5
 
-	- Reworked the transformation pipeline to resolve issues around relative rotation combined with relative and offset positions.
+	- Backports from 3.0 development branch:
+	 - Reworked the transformation pipeline to resolve issues around relative rotation combined with relative and offset positions.
 
 2.2.4
 
-	- Bug fix for pattern placement.
+	- Backports from 3.0 development branch:
+	 - Bug fix for pattern placement.
 
 2.2.3
 

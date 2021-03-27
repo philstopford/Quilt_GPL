@@ -131,10 +131,10 @@ namespace Quilt
                                 ovpSettings.addPolygon(
                                     poly: UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.previewShapes[pattern][i].getPoints()[poly]),
                                     polyColor: polyColor,
-                                    alpha: alpha, 
+                                    alpha: alpha,
                                     drawn: drawn,
                                     layerIndex: i,
-                                    mask: pattern == num_patNum.Value  // tag our chosen pattern polys for zoom-to-selected.
+                                    mask: pattern == num_patNum.Value  // tag our chosen pattern polys for zoom-to-selected.    // (pattern % commonVars.getColors().simPreviewColors.Count)
                                 );
                             }
                             finally

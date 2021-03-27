@@ -13,6 +13,7 @@ namespace Quilt
     public class PreviewShape
     {
         public int elementIndex; // originating element.
+        public int linkedElementIndex; // for tracking decomposed entries to allow for recombination later.
 
         // Class for our preview shapes.
         List<GeoLibPointF[]> previewPoints; // list of polygons defining the shape(s) that will be drawn. In the complex case, we populate this from complexPoints.
@@ -85,6 +86,29 @@ namespace Quilt
 #endif
         }
 
+        public void addPoints(GeoLibPointF[] poly, bool drawn, bool text = false)
+        {
+            pAddPoints(poly, drawn, text);
+        }
+
+        void pAddPoints(GeoLibPointF[] poly, bool drawn, bool text = false)
+        {
+            pAddPoints(poly);
+            drawnPoly.Add(drawn);
+            textEntity.Add(text);
+        }
+
+        public void removePoly(int index)
+        {
+            pRemovePoly(index);
+        }
+
+        void pRemovePoly(int index)
+        {
+            previewPoints.RemoveAt(index);
+            drawnPoly.RemoveAt(index);
+            textEntity.RemoveAt(index);
+        }
         public void addPoints(GeoLibPointF[] poly)
         {
             pAddPoints(poly);
@@ -138,7 +162,6 @@ namespace Quilt
             return drawnPoly[index];
         }
 
-        List<bool> geoCoreOrthogonalPoly;
         MyColor color;
 
         public MyColor getColor()
@@ -769,8 +792,8 @@ namespace Quilt
             previewPoints = new List<GeoLibPointF[]>();
             drawnPoly = new List<bool>();
             textEntity = new List<bool>();
-            geoCoreOrthogonalPoly = new List<bool>();
             color = MyColor.Black;
+            linkedElementIndex = -1;
         }
 
         public PreviewShape(PreviewShape source)
@@ -783,9 +806,9 @@ namespace Quilt
             previewPoints = source.previewPoints.ToList();
             drawnPoly = source.drawnPoly.ToList();
             textEntity = source.textEntity.ToList();
-            geoCoreOrthogonalPoly = source.geoCoreOrthogonalPoly.ToList();
             color = new MyColor(source.color);
             elementIndex = source.elementIndex;
+            linkedElementIndex = source.elementIndex;
         }
 
         public PreviewShape(Pattern pattern, Int32 settingsIndex)
@@ -797,143 +820,159 @@ namespace Quilt
 
         GeoLibPointF[] pGetPointArray(Pattern pattern, int index, bool doRotation= true)
         {
-            // Basic shape - 5 points to make a closed preview. 5th is identical to 1st.
-            GeoLibPointF[] tempArray = new GeoLibPointF[15];
+            GeoLibPointF[] tempArray;
 
             PatternElement patternElement = pattern.getPatternElement(index);
 
             string shapeString = ((CentralProperties.typeShapes)patternElement.getInt(PatternElement.properties_i.shapeIndex)).ToString();
 
-            if (shapeString != "bounding")
+            double x = 0;
+            double y = 0;
+
+            switch (shapeString)
             {
-                decimal bottom_leftX_1 = 0;
-                decimal bottom_leftY_1 = 0;
-                decimal top_leftX_1 = 0;
-                decimal top_leftY_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength);
-                decimal top_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength);
-                decimal top_rightY_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength);
-                decimal bottom_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength);
-                decimal bottom_rightY_1 = 0;
-                double _xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorOffset));
-                double _yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerOffset));
+                case "complex":
+                    tempArray = new GeoLibPointF[patternElement.getInt(PatternElement.properties_i.externalGeoVertexCount)];
+                    for (int i = 0; i < tempArray.Length; i++)
+                    {
+                        x = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.xPos));
+                        y = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.yPos));
+                        x += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.externalGeoCoordX, i));
+                        y += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.externalGeoCoordY, i));
+                        tempArray[i] = new GeoLibPointF(x, y);
+                    }
+                    break;
+                case "bounding":
+                    tempArray = new GeoLibPointF[15];
+                    // We store some values here, but the actual dimensions will be adjusted later when the extents are known.
+                    decimal left = patternElement.getDecimal(PatternElement.properties_decimal.boundingLeft);
+                    decimal right = patternElement.getDecimal(PatternElement.properties_decimal.boundingRight);
+                    decimal top = patternElement.getDecimal(PatternElement.properties_decimal.boundingTop);
+                    decimal bottom = patternElement.getDecimal(PatternElement.properties_decimal.boundingBottom);
 
-                double x = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.xPos));
-                double y = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.yPos));
-
-                xOffset = _xOffset;
-                yOffset = _yOffset;
-
-                // Populate array.
-                tempArray[0] = new GeoLibPointF((double)bottom_leftX_1, (double)bottom_leftY_1);
-                tempArray[1] = new GeoLibPointF((double)top_leftX_1, (double)top_leftY_1);
-                tempArray[2] = new GeoLibPointF((double)top_rightX_1, (double)top_rightY_1);
-                tempArray[3] = new GeoLibPointF((double)bottom_rightX_1, (double)bottom_rightY_1);
-                tempArray[4] = new GeoLibPointF(tempArray[0]);
-
-                // Apply our deltas
-#if QUILTTHREADED
-                Parallel.For(0, 5, (i) =>
-#else
-                for (Int32 i = 0; i < 5; i++)
-#endif
-                {
-                    tempArray[i].X += xOffset + x;
-                    tempArray[i].Y += yOffset + y;
-                }
-#if QUILTTHREADED
-                );
-#endif
-                decimal bottom_leftX_2 = 0;
-                decimal bottom_leftY_2 = 0;
-                decimal top_leftX_2 = 0;
-                decimal top_leftY_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength);
-                decimal top_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength);
-                decimal top_rightY_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength);
-                decimal bottom_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength);
-                decimal bottom_rightY_2 = 0;
-                xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorOffset)) + _xOffset;
-                yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) + _yOffset;
-
-                // Populate array.
-                tempArray[5 + 0] = new GeoLibPointF((double)bottom_leftX_2, (double)bottom_leftY_2);
-                tempArray[5 + 1] = new GeoLibPointF((double)top_leftX_2, (double)top_leftY_2);
-                tempArray[5 + 2] = new GeoLibPointF((double)top_rightX_2, (double)top_rightY_2);
-                tempArray[5 + 3] = new GeoLibPointF((double)bottom_rightX_2, (double)bottom_rightY_2);
-                tempArray[5 + 4] = new GeoLibPointF(tempArray[5 + 0]);
-
-                // Apply our deltas
-#if QUILTTHREADED
-                Parallel.For(0, 5, (i) =>
-#else
-                for (Int32 i = 0; i < 5; i++)
-#endif
-                {
-                    tempArray[5 + i].X += xOffset + x;
-                    tempArray[5 + i].Y += yOffset + y;
-                }
-#if QUILTTHREADED
-                );
-#endif
-                decimal bottom_leftX_3 = 0;
-                decimal bottom_leftY_3 = 0;
-                decimal top_leftX_3 = 0;
-                decimal top_leftY_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength);
-                decimal top_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength);
-                decimal top_rightY_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength);
-                decimal bottom_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength);
-                decimal bottom_rightY_3 = 0;
-                xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2HorOffset)) + _xOffset;
-                yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2VerOffset) + patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength)) + _yOffset;
-                if (shapeString == "S")
-                {
-                    yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength)); // offset our subshape to put it in the correct place in the UI.
-                }
-
-                // Populate array.
-                tempArray[10 + 0] = new GeoLibPointF((double)bottom_leftX_3, (double)bottom_leftY_3);
-                tempArray[10 + 1] = new GeoLibPointF((double)top_leftX_3, (double)top_leftY_3);
-                tempArray[10 + 2] = new GeoLibPointF((double)top_rightX_3, (double)top_rightY_3);
-                tempArray[10 + 3] = new GeoLibPointF((double)bottom_rightX_3, (double)bottom_rightY_3);
-                tempArray[10 + 4] = new GeoLibPointF(tempArray[10 + 0]);
-
-                // Apply our deltas
-#if QUILTTHREADED
-                Parallel.For(0, 5, (i) =>
-#else
-                for (Int32 i = 0; i < 5; i++)
-#endif
-                {
-                    tempArray[10 + i].X += xOffset + x;
-                    tempArray[10 + i].Y += yOffset + y;
-                }
-#if QUILTTHREADED
-                );
-#endif
-            }
-            else
-            {
-                // We store some values here, but the actual dimensions will be adjusted later when the extents are known.
-                decimal left = patternElement.getDecimal(PatternElement.properties_decimal.boundingLeft);
-                decimal right = patternElement.getDecimal(PatternElement.properties_decimal.boundingRight);
-                decimal top = patternElement.getDecimal(PatternElement.properties_decimal.boundingTop);
-                decimal bottom = patternElement.getDecimal(PatternElement.properties_decimal.boundingBottom);
-
-                tempArray[0] = new GeoLibPointF((double)left, (double)bottom);
-                tempArray[1] = new GeoLibPointF((double)left, (double)top);
-                tempArray[2] = new GeoLibPointF((double)right, (double)top);
-                tempArray[3] = new GeoLibPointF((double)right, (double)bottom);
+                    tempArray[0] = new GeoLibPointF((double)left, (double)bottom);
+                    tempArray[1] = new GeoLibPointF((double)left, (double)top);
+                    tempArray[2] = new GeoLibPointF((double)right, (double)top);
+                    tempArray[3] = new GeoLibPointF((double)right, (double)bottom);
 
 #if QUILTTHREADED
                 Parallel.For(0, tempArray.Length, (i) =>
 #else
-                for (int i = 4; i < tempArray.Length; i++)
+                    for (int i = 4; i < tempArray.Length; i++)
 #endif
-                {
-                    tempArray[i] = new GeoLibPointF(tempArray[0]);
-                }
+                    {
+                        tempArray[i] = new GeoLibPointF(tempArray[0]);
+                    }
 #if QUILTTHREADED
                 );
 #endif
+                    break;
+
+                default:
+                    x = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.xPos));
+                    y = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.yPos));
+                    tempArray = new GeoLibPointF[15];
+                    decimal bottom_leftX_1 = 0;
+                    decimal bottom_leftY_1 = 0;
+                    decimal top_leftX_1 = 0;
+                    decimal top_leftY_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength);
+                    decimal top_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength);
+                    decimal top_rightY_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength);
+                    decimal bottom_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength);
+                    decimal bottom_rightY_1 = 0;
+                    double _xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorOffset));
+                    double _yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerOffset));
+
+                    xOffset = _xOffset;
+                    yOffset = _yOffset;
+
+                    // Populate array.
+                    tempArray[0] = new GeoLibPointF((double)bottom_leftX_1, (double)bottom_leftY_1);
+                    tempArray[1] = new GeoLibPointF((double)top_leftX_1, (double)top_leftY_1);
+                    tempArray[2] = new GeoLibPointF((double)top_rightX_1, (double)top_rightY_1);
+                    tempArray[3] = new GeoLibPointF((double)bottom_rightX_1, (double)bottom_rightY_1);
+                    tempArray[4] = new GeoLibPointF(tempArray[0]);
+
+                    // Apply our deltas
+#if QUILTTHREADED
+                Parallel.For(0, 5, (i) =>
+#else
+                    for (Int32 i = 0; i < 5; i++)
+#endif
+                    {
+                        tempArray[i].X += xOffset + x;
+                        tempArray[i].Y += yOffset + y;
+                    }
+#if QUILTTHREADED
+                );
+#endif
+                    decimal bottom_leftX_2 = 0;
+                    decimal bottom_leftY_2 = 0;
+                    decimal top_leftX_2 = 0;
+                    decimal top_leftY_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength);
+                    decimal top_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength);
+                    decimal top_rightY_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength);
+                    decimal bottom_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength);
+                    decimal bottom_rightY_2 = 0;
+                    xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorOffset)) + _xOffset;
+                    yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) + _yOffset;
+
+                    // Populate array.
+                    tempArray[5 + 0] = new GeoLibPointF((double)bottom_leftX_2, (double)bottom_leftY_2);
+                    tempArray[5 + 1] = new GeoLibPointF((double)top_leftX_2, (double)top_leftY_2);
+                    tempArray[5 + 2] = new GeoLibPointF((double)top_rightX_2, (double)top_rightY_2);
+                    tempArray[5 + 3] = new GeoLibPointF((double)bottom_rightX_2, (double)bottom_rightY_2);
+                    tempArray[5 + 4] = new GeoLibPointF(tempArray[5 + 0]);
+
+                    // Apply our deltas
+#if QUILTTHREADED
+                Parallel.For(0, 5, (i) =>
+#else
+                    for (Int32 i = 0; i < 5; i++)
+#endif
+                    {
+                        tempArray[5 + i].X += xOffset + x;
+                        tempArray[5 + i].Y += yOffset + y;
+                    }
+#if QUILTTHREADED
+                );
+#endif
+                    decimal bottom_leftX_3 = 0;
+                    decimal bottom_leftY_3 = 0;
+                    decimal top_leftX_3 = 0;
+                    decimal top_leftY_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength);
+                    decimal top_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength);
+                    decimal top_rightY_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength);
+                    decimal bottom_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength);
+                    decimal bottom_rightY_3 = 0;
+                    xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2HorOffset)) + _xOffset;
+                    yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2VerOffset) + patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength)) + _yOffset;
+                    if (shapeString == "S")
+                    {
+                        yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength)); // offset our subshape to put it in the correct place in the UI.
+                    }
+
+                    // Populate array.
+                    tempArray[10 + 0] = new GeoLibPointF((double)bottom_leftX_3, (double)bottom_leftY_3);
+                    tempArray[10 + 1] = new GeoLibPointF((double)top_leftX_3, (double)top_leftY_3);
+                    tempArray[10 + 2] = new GeoLibPointF((double)top_rightX_3, (double)top_rightY_3);
+                    tempArray[10 + 3] = new GeoLibPointF((double)bottom_rightX_3, (double)bottom_rightY_3);
+                    tempArray[10 + 4] = new GeoLibPointF(tempArray[10 + 0]);
+
+                    // Apply our deltas
+#if QUILTTHREADED
+                Parallel.For(0, 5, (i) =>
+#else
+                    for (Int32 i = 0; i < 5; i++)
+#endif
+                    {
+                        tempArray[10 + i].X += xOffset + x;
+                        tempArray[10 + i].Y += yOffset + y;
+                    }
+#if QUILTTHREADED
+                );
+#endif
+                    break;
             }
 
             return pTransformed(tempArray, pattern, index, doRotation: doRotation);
@@ -973,10 +1012,10 @@ namespace Quilt
             int rotRefUseArray = patternElement.getInt(PatternElement.properties_i.arrayRotRefUseArray);
 
             // Array flip not provided at this time.
-            bool flipH = false; // patternElement.getInt(PatternElement.properties_i.flipH) == 1;
-            bool flipV = false; // patternElement.getInt(PatternElement.properties_i.flipV) == 1;
-            bool alignX = false; // patternElement.getInt(PatternElement.properties_i.align) == 1;
-            bool alignY = false; // patternElement.getInt(PatternElement.properties_i.align) == 1;
+            bool flipH = false;
+            bool flipV = false;
+            bool alignX = false;
+            bool alignY = false;
             bool refPivot = patternElement.getInt(PatternElement.properties_i.refArrayPivot) == 1;
 
             for (int i = 0; i < source.Count; i++)
@@ -1073,7 +1112,7 @@ namespace Quilt
                                     double arrayWidth = (xCount * width) + ((xCount - 1) * xSpace);
                                     double arrayHeight = (yCount * height) + ((yCount - 1) * ySpace);
 
-                                    r_pivot = new GeoLibPointF(bounds[0] + (arrayWidth / 2.0f), bounds[1] + (arrayHeight / 2.0f));
+                                    r_pivot =new GeoLibPointF(bounds[0] + (arrayWidth / 2.0f), bounds[1] + (arrayHeight / 2.0f));
                                 }
 
                                 done = true;
@@ -1147,36 +1186,56 @@ namespace Quilt
                 previewPoints = new List<GeoLibPointF[]>();
                 drawnPoly = new List<bool>();
                 textEntity = new List<bool>();
-                geoCoreOrthogonalPoly = new List<bool>();
                 color = MyColor.Black; // overridden later.
 
                 PatternElement patternElement = pattern.getPatternElement(settingsIndex);
 
                 elementIndex = settingsIndex;
+                linkedElementIndex = patternElement.getInt(PatternElement.properties_i.linkedElementIndex);
 
                 int shapeType = patternElement.getInt(PatternElement.properties_i.shapeIndex);
                 bool textShape = shapeType == (int)CommonVars.shapeNames.text;
+                bool layoutShape = shapeType == (int)CommonVars.shapeNames.complex;
 
                 GeoLibPointF[] inputPoints, outputPoints;
+
                 ComplexShape complexPoints;
 
                 inputPoints = pGetPointArray(pattern, settingsIndex);
 
-                complexPoints = new ComplexShape(pattern.getPatternElements(), settingsIndex);
-                outputPoints = complexPoints.getPoints();
+                if (!layoutShape)
+                {
+                    complexPoints = new ComplexShape(pattern.getPatternElements(), settingsIndex);
+                    outputPoints = complexPoints.getPoints();
 
-                outputPoints = pTransformed(outputPoints, pattern, settingsIndex);
+                    outputPoints = pTransformed(outputPoints, pattern, settingsIndex);
 
-                previewPoints.Add(inputPoints.Take(5).ToArray());
-                drawnPoly.Add(true);
-                previewPoints.Add(inputPoints.Skip(5).Take(5).ToArray());
-                drawnPoly.Add(true);
-                previewPoints.Add(inputPoints.Skip(10).Take(5).ToArray());
-                drawnPoly.Add(true);
+                    previewPoints.Add(inputPoints.Take(5).ToArray());
+                    drawnPoly.Add(true);
+                    previewPoints.Add(inputPoints.Skip(5).Take(5).ToArray());
+                    drawnPoly.Add(true);
+                    previewPoints.Add(inputPoints.Skip(10).Take(5).ToArray());
+                    drawnPoly.Add(true);
 
-                previewPoints.Add(outputPoints);
-                drawnPoly.Add(false);
+                    previewPoints.Add(outputPoints);
+                    drawnPoly.Add(false);
+                }
+                else
+                {
+                    ShapeLibrary shape = new ShapeLibrary(shapeType, patternElement);
+                    inputPoints = GeoWrangler.close(inputPoints);
 
+                    previewPoints.Add(inputPoints.ToArray());
+                    drawnPoly.Add(true);
+
+                    inputPoints = GeoWrangler.move(inputPoints, -patternElement.getDecimal(PatternElement.properties_decimal.xPos), -patternElement.getDecimal(PatternElement.properties_decimal.yPos));
+                    shape.setShape(shapeType, inputPoints);
+                    complexPoints = new ComplexShape(pattern.getPatternElements(), settingsIndex, shape);
+
+                    outputPoints = complexPoints.getPoints();
+                    previewPoints.Add(outputPoints.ToArray());
+                    drawnPoly.Add(false);
+                }
                 int arrayRef = patternElement.getInt(PatternElement.properties_i.arrayRef) - 1; // due to 'self' reference, we need to offset the value by 1
 
                 // Query shape for bounds.

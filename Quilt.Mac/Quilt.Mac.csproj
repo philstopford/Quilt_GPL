@@ -2,14 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <RuntimeIdentifiers>osx.10.10-x64</RuntimeIdentifiers>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
-
   </PropertyGroup>
 
   <PropertyGroup>
@@ -29,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.10" />
+    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.6" />
     <PackageReference Include="Eto.Veldrid.Mac64" Version="0.1.0" />
   </ItemGroup>
 

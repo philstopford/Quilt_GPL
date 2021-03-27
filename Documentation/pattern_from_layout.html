@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="pattern_from_layout"></a>
+<h1 class="western">Pattern From Layout</h1>
+  <p class="western" style=" line-height: 100%">It is possible to use a layout file (GDSII or Oasis, including GZIP-compressed files) to define a pattern. Any cell can be used, available from the drop-down menu.</p>
+
+  <p class="western" style=" line-height: 100%">When a layout file is opened for pattern definition, the cell is queried for its geometry. Quilt will attempt to discover compatible geometry for mapping to Quilt primitives (rectangle, L, U, S, X, U, T). This includes transformation extractions (rotations, etc.). Note that the same result can occur for combinations of transformations; the simplest form will be chosen. Colinear points are removed during the processing, using the angular tolerance value to handle marginal cases.</p>
+
+  <p class="western" style=" line-height: 100%">For geometry that is orthogonal, but which cannot be described in primitive terms, rectangular decomposition is used. This will turn the complex geometry into a series of rectangular primitives. These will be ordered based on the bottom left corner of each rectangle, starting with the lower-left and working towards upper right in the layout. Each rectangle will have its position and rotation defined relative to the prior rectangle, in order to ease pattern variation set-up; it may be that you need to adjust these default relationships, however. Best effort is made to create a minimal representation, but this is not guaranteed.</p>
+
+  <p style="page-break-before: always"><img src="images/layout_in.png" size="80%" alt=""/></p>
+
+  <p style="page-break-before: always"><img src="images/layout_decomp.png" size="100%" alt=""/></p>
+
+  <p class="western" style=" line-height: 100%">By default, the decomposition will produce vertically oriented rectangles. If desired, horizontal orientation can be chosen by deselecting the 'vertical decomp' option in the preferences tab. Changing this option will not cause a re-evaluation of existing decomposition; re-create the pattern from the layout file to see the change.</p>
+
+  <p style="page-break-before: always"><img src="images/layout_decomp_hor.png" size="100%" alt=""/></p>
+
+  <p class="western" style=" line-height: 100%">The decomposed rectangles are displayed in both 'input' and 'final' display modes, to keep consistency with the way that the tool works generally. On export, however, the decomposed rectangles will be subject to a Union to reduce the output to the minimum number of polygons.</p>
+
+  <p style="page-break-before: always"><img src="images/layout_out.png" size="80%" alt=""/></p>
+
+
+  <p class="western" style=" line-height: 100%">The relative transforms are intended to make set-up of patterns simple.</p>
+
+  <p style="page-break-before: always"><img src="images/layout_decomp_2.png" size="100%" alt=""/></p>
+
+  <a name="layout"></a>
+  <p class="western" style=" line-height: 100%">For non-orthogonal primitives coming from a loaded layout file, the shapes will be presented as a list of point coordinates using the reserved 'layout' shape type. The coordinates can be changed as desired, and the shape will always be closed by the system. The 'layout' shape type is reserved only for this situation and is not otherwise usable.</p>
+      <table>
+        <tr>
+          <td = width="50%">
+	      <img src="images/non_ortho_npoly_samelayer.png" size="50%" alt="Multi non-orthogonal polygons"/>
+          </td>
+          <td>
+          </td>
+        </tr>
+        <tr>
+          <td = width="50%">
+	      <img src="images/non_ortho_and_orth__samelayer.png" size="50%" alt="Mixed types"/>
+          </td>
+          <td>
+	      <img src="images/non_ortho_and_orth__samelayer_2.png" size="50%" alt="Mixed types"/>
+          </td>
+        </tr>
+        <tr>
+          <td = width="50%">
+	      <img src="images/non_ortho_decomp_samelayer.png" size="50%" alt="Non-ortho polygon with decomposed polygon"/>
+          </td>
+          <td>
+	      <img src="images/non_ortho_decomp.png" size="50%" alt="Non-ortho polygon with decomposed polygon (multi-layer)"/>
+          </td>
+        </tr>
+      </table>
+
+  <p class="western" style=" line-height: 100%">Arrays of cell references are handled, but nested situations will force a bake of the geometry in order that the pattern can be defined using Quilt.</p>
+      <table>
+        <tr>
+          <td = width="50%">
+	      <img src="images/layout_array.png" size="50%" alt="Arrays from arrayed cellrefs in loaded layout"/>
+          </td>
+          <td>
+	      <img src="images/layout_complex.png" size="50%" alt="Baked due to complex hierarchical cell content"/>
+          </td>
+        </tr>
+      </table>
+
+
+</body>
+</html>

@@ -1,4 +1,5 @@
 ﻿using color;
+using geoCoreLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,14 +19,16 @@ namespace Quilt
 
         public string titleText = CentralProperties.productName + " " + CentralProperties.version;
 
-        string[] shapesShortNames = new string[] { "NONE", "RECT", "L", "T", "X", "U", "S", "Text", "Bounding" };
-        public enum shapeNames { none, rect, Lshape, Tshape, Xshape, Ushape, Sshape, text, bounding };
+        string[] shapesShortNames = new string[] { "NONE", "RECT", "L", "T", "X", "U", "S", "Text", "Bounding", "Complex" };
+        public enum shapeNames { none, rect, Lshape, Tshape, Xshape, Ushape, Sshape, text, bounding, complex };
 
         List<string> availableShapes;
         public ObservableCollection<string> subshapes { get; set; }
         public ObservableCollection<string> xPosRefSubShapeList { get; set; }
         public ObservableCollection<string> yPosRefSubShapeList { get; set; }
-        
+
+        public ObservableCollection<string> structureList_exp { get; set; }
+
         List<string> availableSubShapePositions;
         List<string> availableHorShapePositions = new List<string>() { "Left", "Middle", "Right" };
         List<string> availableVerShapePositions = new List<string>() { "Bottom", "Middle", "Top" };
@@ -34,6 +37,8 @@ namespace Quilt
         public enum subShapeVerLocs { B, M, T };
 
         public List<string> openGLModeList { get; set; }
+
+        public GeoCoreHandler gCH;
 
         // Retaining this, to allow use of Variance components, but the tips will not be used in Quilt.
         public enum tipLocations { none, L, R, LR, T, B, TB, TL, TR, TLR, BL, BR, BLR, TBL, TBR, all };
@@ -46,7 +51,7 @@ namespace Quilt
         void init(ref QuiltContext context)
         {
             quiltContext = context;
-            availableShapes = new List<string>() { "(None)", "Rectangle/Square", "L-shape", "T-shape", "X-shape", "U-shape", "S-shape", "Text", "Bounding" };
+            availableShapes = new List<string>() { "(None)", "Rectangle/Square", "L-shape", "T-shape", "X-shape", "U-shape", "S-shape", "Text", "Bounding", "Layout" };
             availableSubShapePositions = new List<string>() { "Corner: Top Left", "Corner: Top Right", "Corner: Bottom Left", "Corner: Bottom Right",
                                                              "Middle: Top Side", "Middle: Right Side", "Middle: Bottom Side", "Middle: Left Side",
                                                              "Center"};
@@ -62,15 +67,19 @@ namespace Quilt
             titleText += " (" + quiltContext.licenceName + ")";
             storage = new Storage();
 
+            gCH = new GeoCoreHandler();
+
+            structureList_exp = gCH.getGeo().structureList_;
+
             reset();
         }
 
-        public void reset()
+        public void reset(bool empty = false)
         {
-            pReset();
+            pReset(empty);
         }
 
-        void pReset()
+        void pReset(bool empty)
         {
             projectFileName = "";
 
@@ -80,7 +89,7 @@ namespace Quilt
             xPosRefSubShapeList.Add("1");
             yPosRefSubShapeList.Clear();
             yPosRefSubShapeList.Add("1");
-            stitcher.reset();
+            stitcher.reset(empty);
         }
 
         public List<string> getAvailableHorShapePositions()
@@ -192,6 +201,8 @@ namespace Quilt
         bool openGLAA;
         bool openGLFilledPolygons;
         bool openGLPoints;
+
+        public bool verticalRectDecomp;
 
         public void setOpenGLProp(properties_gl p, bool val)
         {

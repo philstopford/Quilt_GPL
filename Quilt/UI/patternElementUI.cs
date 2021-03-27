@@ -158,6 +158,42 @@ namespace Quilt
             entry_Remove.Click += removePatternElement;
 
             btn_export.Click += exportClicked;
+
+            if (num_externalGeoCoordsX != null)
+            {
+                try
+                {
+                    for (int i = 0; i < num_externalGeoCoordsX.Length; i++)
+                    {
+                        if (num_externalGeoCoordsX[i] != null)
+                        {
+                            num_externalGeoCoordsX[i].LostFocus += doPatternElementUI;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+
+            if (num_externalGeoCoordsY != null)
+            {
+                try
+                {
+                    for (int i = 0; i < num_externalGeoCoordsY.Length; i++)
+                    {
+                        if (num_externalGeoCoordsY[i] != null)
+                        {
+                            num_externalGeoCoordsY[i].LostFocus += doPatternElementUI;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
         }
 
         void updatePatternElementUI(object sender, EventArgs e)
@@ -178,6 +214,9 @@ namespace Quilt
                 clearPatternElementUI();
                 comboBox_patternElementShape.Visible = true;
             }
+
+            groupBox_properties.Content = groupBox_subShapes_table;
+            groupBox_position.Visible = true;
 
             switch (commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.shapeIndex))
             {
@@ -208,6 +247,58 @@ namespace Quilt
                 case (int)CommonVars.shapeNames.bounding:
                     setBoundingShapeVals(index);
                     break;
+                case (int)CommonVars.shapeNames.complex:
+ 
+                    Scrollable s = new Scrollable();
+
+                    // Iterate our edges. For each edge, add a row with a label, and numeric fields
+                    externalGeoUI(index);
+
+                    // Replace properties groupbox content with external layout content.
+                    s.Content = groupBox_layout_table;
+                    groupBox_properties.Content = s;
+                    break;
+            }
+
+            updateLBContextMenu();
+        }
+
+        void externalGeoUI(int index)
+        {
+            // We need to replace the UI here with sufficient gadgets for our edges. Tricky.
+            int numberOfRowsNeeded = commonVars.stitcher.getPatternElement(patternIndex: 0, index).getInt(PatternElement.properties_i.externalGeoVertexCount);
+            groupBox_layout_table = new TableLayout();
+            if (numberOfRowsNeeded > 0)
+            {
+                num_externalGeoCoordsX = new NumericStepper[numberOfRowsNeeded];
+                num_externalGeoCoordsY = new NumericStepper[numberOfRowsNeeded];
+
+                for (int i = 0; i < numberOfRowsNeeded; i++)
+                {
+                    groupBox_layout_table.Rows.Add(new TableRow());
+                    groupBox_layout_table.Rows[i].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(new Label() { Text = "Edge " + i }) });
+
+                    double val0 = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.externalGeoCoordX, i));
+                    num_externalGeoCoordsX[i] = new NumericStepper() { Value = val0, DecimalPlaces = 2 };
+                    groupBox_layout_table.Rows[i].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(num_externalGeoCoordsX[i]) }); // length
+
+                    double val1 = Convert.ToDouble(commonVars.stitcher.getPatternElement(patternIndex: 0, index).getDecimal(PatternElement.properties_decimal.externalGeoCoordY, i));
+                    num_externalGeoCoordsY[i] = new NumericStepper() { Value = val1, DecimalPlaces = 2 };
+                    groupBox_layout_table.Rows[i].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(num_externalGeoCoordsY[i]) }); // increment
+
+                    num_externalGeoCoordsX[i].LostFocus += doPatternElementUI;
+                    num_externalGeoCoordsY[i].LostFocus += doPatternElementUI;
+                }
+            }
+            else
+            {
+                groupBox_layout_table.Rows.Add(new TableRow());
+                TextArea ta = new TextArea();
+                ta.ReadOnly = true;
+                ta.Text = "This shape type is reserved for non-orthogonal geometry found when defining a pattern from layout.\r\nIt is not currently available for other uses.";
+                ta.Wrap = true;
+                groupBox_layout_table.Rows[0].Cells.Add(new TableCell() { Control = ta });
+                clearPositionBox();
             }
         }
 
@@ -625,6 +716,12 @@ namespace Quilt
         {
             comboBox_patternElementShape.Visible = (commonVars.stitcher.getPatternCount() > 0);
 
+            clearPositionBox();
+            clearPropertiesBox();
+        }
+
+        void clearPropertiesBox()
+        {
             groupBox_properties.Visible = false;
             num_layer_subshape_minhl.Enabled = false;
             num_layer_subshape_minvl.Enabled = false;
@@ -640,7 +737,10 @@ namespace Quilt
             num_layer_subshape3_minvl.Enabled = false;
             num_layer_subshape3_minho.Enabled = false;
             num_layer_subshape3_minvo.Enabled = false;
+        }
 
+        void clearPositionBox()
+        {
             groupBox_position.Visible = false;
         }
 
@@ -675,9 +775,13 @@ namespace Quilt
                 Panel row0 = new Panel();
                 groupBox_subShapes_table.Rows[groupBox_subShapes_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row0 });
 
+                Scrollable s = new Scrollable();
+
                 TableLayout row0_tl = new TableLayout();
                 row0_tl.Rows.Add(new TableRow());
-                row0.Content = row0_tl;
+                s.Content = row0_tl;
+
+                row0.Content = s;
 
                 lbl_layer_subshape_hl = new Label();
                 lbl_layer_subshape_hl.Text = "Min Hor. Length";
@@ -1059,6 +1163,9 @@ namespace Quilt
                 num_layer_subshape3_stepsVO.DecimalPlaces = 0;
                 setSize(num_layer_subshape3_stepsVO, numWidth, num_Height);
                 row11_tl.Rows[row11_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_layer_subshape3_stepsVO });
+
+                num_externalGeoCoordsX = new NumericStepper[1];
+                num_externalGeoCoordsY = new NumericStepper[1];
             });
         }
 
@@ -1074,8 +1181,10 @@ namespace Quilt
 
                 groupBox_position = new GroupBox();
 
+                Scrollable s = new Scrollable();
                 TableLayout groupBox_position_table = new TableLayout();
-                groupBox_position.Content = groupBox_position_table;
+                s.Content = groupBox_position_table;
+                groupBox_position.Content = s;
                 groupBox_position.Text = "Position";
 
                 right_tr2_0.Control = groupBox_position;
@@ -1188,7 +1297,6 @@ namespace Quilt
             num_minXPos = new NumericStepper();
             num_minXPos.Increment = 0.1;
             num_minXPos.DecimalPlaces = 2;
-            // num_minXPos.MinValue = 0;
             setSize(num_minXPos, numWidth, num_Height);
 
             TableCell tr2_1_0 = new TableCell();
@@ -1203,7 +1311,6 @@ namespace Quilt
             num_incXPos = new NumericStepper();
             num_incXPos.Increment = 0.1;
             num_incXPos.DecimalPlaces = 2;
-            num_incXPos.MinValue = 0;
             setSize(num_incXPos, numWidth, num_Height);
 
             TableCell tr2_1_1 = new TableCell();
@@ -1250,7 +1357,6 @@ namespace Quilt
             comboBox_xPosRef = new DropDown();
             comboBox_xPosRef.DataContext = DataContext;
             comboBox_xPosRef.BindDataContext(c => c.DataStore, (UIStringLists m) => m.patternElementNames_filtered);
-            // comboBox_xPosRef.SelectedIndex = (int)CommonVars.subShapeLocations.BL;
             comboBox_xPosRef.ToolTip = "Position in X relative to this pattern element";
 
             TableCell tr3_1 = new TableCell();
@@ -1260,8 +1366,6 @@ namespace Quilt
             tr3_1.Control = tr3_1p;
             tr3_1pl.Add(comboBox_xPosRef, 0, 0);
             tr3.Cells.Add(tr3_1);
-
-            //tr3.Cells.Add(null);
         }
 
         void sp3_subShapeXRelPosSS(TableLayout groupBox_position_table)
@@ -1321,9 +1425,6 @@ namespace Quilt
             tr4_1_1.Control = tr4_1_1p;
             tr4_1_1pl.Add(comboBox_xPos_subShapeRefPos, 0, 0);
             tr4_c_0.Cells.Add(tr4_1_1);
-
-
-            //tr4.Cells.Add(null);
         }
 
         void sp3_subShapeYPos(TableLayout groupBox_position_table)
@@ -1356,7 +1457,6 @@ namespace Quilt
             num_minYPos = new NumericStepper();
             num_minYPos.Increment = 0.1;
             num_minYPos.DecimalPlaces = 2;
-            // num_minYPos.MinValue = 0;
             setSize(num_minYPos, numWidth, num_Height);
 
             TableCell tr5_1_0 = new TableCell();
@@ -1371,7 +1471,6 @@ namespace Quilt
             num_incYPos = new NumericStepper();
             num_incYPos.Increment = 0.1;
             num_incYPos.DecimalPlaces = 2;
-            num_incYPos.MinValue = 0;
             setSize(num_incYPos, numWidth, num_Height);
 
             TableCell tr5_1_1 = new TableCell();
@@ -1519,7 +1618,6 @@ namespace Quilt
             num_minRot = new NumericStepper();
             num_minRot.Increment = 0.1;
             num_minRot.DecimalPlaces = 2;
-            // num_minRot.MinValue = 0;
             setSize(num_minRot, numWidth, num_Height);
 
             TableCell tr8_1_0 = new TableCell();
@@ -1534,7 +1632,6 @@ namespace Quilt
             num_incRot = new NumericStepper();
             num_incRot.Increment = 0.1;
             num_incRot.DecimalPlaces = 2;
-            // num_incRot.MinValue = 0;
             setSize(num_incRot, numWidth, num_Height);
 
             TableCell tr8_1_1 = new TableCell();
@@ -1895,7 +1992,6 @@ namespace Quilt
             num_minArrayRot = new NumericStepper();
             num_minArrayRot.Increment = 0.1;
             num_minArrayRot.DecimalPlaces = 2;
-            // num_minRot.MinValue = 0;
             setSize(num_minArrayRot, numWidth, num_Height);
 
             TableCell tr10pre_1_0 = new TableCell();
@@ -1910,7 +2006,6 @@ namespace Quilt
             num_incArrayRot = new NumericStepper();
             num_incArrayRot.Increment = 0.1;
             num_incArrayRot.DecimalPlaces = 2;
-            // num_incRot.MinValue = 0;
             setSize(num_incArrayRot, numWidth, num_Height);
 
             TableCell tr10pre_1_1 = new TableCell();
@@ -2245,6 +2340,7 @@ namespace Quilt
             doPatternElementUI(0, updateUI);
             pasteLayer.Enabled = commonVars.stitcher.isCopySet();
             revertSim.Enabled = commonVars.projectFileName != "";
+            updateLBContextMenu();
         }
 
         void doPatternElementUI_subshape(int pattern, int index, bool updateUI, string shapeString)
@@ -2253,7 +2349,7 @@ namespace Quilt
 
             if (updateUI)
             {
-                if (shapeString != "bounding")
+                if ((shapeString != "bounding") && (shapeString != "complex"))
                 {
                     groupBox_properties.Content = groupBox_subShapes_table;
                     comboBox_patternElementShape.Visible = true;
@@ -2380,7 +2476,14 @@ namespace Quilt
                 }
                 else
                 {
-                    groupBox_properties.Content = groupBox_bounding_table;
+                    if (shapeString == "bounding")
+                    {
+                        groupBox_properties.Content = groupBox_bounding_table;
+                    }
+                    if (shapeString == "complex")
+                    {
+                        groupBox_properties.Content = groupBox_layout_table;
+                    }
 
                     commonVars.subshapes.Clear();
                     commonVars.subshapes.Add("1");
@@ -2393,7 +2496,7 @@ namespace Quilt
 
             comboBox_subShapeRef.SelectedIndex = previousIndex;
 
-            if (shapeString != "bounding")
+            if ((shapeString != "bounding") && (shapeString != "complex"))
             {
                 if ((shapeString == "none") || (shapeString == "rectangle"))
                 {
@@ -2542,21 +2645,32 @@ namespace Quilt
             }
             else
             {
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingLeftSteps, (int)num_layer_bblsteps.Value);
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeft, Convert.ToDecimal(num_layer_minbbl.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeftInc, Convert.ToDecimal(num_layer_bblinc.Value));
+                if (shapeString == "bounding")
+                {
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingLeftSteps, (int)num_layer_bblsteps.Value);
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeft, Convert.ToDecimal(num_layer_minbbl.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingLeftInc, Convert.ToDecimal(num_layer_bblinc.Value));
 
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingRightSteps, (int)num_layer_bbrsteps.Value);
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRight, Convert.ToDecimal(num_layer_minbbr.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRightInc, Convert.ToDecimal(num_layer_bbrinc.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingRightSteps, (int)num_layer_bbrsteps.Value);
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRight, Convert.ToDecimal(num_layer_minbbr.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingRightInc, Convert.ToDecimal(num_layer_bbrinc.Value));
 
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingTopSteps, (int)num_layer_bbtsteps.Value);
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTop, Convert.ToDecimal(num_layer_minbbt.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTopInc, Convert.ToDecimal(num_layer_bbtinc.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingTopSteps, (int)num_layer_bbtsteps.Value);
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTop, Convert.ToDecimal(num_layer_minbbt.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingTopInc, Convert.ToDecimal(num_layer_bbtinc.Value));
 
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingBottomSteps, (int)num_layer_bbbsteps.Value);
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottom, Convert.ToDecimal(num_layer_minbbb.Value));
-                commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottomInc, Convert.ToDecimal(num_layer_bbbinc.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.boundingBottomSteps, (int)num_layer_bbbsteps.Value);
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottom, Convert.ToDecimal(num_layer_minbbb.Value));
+                    commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.boundingBottomInc, Convert.ToDecimal(num_layer_bbbinc.Value));
+                }
+                if (shapeString == "complex")
+                {
+                    for (int i = 0; i < commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getInt(PatternElement.properties_i.externalGeoVertexCount); i++)
+                    {
+                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.externalGeoCoordX, Convert.ToDecimal(num_externalGeoCoordsX[i].Value), i);
+                        commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.externalGeoCoordY, Convert.ToDecimal(num_externalGeoCoordsY[i].Value), i);
+                    }
+                }
             }
 
         }
@@ -2740,7 +2854,7 @@ namespace Quilt
 
             int index = listBox_entries.SelectedIndex;
 
-            if (index == -1) // || (comboBox_patternElementShape.SelectedIndex == 0))
+            if (index == -1)
             {
                 UIFreeze = false;
                 clearPatternElementUI();
@@ -2756,12 +2870,13 @@ namespace Quilt
 
             if (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getInt(PatternElement.properties_i.shapeIndex) == (int)CommonVars.shapeNames.none)
             {
+
                 if (doPreview)
                 {
                     drawPreviewPanelHandler();
                 }
-                clearPatternElementUI();
                 UIFreeze = false;
+                clearPatternElementUI();
                 return;
             }
 
@@ -2769,16 +2884,21 @@ namespace Quilt
 
             string shapeString = ((CentralProperties.typeShapes)commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getInt(PatternElement.properties_i.shapeIndex)).ToString();
 
+            if (shapeString == "bounding")
+            {
+                groupBox_properties.Content = groupBox_bounding_table;
+            }
+            if (shapeString == "complex")
+            {
+                groupBox_properties.Content = groupBox_layout_table;
+            }
+
             doPatternElementUI_subshape(pattern, index, updateUI, shapeString);
             doPatternElementUI_position(pattern, index);
             doPatternElementUI_rotation(pattern, index);
             doPatternElementUI_transform(pattern, index);
             doPatternElementUI_array(pattern, index, shapeString);
 
-            if (shapeString != "none")
-            {
-                groupBox_position.Visible = true;
-            }
 
             UIFreeze = false;
 
@@ -3089,19 +3209,19 @@ namespace Quilt
             num_layer_subshape3_minho.Value = 0;
             num_layer_subshape3_minvo.Value = 0;
 
-            decimal minSS2HLength = 0.02m;
-            decimal minSS2VLength = 0.02m;
+            decimal minSS2HLength = 0.01m;
+            decimal minSS2VLength = 0.01m;
             decimal maxSS2HLength = commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s0MinHorLength) - 0.02m;
-            decimal maxSS2VLength = commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s0MinVerLength) - 0.02m;
+            decimal maxSS2VLength = commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s0MinVerLength) - 0.01m;
 
-            decimal ss2HOffset = (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s0MinHorLength) - commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s1MinHorLength)) / 2;
+            decimal ss2HOffset = commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s0MinHorLength)  - (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s1MinHorLength) + 0.01m);
             decimal ss2VOffset = (commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s0MinVerLength) - commonVars.stitcher.getPatternElement(patternIndex: pattern, index).getDecimal(PatternElement.properties_decimal.s1MinVerLength));
 
             clampSubShape2(minHLength: (double)minSS2HLength,
                 maxHLength: (double)maxSS2HLength,
                 minVLength: (double)minSS2VLength,
                 maxVLength: (double)maxSS2VLength,
-                minHOffset: (double)ss2HOffset, 
+                minHOffset: 0.01f, 
                 maxHOffset: (double)ss2HOffset,
                 minVOffset: (double)ss2VOffset, 
                 maxVOffset: (double)ss2VOffset
@@ -3139,9 +3259,9 @@ namespace Quilt
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setDecimal(PatternElement.properties_decimal.s2VerOffsetInc, Convert.ToDecimal(num_layer_subshape3_incVO.Value));
             commonVars.stitcher.getPatternElement(patternIndex: pattern, index).setInt(PatternElement.properties_i.s2VerOffsetSteps, Convert.ToInt32(num_layer_subshape3_stepsVO.Value));
 
-            num_layer_subshape2_minho.Enabled = false;
-            num_layer_subshape2_stepsHO.Enabled = false;
-            num_layer_subshape2_incHO.Enabled = false;
+            num_layer_subshape2_minho.Enabled = true;
+            num_layer_subshape2_stepsHO.Enabled = true;
+            num_layer_subshape2_incHO.Enabled = true;
 
             num_layer_subshape2_minvo.Enabled = false;
             num_layer_subshape2_stepsVO.Enabled = false;

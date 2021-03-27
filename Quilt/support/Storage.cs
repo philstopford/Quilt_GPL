@@ -1,4 +1,5 @@
 ﻿using Error;
+using geoLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,9 @@ namespace Quilt
         public PreLoadUI preLoadUI { get; set; }
         public delegate void PostLoadUI(string loadedFile);
         public PostLoadUI postLoadUI { get; set; }
+
+        public delegate void UpdateUIProgress(int val, int max);
+        public UpdateUIProgress updateUIProgress { get; set; }
 
         double padding;
         int showDrawn;
@@ -61,6 +65,82 @@ namespace Quilt
 
         void pStorage()
         {
+        }
+
+        List<GeoLibPointF[]> fileDataFromString(string fileDataString)
+        {
+            List<GeoLibPointF[]> returnList = new List<GeoLibPointF[]>();
+
+            char[] polySep = new char[] { ';' };
+            char[] coordSep = new char[] { ',' };
+
+            if (fileDataString.Length > 0)
+            {
+                List<string> hashList = new List<string>();
+
+                string[] polyStringArray = fileDataString.Split(polySep);
+                for (int poly = 0; poly < polyStringArray.Count(); poly++)
+                {
+                    string[] pointStringArray = polyStringArray[poly].Split(coordSep);
+                    GeoLibPointF[] polyData = new GeoLibPointF[pointStringArray.Count() / 2]; // since we have two coord values per point (X,Y)
+                    int pt = 0;
+                    while (pt < pointStringArray.Count())
+                    {
+                        polyData[pt / 2] = new GeoLibPointF((float)Convert.ToDouble(pointStringArray[pt]), (float)Convert.ToDouble(pointStringArray[pt + 1]));
+                        pt += 2;
+                    }
+
+                    // Avoid duplicated geometry - this is insurance against older projects files that may have doubled-up polygons included.
+                    string p_Hash = utility.Utils.GetMD5Hash(polyData);
+                    if (hashList.IndexOf(p_Hash) == -1)
+                    {
+                        hashList.Add(p_Hash);
+                        returnList.Add(polyData);
+                    }
+                }
+            }
+            else
+            {
+                returnList.Add(new GeoLibPointF[] { new GeoLibPointF(0, 0) });
+                returnList.Add(new GeoLibPointF[] { new GeoLibPointF(0, 0) });
+                returnList.Add(new GeoLibPointF[] { new GeoLibPointF(0, 0) });
+            }
+            return returnList;
+        }
+
+        string stringFromFileData(List<GeoLibPointF[]> fileData)
+        {
+            string returnString = "";
+            if ((fileData != null) && (fileData.Count != 0))
+            {
+                int poly = 0;
+                int pt = 0;
+                returnString += fileData[poly][pt].X.ToString() + "," + fileData[poly][pt].Y.ToString();
+                pt++;
+                while (pt < fileData[poly].Count())
+                {
+                    returnString += "," + fileData[poly][pt].X.ToString() + "," + fileData[poly][pt].Y.ToString();
+                    pt++;
+                }
+                poly++;
+                while (poly < fileData.Count())
+                {
+                    returnString += ";";
+                    pt = 0;
+                    returnString += fileData[poly][0].X.ToString() + "," + fileData[poly][0].Y.ToString();
+                    pt++;
+                    while (pt < fileData[poly].Count())
+                    {
+                        returnString += "," + fileData[poly][pt].X.ToString() + "," + fileData[poly][pt].Y.ToString();
+                        pt++;
+                    }
+                    poly++;
+                }
+            }
+            else
+            {
+            }
+            return returnString;
         }
 
         public bool saveQuiltSettings(string filename, ref Stitcher quilt)
@@ -181,8 +261,10 @@ namespace Quilt
                     new XElement("arrayRotationRef", tmp.getInt(PatternElement.properties_i.arrayRotationRef)),
                     new XElement("arrayRotRefUseArray", tmp.getInt(PatternElement.properties_i.arrayRotRefUseArray)),
                     new XElement("refArrayBoundsAfterRotation", tmp.getInt(PatternElement.properties_i.refArrayBoundsAfterRotation)),
-                    new XElement("refArrayPivot", tmp.getInt(PatternElement.properties_i.refArrayPivot))
+                    new XElement("refArrayPivot", tmp.getInt(PatternElement.properties_i.refArrayPivot)),
 
+                    new XElement("linkedElementIndex", tmp.getInt(PatternElement.properties_i.linkedElementIndex)),
+                    new XElement("nonOrthoGeo", stringFromFileData(tmp.nonOrthoGeometry))
                     );
                 doc.Root.Add(xelement);
             }
@@ -212,12 +294,12 @@ namespace Quilt
             return savedOK;
         }
 
-        public string loadQuilt(string filename, ref Stitcher quilt)
+        public string loadQuilt(string filename, ref Stitcher quilt, QuiltContext quiltContext)
         {
-            return pLoadQuiltSettings(filename, ref quilt);
+            return pLoadQuiltSettings(filename, ref quilt, quiltContext:quiltContext);
         }
 
-        void pLoadSubShapeSettings(ref PatternElement readSettings, ref XElement simulationFromFile, string layerref)
+        void pLoadSubShapeSettings(ref PatternElement readSettings, ref XElement simulationFromFile, string layerref, QuiltContext quiltContext)
         {
             readSettings.defaultInt(PatternElement.properties_i.shape0Tip);
             readSettings.defaultInt(PatternElement.properties_i.shape1Tip);
@@ -654,6 +736,25 @@ namespace Quilt
             {
                 readSettings.defaultInt(PatternElement.properties_i.boundingBottomSteps);
             }
+
+            try
+            {
+                readSettings.setInt(PatternElement.properties_i.linkedElementIndex, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("linkedElementIndex").First().Value));
+            }
+            catch (Exception)
+            {
+                readSettings.defaultInt(PatternElement.properties_i.linkedElementIndex);
+            }
+
+            try
+            {
+                // Get geometry back from string in XML, then process only the first polygon (should only have one polygon anyway). This is not text, so mark as false.
+                readSettings.parsePoints(fileDataFromString(simulationFromFile.Descendants(layerref).Descendants("nonOrthoGeo").First().Value)[0], isText:false, vertical:quiltContext.verticalRectDecomp);
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         void pLoadPositionRotationSettings(ref PatternElement readSettings, ref XElement simulationFromFile, string layerref)
@@ -994,7 +1095,7 @@ namespace Quilt
             }
         }
 
-        string pLoadQuiltSettings(string filename, ref Stitcher quilt)
+        string pLoadQuiltSettings(string filename, ref Stitcher quilt, QuiltContext quiltContext)
         {
 
             string returnString = "";
@@ -1015,8 +1116,6 @@ namespace Quilt
                 return "This is not a " + CentralProperties.productName + " project file.";
             }
 
-            PatternElement readSettings = new PatternElement();
-
             string version = simulationFromFile.Descendants("version").First().Value;
             string[] tokenVersion = version.Split(new char[] { '.' });
 
@@ -1028,11 +1127,18 @@ namespace Quilt
             preLoadUI?.Invoke();
 
             int elementCount = Convert.ToInt32(simulationFromFile.Descendants("elementCount").First().Value);
-
             loadedElements = new PatternElement[elementCount];
 
-            Parallel.For(0, elementCount, (layer, loopstate) =>
-            // for (int layer = 0; layer < elementCount; layer++)
+            int updateSample = elementCount / 100;
+
+            if (updateSample < 1)
+            {
+                updateSample = 1;
+            }
+
+            Parallel.For(0, elementCount, (layer, loopstate)  =>
+
+            //for (int layer = 0; layer < elementCount; layer++)
             {
                 PatternElement readSettings = new PatternElement();
 
@@ -1056,11 +1162,12 @@ namespace Quilt
                     readSettings.defaultInt(PatternElement.properties_i.shapeIndex);
                 }
 
-                pLoadSubShapeSettings(ref readSettings, ref simulationFromFile, layerref);
+                pLoadSubShapeSettings(ref readSettings, ref simulationFromFile, layerref, quiltContext);
 
                 pLoadPositionRotationSettings(ref readSettings, ref simulationFromFile, layerref);
 
                 loadedElements[layer] = readSettings;
+
             });
 
             try
@@ -1106,7 +1213,7 @@ namespace Quilt
             postLoadUI?.Invoke(filename);
             if (error)
             {
-                loadedElements = null;
+                loadedElements = null;// new List<PatternElement>();
                 padding = 0;
                 showDrawn = 1;
                 returnString = "";

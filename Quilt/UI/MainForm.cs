@@ -32,6 +32,8 @@ namespace Quilt
             public List<string> subShapeHorPos { get; set; }
             public List<string> subShapeVerPos { get; set; }
 
+            public ObservableCollection<string> geoCoreStructureList_exp { get; set; }
+
             public ObservableCollection<string> subShapeList { get; set; }
             public List<string> openGLMode { get; set; }
         }
@@ -47,7 +49,7 @@ namespace Quilt
 
         QuiltContext quiltContext;
 
-        Command quitCommand, helpCommand, aboutCommand, copyLayer, pasteLayer, newSim, openSim, revertSim, saveSim, saveAsSim;
+        Command quitCommand, helpCommand, aboutCommand, copyLayer, pasteLayer, newSim, openSim, fromLayout, revertSim, saveSim, saveAsSim;
 
         OVPSettings ovpSettings;
 
@@ -71,6 +73,7 @@ namespace Quilt
                 subShapeHorPos = commonVars.getAvailableHorShapePositions(),
                 subShapeVerPos = commonVars.getAvailableVerShapePositions(),
                 subShapeList = commonVars.subshapes,
+                geoCoreStructureList_exp = commonVars.structureList_exp,
                 openGLMode = commonVars.openGLModeList
             };
         }
@@ -147,6 +150,22 @@ namespace Quilt
             try
             {
                 quiltContext.FGOpacity = Convert.ToDouble(prefs.Descendants("openGL").Descendants("openGLFGOpacity").First().Value);
+            }
+            catch (Exception)
+            {
+            }
+
+            try
+            {
+                quiltContext.angularTolerance = Convert.ToDouble(prefs.Descendants("misc").Descendants("angularTolerance").First().Value);
+            }
+            catch (Exception)
+            {
+            }
+
+            try
+            {
+                quiltContext.verticalRectDecomp = Convert.ToBoolean(prefs.Descendants("misc").Descendants("verticalRectDecomp").First().Value);
             }
             catch (Exception)
             {
@@ -264,6 +283,10 @@ namespace Quilt
                     new XElement("drawExtents", quiltContext.drawExtents));
                 prefsXML.Root.Add(openGLPrefs);
 
+                XElement miscPrefs = new XElement("misc",
+                    new XElement("angularTolerance", quiltContext.angularTolerance),
+                    new XElement("verticalRectDecomp", quiltContext.verticalRectDecomp));
+                prefsXML.Root.Add(miscPrefs);
 
                 XElement colorPrefs = new XElement("colors");
 
@@ -314,7 +337,7 @@ namespace Quilt
                     new XElement("G", quiltContext.colors.extents_Color.G),
                     new XElement("B", quiltContext.colors.extents_Color.B));
                 colorPrefs.Add(extentsColor);
-
+                
                 prefsXML.Root.Add(colorPrefs);
 
                 prefsXML.Save(filename);
@@ -407,26 +430,43 @@ namespace Quilt
         {
             listbox_menu = new ContextMenu();
             int itemIndex = 0;
-            listbox_menu.Items.Add(new ButtonMenuItem { Text = "Copy" });
+            lb_copy = new ButtonMenuItem() { Text = "Copy" };
+            listbox_menu.Items.Add(lb_copy);
             listbox_menu.Items[itemIndex].Click += delegate
             {
                 copy();
             };
             itemIndex++;
-            listbox_menu.Items.Add(new ButtonMenuItem { Text = "Paste" });
+            lb_paste = new ButtonMenuItem() { Text = "Paste" };
+            listbox_menu.Items.Add(lb_paste);
             listbox_menu.Items[itemIndex].Click += delegate
             {
                 paste();
             };
+            itemIndex++;
+            listbox_menu.Items.Add(new ButtonMenuItem() { Text = "Remove" });
+            listbox_menu.Items[itemIndex].Click += delegate
+            {
+                removePatternElement();
+            };
+            itemIndex++;
+            listbox_menu.Items.Add(new ButtonMenuItem() { Text = "Duplicate" });
+            listbox_menu.Items[itemIndex].Click += delegate
+            {
+                duplicatePatternElement();
+            };
+        }
+
+        void updateLBContextMenu()
+        {
             try
             {
-                listbox_menu.Items[itemIndex].Enabled = commonVars.stitcher.isCopySet();
+                lb_paste.Enabled = commonVars.stitcher.isCopySet();
             }
             catch (Exception)
             {
-                listbox_menu.Items[itemIndex].Enabled = false;
+                lb_paste.Enabled = false;
             }
-            itemIndex++;
         }
 
         void UI(QuiltContext _quiltContext)
@@ -439,6 +479,7 @@ namespace Quilt
             {
                 quiltContext = _quiltContext;
             }
+
 
             Shown += (sender, e) => FormReady = true;
 
@@ -555,6 +596,9 @@ namespace Quilt
             viewPort.updateHostFunc = viewportUpdateHost;
             viewPort.updateHostSelectionFunc = viewportSelectionFunc;
 
+            string viewportToolTipText = "(w/a/s/d) to navigate\r\n(r) to reset\r\n(n/m) to zoom\r\n(f) to freeze/thaw\r\n(x) to zoom extents\r\n(z) to zoom selected";
+            vp.ToolTip = viewportToolTipText;
+
             commonVars.titleText += " " + vSurface.Backend.ToString();
 
             Title = commonVars.titleText;
@@ -570,8 +614,6 @@ namespace Quilt
             tabControl.DragOver += dragEvent;
 
             tabControl.DragDrop += dragAndDrop;
-
-            //updateViewport();
         }
 
         void interfaceUpdate(object sender, EventArgs e)
@@ -596,20 +638,69 @@ namespace Quilt
 
             prefsPanel_table.Rows.Add(new TableRow());
 
-            GroupBox groupBox_Prefs = new GroupBox();
-
             TableCell opengl_tc = new TableCell();
 
-            prefsPanel_table.Rows[0].Cells.Add(opengl_tc);
-
-            TableCell padding = new TableCell();
-            prefsPanel_table.Rows[0].Cells.Add(padding);
-
-            prefsPanel_table.Rows.Add(new TableRow()); // padding
+            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(opengl_tc);
 
             openGL_settings_utilsUISetup(opengl_tc);
 
+            TableCell padding = new TableCell();
+            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(padding);
+
+            prefsPanel_table.Rows.Add(new TableRow());
+
+            TableCell misc_tc = new TableCell();
+
+            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(misc_tc);
+
+            TableCell padding2 = new TableCell();
+            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(padding2);
+
+            prefsPanel_table.Rows.Add(new TableRow()); // padding
+
+            misc_settings_utilsUISetup(misc_tc);
+
+
+
             addPrefsHandlers();
+        }
+
+        void misc_settings_utilsUISetup(TableCell tc)
+        {
+            GroupBox groupBox_misc = new GroupBox();
+            tc.Control = groupBox_misc;
+            TableLayout groupBox_misc_table = new TableLayout();
+            groupBox_misc.Text = "Misc";
+            groupBox_misc.Content = groupBox_misc_table;
+
+            groupBox_misc_table.Rows.Add(new TableRow());
+            TableCell row0 = new TableCell();
+            groupBox_misc_table.Rows[groupBox_misc_table.Rows.Count - 1].Cells.Add(row0);
+
+            Panel angTol_pnl = new Panel();
+            TableLayout angTol_table = new TableLayout();
+            angTol_pnl.Content = TableLayout.AutoSized(angTol_table);
+            row0.Control = angTol_pnl;
+
+            angTol_table.Rows.Add(new TableRow());
+
+            lbl_angularTolerance = new Label();
+            lbl_angularTolerance.Text = "Angular Tolerance";
+            lbl_angularTolerance.ToolTip = "This value is used as the 'error' accepted when removing colinear vertices from imported layout.";
+            angTol_table.Rows[angTol_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_angularTolerance });
+
+            num_angularTolerance = new NumericStepper();
+            num_angularTolerance.ToolTip = "This value is used as the 'error' accepted when removing colinear vertices from imported layout.";
+            num_angularTolerance.MinValue = 0.01f;
+            num_angularTolerance.Increment = 0.01f;
+            num_angularTolerance.DecimalPlaces = 2;
+            setSize(num_angularTolerance, 50, num_Height);
+            angTol_table.Rows[angTol_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_angularTolerance });
+
+            checkBox_verticalRectDecomp = new CheckBox();
+            checkBox_verticalRectDecomp.ToolTip = "Decompose layout to vertically-oriented rectangles when set.\r\nUse horizontally-oriented rectangles, if cleared.";
+            checkBox_verticalRectDecomp.Text = "Vertical Decomp";
+            groupBox_misc_table.Rows[groupBox_misc_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_verticalRectDecomp });
         }
 
         void openGL_settings_utilsUISetup(TableCell tc)
@@ -693,9 +784,11 @@ namespace Quilt
 
             lbl_fgOpacity = new Label();
             lbl_fgOpacity.Text = "FG Opacity";
+            lbl_fgOpacity.ToolTip = "Opacity of selected pattern elements in viewport.";
             fgOpTL.Rows[fgOpTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_fgOpacity });
 
             num_fgOpacity = new NumericStepper();
+            num_fgOpacity.ToolTip = "Opacity of selected pattern elements in viewport.";
             num_fgOpacity.MinValue = 0.01f;
             num_fgOpacity.Increment = 0.1f;
             num_fgOpacity.DecimalPlaces = 2;
@@ -711,9 +804,11 @@ namespace Quilt
 
             lbl_bgOpacity = new Label();
             lbl_bgOpacity.Text = "BG Opacity";
+            lbl_bgOpacity.ToolTip = "Opacity of not-selected pattern elements in viewport.";
             bgOpTL.Rows[bgOpTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_bgOpacity });
 
             num_bgOpacity = new NumericStepper();
+            num_bgOpacity.ToolTip = "Opacity of not-selected pattern elements in viewport.";
             num_bgOpacity.MinValue = 0.01f;
             num_bgOpacity.Increment = 0.1f;
             num_bgOpacity.DecimalPlaces = 2;
@@ -753,14 +848,17 @@ namespace Quilt
 
             checkBox_OGLFill = new CheckBox();
             checkBox_OGLFill.Text = "Fill";
+            checkBox_OGLFill.ToolTip = "Draw filled polygons, if set.";
             dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_OGLFill });
 
             checkBox_OGLPoints = new CheckBox();
             checkBox_OGLPoints.Text = "Points";
+            checkBox_OGLPoints.ToolTip = "Draw points in viewport, if set.";
             dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_OGLPoints });
 
             checkBox_drawExtents = new CheckBox();
             checkBox_drawExtents.Text = "Extents";
+            checkBox_drawExtents.ToolTip = "Draw pattern extents in viewport, if set.";
             dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_drawExtents });
         }
 
@@ -839,11 +937,13 @@ namespace Quilt
             c0TL.Rows.Add(new TableRow());
 
             lbl_enabledColor = new Label();
+            lbl_enabledColor.ToolTip = "Color of polygons from selected pattern elements in viewport";
             lbl_enabledColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().enabled_Color);
             setSize(lbl_enabledColor, label_Height, label_Height);
             c0TL.Rows[0].Cells.Add(lbl_enabledColor);
 
             lbl_enabledColor_name = new Label();
+            lbl_enabledColor_name.ToolTip = "Color of polygons from selected pattern elements in viewport";
             lbl_enabledColor_name.Text = "Enabled";
             c0TL.Rows[0].Cells.Add(lbl_enabledColor_name);
 
@@ -855,13 +955,16 @@ namespace Quilt
             c0bTL.Rows.Add(new TableRow());
 
             lbl_backgroundColor = new Label();
+            lbl_backgroundColor.ToolTip = "Color of polygons from unselected pattern elements in viewport";
             lbl_backgroundColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().deselected_Color);
             setSize(lbl_backgroundColor, label_Height, label_Height);
             c0bTL.Rows[0].Cells.Add(lbl_backgroundColor);
 
             lbl_backgroundColor_name = new Label();
+            lbl_backgroundColor_name.ToolTip = "Color of polygons from unselected pattern elements in viewport";
             lbl_backgroundColor_name.Text = "Background";
             c0bTL.Rows[0].Cells.Add(lbl_backgroundColor_name);
+
 
             Panel c1 = new Panel();
             tr.Cells.Add(new TableCell() { Control = c1 });
@@ -919,11 +1022,13 @@ namespace Quilt
             c4TL.Rows.Add(new TableRow());
 
             lbl_extentsColor = new Label();
+            lbl_extentsColor.ToolTip = "Color of pattern extent box in viewport";
             lbl_extentsColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().extents_Color);
             setSize(lbl_extentsColor, label_Height, label_Height);
             c4TL.Rows[0].Cells.Add(lbl_extentsColor);
 
             lbl_extentsColor_name = new Label();
+            lbl_extentsColor_name.ToolTip = "Color of pattern extent box in viewport";
             lbl_extentsColor_name.Text = "Extents";
             c4TL.Rows[0].Cells.Add(lbl_extentsColor_name);
         }
@@ -979,6 +1084,9 @@ namespace Quilt
             openSim = new Command { MenuText = "Open", ToolBarText = "Open", Shortcut = Application.Instance.CommonModifier | Keys.O };
             openSim.Executed += openHandler;
 
+            fromLayout = new Command { MenuText = "Layout", ToolBarText = "Layout", Shortcut = Application.Instance.CommonModifier | Keys.I };
+            fromLayout.Executed += fromLayoutHandler;
+
             revertSim = new Command { MenuText = "Revert", ToolBarText = "Revert", Shortcut = Application.Instance.CommonModifier | Keys.R };
             revertSim.Executed += revertHandler;
             revertSim.Enabled = false;
@@ -989,7 +1097,7 @@ namespace Quilt
             saveAsSim = new Command { MenuText = "Save As", ToolBarText = "Save As", Shortcut = Application.Instance.CommonModifier | Keys.Shift | Keys.S };
             saveAsSim.Executed += saveAsHandler;
 
-            fileMenu = new ButtonMenuItem { Text = "&File", Items = { newSim, openSim, revertSim, saveSim, saveAsSim } };
+            fileMenu = new ButtonMenuItem { Text = "&File", Items = { newSim, openSim, fromLayout, revertSim, saveSim, saveAsSim } };
             editMenu = new ButtonMenuItem { Text = "&Edit", Items = { copyLayer, pasteLayer } };
 
             // create menu
@@ -1034,10 +1142,8 @@ namespace Quilt
             TableCell main_tc1 = new TableCell();
             main_tr.Cells.Add(main_tc1);
 
-            Panel left_s = new Panel();
             left_tl = new TableLayout();
-            left_s.Content = left_tl;
-            main_tc0.Control = left_s;
+            main_tc0.Control = left_tl;
 
             Scrollable right_s = new Scrollable();
             right_tl = new TableLayout();
@@ -1050,7 +1156,7 @@ namespace Quilt
 
             Panel pLower = new Panel();
             TableLayout progressTL = new TableLayout();
-            pLower.Content = progressTL;// TableLayout.AutoSized(progressTL);
+            pLower.Content = progressTL;
             TableRow progressTL_r0 = new TableRow();
             progressTL.Rows.Add(progressTL_r0);
             TableCell progressTL_r0_c0 = new TableCell();
@@ -1065,7 +1171,7 @@ namespace Quilt
             progressTL_r0_c0.Control = progressLabel;
 
             progressBar = new ProgressBar();
-            progressBar.Height = 10; // new Size(progressBarWidth, 10);
+            progressBar.Height = 10;
             progressTL_r0_c1.Control = progressBar;
             progressTL_r0_c1.ScaleWidth = true;
 
@@ -1086,13 +1192,26 @@ namespace Quilt
             left_layout_tr.Cells.Add(new TableCell() { Control = layout_pnl });
 
             layout_tl.Rows.Add(new TableRow());
+
+            btn_layout = new Button();
+            btn_layout.Text = "From File";
+            btn_layout.ToolTip = "Use layout to define pattern.";
+            btn_layout.Click += fromLayoutHandler;
+
+            comboBox_layout_structures = new DropDown();
+            comboBox_layout_structures.BindDataContext(c => c.DataStore, (UIStringLists m) => m.geoCoreStructureList_exp);
+            comboBox_layout_structures.SelectedIndexChanged += processLayout;
+
+            layout_tl.Rows[layout_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(btn_layout) });
+
+            layout_tl.Rows[layout_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_layout_structures), ScaleWidth = true });
+
             TableRow left_tr0 = new TableRow();
             left_tr0.ScaleHeight = true;
             left_tl.Rows.Add(left_tr0);
 
             listBox_entries = new ListBox();
             listBox_entries.ContextMenu = listbox_menu;
-
             int listBox_entries_Width = 200;
             int listBox_entries_Height = 300;
             setSize(listBox_entries, listBox_entries_Width, listBox_entries_Height);
@@ -1299,9 +1418,11 @@ namespace Quilt
             checkBox_OGLFill.Checked = quiltContext.filledPolygons;
             checkBox_OGLPoints.Checked = quiltContext.drawPoints;
             checkBox_drawExtents.Checked = quiltContext.drawExtents;
+            checkBox_verticalRectDecomp.Checked = quiltContext.verticalRectDecomp;
             num_zoomSpeed.Value = quiltContext.openGLZoomFactor;
             num_fgOpacity.Value = quiltContext.FGOpacity;
             num_bgOpacity.Value = quiltContext.BGOpacity;
+            num_angularTolerance.Value = quiltContext.angularTolerance;
             lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
             lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
             lbl_enabledColor.BackgroundColor = Color.FromArgb(quiltContext.colors.enabled_Color.toArgb());

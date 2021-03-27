@@ -185,7 +185,24 @@ img {
 
   <p class="western" style=" line-height: 100%">With 'Extents' checked, the pattern extent is drawn into the viewport. This will help to understand how patterns are being placed. The extents are purely viewport-related and are not exported into layout (the extents are recorded in the CSV file used for Variance DOE configuration, however).</p>
 
-  <p style="page-break-before: always"><img src="images/pattern_extents.png" size="100%" alt=""/></p>
+      <table>
+        <tr>
+          <td = width="50%">
+  			<img src="images/pattern_extents.png" size="50%" alt="Extents"/>
+          </td>
+          <td>
+			<img src="images/pattern_noextents.png" size="50%" alt="No extents"/>
+          </td>
+        </tr>
+      </table>
+  
+  <p class="western" style=" line-height: 100%">The background color is used when 'input' is deselected. It is applied to geometry that isn't defined by the currently-selected element.</p>
+
+  <p style="page-break-before: always"><img src="images/background_color.png" size="100%" alt=""/></p>
+
+  <p class="western" style=" line-height: 100%">The angular tolerance value is used internally during colinear vertex removal, as a margin around the 180 degree angle that would denote a colinear edge segment.</p>
+
+  <p class="western" style=" line-height: 100%">The vertical decomp option is used to choose the orientation of rectangles created during <a href="pattern_from_layout.html#pattern_from_layout">layout decomposition</a>.</p>
 
 </body>
 </html>

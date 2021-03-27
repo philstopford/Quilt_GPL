@@ -186,11 +186,12 @@ box-shadow: 0 1px 3px black;
 #menu a { color: inherit }
 
 /* Make menu absolute, not fixed, on IE 5 & 6 */
-#menu { position: absolute }
-*>#menu { position: fixed }
+/*#menu { position: absolute }*/
+#menu { position: fixed }
 
 </style>
 </head>
+
 
 
 <body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
@@ -200,209 +201,78 @@ box-shadow: 0 1px 3px black;
     <h1 class="western">Quilt Release History</h1>
 
   <ul id=menu>
-    <li><a href="#releases_251">2.5.1</a>
-    <li><a href="#releases_250">2.5</a>
-    <li><a href="#releases_230">2.3</a>
-    <li><a href="#releases_225">2.2.5</a>
-    <li><a href="#releases_224">2.2.4</a>
-    <li><a href="#releases_223">2.2.3</a>
-    <li><a href="#releases_222">2.2.2</a>
-    <li><a href="#releases_221">2.2.1</a>
-    <li><a href="#releases_220">2.2</a>
-    <li><a href="#releases_211">2.1.1</a>
-    <li><a href="#releases_210">2.1</a>
-    <li><a href="#releases_200">2.0</a>
+    <li><a href="#releases_300">3.0</a>
   </ul>
 
     <blockquote>
-      <a name="releases_251"></a>
-      <h2 class="western">New to 2.5.1 (TBD)</h2>
-      <blockquote>
-      <ul>
-        <li>Target .NET 5 for performance and improved platform support.</li>
-      </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_250"></a>
-      <h2 class="western">New to 2.5 (Oct 30 2020)</h2>
-      <blockquote>
-      <ul>
-        <li>Backports from custom development branch.</li>
-          <ul>
-            <li>Geometry can be selected with a middle (or Ctrl-Left) click in the viewport.</li>
-            <li>Geometry can be colored differently for selected/unselected elements.</li>
-            <li>Viewport can now zoom to the selected element in the requested pattern.</li>
-            <li>Hotkeys in context menu.</li>
-            <li>Element list now has a context menu, making it easier to copy, paste, remove and duplicate elements.</li>
-            <li>Quilt now loads patterns involving many elements much faster, due to use of multithreading.</li>
-            <li>Pattern elements can be renamed now.</li>
-            <li>Allow negative X/Y position coordinates.</li>
-            <li>Transformation system has been overhauled, allowing for deep relative transform hierarchies without any significant computational overhead.</li>
-            <li>Miscellaneous performance enhancements in the Quilt system.</li>
-            <li>Support output of GZIP-compressed layout files.</li>
-          </ul>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_230"></a>
-      <h2 class="western">New to 2.3 (Sep 16 2020)</h2>
+      <a name="releases_300"></a>
+      <h2 class="western">New to 3.0 (TBD)</h2>
       <table>
         <tr>
-          <td = width="50%">
-            <img class="c" src="images/versions/2.3_pattern_extents.png" alt=""/>
+          <td = width="100%">
+            <table>
+              <tr>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp-pre.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp-post.png" alt=""/>
+                </td>
+              </tr>
+            </table>
           </td>
-          <td = width="50%">
-            <img class="c" src="" alt=""/>
+        </tr>
+        <tr>
+          <td width="100%">
+            <table>
+              <tr>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp_2-pre.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp_2.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp_2-post.png" alt=""/>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
       </table>
       <blockquote>
         <ul>
-          <li>Added extents drawing to the tool. This allows the user to see the pattern extent used for placement in the quilt, making it easier to understand how placement is behaving.</li>
-          <li>Fixed duplicate patterns showing up for rotations.</li>
-          <li>Fixed viewport issue when toggling filled polygon display.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_225"></a>
-      <h2 class="western">New to 2.2.5 (Sep 16 2020)</h2>
-      <blockquote>
-        <ul>
-          <li>Reworked transformation pipeline to resolve errors when relative rotation is combined with relative and offset positions.</li>
+          <li>Support output of GZIP-compressed layout files for input and output.</li>
+          <li>Geometry can be selected with a middle (or Ctrl-Left) click in the viewport.</li>
+          <li>Geometry can be colored differently for selected/unselected elements.</li>
+          <li>Viewport can now zoom to the selected element in the requested pattern.</li>
+          <li>Hotkeys in context menu.</li>
+          <li>Element list now has a context menu, making it easier to copy, paste, remove and duplicate elements.</li>
+          <li>Quilt now loads patterns involving many elements (typically from layout decomposition) much faster, due to use of multithreading.</li>
+          <li>Added extents drawing to the tool. This allows the user to see the pattern extent used for placement in the quilt, making it easier to understand how placement is behaving (backported to 2.x line).</li>
+          <li>Pattern definition using layout files (GDSII, Oasis; including GZIP-compressed files) for any cell.</li>
           <ul>
-            <li>This may change results for patterns compared to previous releases, but those prior patterns will have been difficult to understand and work with, so the correct behavior in this release is obviously preferable.</li>
+            <li>Geometry will be mapped to internal primitives whenever possible.</li>
+            <li>Arrays will be constructed, where possible, from arrayed cell references.</li>
+            <ul>
+              <li>Complex cell hierarchies will be fully resolved to map into the Quilt system.</li>
+            </ul>
+            <li>Complex orthogonal geometry will be subjected to retangular decomposition.</li>
+            <ul>
+              <li>Rectangular primitives will be added, ordered in increasing X,Y sequence based on the bottom left corner.</li>
+              <li>Decomposition primitives can be oriented vertically (default) or horizontally (as a user setting).</li>
+              <li>Relative positioning will be defined, using the series order of the decomposed rectangles.</li>
+              <li>Decomposed polygons will be unioned on export, to reconstitute polygons to a minimal case.</li>
+            </ul>
+            <li>Non-orthogonal geometry will be used as a complex primitive, displayed as an edge list.</li>
           </ul>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_224"></a>
-      <h2 class="western">New to 2.2.4 (Sep 13 2020)</h2>
-      <blockquote>
-        <ul>
-          <li>Pattern placement fix - double transform for export.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_223"></a>
-      <h2 class="western">New to 2.2.3 (Jul 15 2020)</h2>
-      <blockquote>
-        <ul>
-          <li>Viewport enhancements.</li>
-          <li>Drag-and-drop support for project loading.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_222"></a>
-      <h2 class="western">New to 2.2.2 (Jun 20 2020)</h2>
-      <blockquote>
-        <ul>
-          <li>Workground for Intel GPU/Vulkan crash.</li>
-          <li>Gtk fix-up.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_221"></a>
-      <h2 class="western">New to 2.2.1 (May 30 2020)</h2>
-      <blockquote>
-        <ul>
-          <li>Viewport updates based on upstream project changes.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_220"></a>
-      <h2 class="western">New to 2.2 (Apr 11 2020)</h2>
-      <table>
-        <tr>
-          <td = width="50%">
-            <img class="c" src="images/Quilt220Gtk.png" alt=""/>
-          </td>
-          <td = width="50%">
-            <img class="c" src="images/Quilt220Gtk_patt.png" alt=""/>
-          </td>
-        </tr>
-        <tr>
-          <td = width="50%">
-            <img class="c" src="images/Quilt220Mac.png" alt=""/>
-          </td>
-          <td = width="50%">
-            <img class="c" src="images/Quilt220Mac_patt.png" alt=""/>
-          </td>
-        </tr>
-      </table>
-      <blockquote>
-        <ul>
-          <li>Arrays can be constructed within pattern elements.</li>
-          <ul>
-            <li>Each entry in the array comes from the underlying pattern element for the pattern.</li>
-            <li>Array placement can be cross-referenced between elements.</li>
-            <li>The array be be rotated around its bounding box pivot, or that of a reference.</li>
-          </ul>
-          <li>Runs on .NET Core 3.1 across all platforms. No longer requires Mono framework.</li>
-          <li>Relative rotations can be performed around the reference element's pivot point.</li>
-          <li>Flipped shapes can now be aligned on either or both of X and Y. Previously, only 'all' was available.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_211"></a>
-      <h2 class="western">New to 2.1.1 (Dec 30 2019)</h2>
-      <blockquote>
-        <ul>
-          <li>Support argument to set viewport mode (--graphicsMode x), where x is one of:</li>
-          <ul>
-            <li>d3d11 : D3D 11</li>
-            <li>vulkan : Vulkan</li>
-            <li>opengl : OpenGL</li>
-            <li>metal : Metal</li>
-          </ul>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_210"></a>
-      <h2 class="western">New to 2.1 (Nov 20 2019)</h2>
-      <blockquote>
-        <ul>
-          <li>Bounding box pattern element.</li>
-          <li>Permit negative values across more of the system.</li>
-          <li>Performance tuning : 225k build time on an ultrabook went from 11 seconds to 7.8 seconds with this release.</li>
-          <li>Modern viewport.</li>
-          <ul>
-            <li>Faster, and automatically works with the best implementation on each platform (Vulkan, OpenGL, Direct3D11, Metal)</li>
-          </ul>
-          <li>Moved to newer .NET framework (4.7.2) and .NET standard 2.0 libraries.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_200"></a>
-      <h2 class="western">New to 2.0 (Sep 23 2019)</h2>
-      <blockquote>
-        <ul>
-          <li>Relative positioning in X and Y can now use independent subshape references within the reference element.</li>
-          <li>Rotation support, including relative rotations.</li>
-          <li>Flip support support.</li>
-          <li>Text annotation support.</li>
-          <li>Robustness work.</li>
+          <li>Pattern elements can be renamed now.</li>
+          <li>Allow negative X/Y position coordinates.</li>
+          <li>Reworked some internals to make the transformation pipeline simpler and much more robust.</li>
+          <li>Transformation system has been overhauled, allowing for deep relative transform hierarchies without any significant computational overhead.</li>
         </ul>
       </blockquote>
     </blockquote>

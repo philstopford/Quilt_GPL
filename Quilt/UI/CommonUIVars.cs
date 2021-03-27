@@ -16,7 +16,9 @@ namespace Quilt
         TableLayout left_tl; // left-hand side table layout container within main_tl
         TableLayout right_tl; // right-hand side table layout container within main_tl
 
-        DropDown comboBox_patternElementShape;
+        Button btn_layout;
+
+        DropDown comboBox_patternElementShape, comboBox_layout_structures;
 
         NumericStepper num_layer_subshape_minhl, num_layer_subshape2_minhl, num_layer_subshape3_minhl,
                         num_layer_subshape_minho, num_layer_subshape2_minho, num_layer_subshape3_minho,
@@ -88,18 +90,21 @@ namespace Quilt
         bool colUIFrozen, utilsUIFrozen;
         Panel quiltUISplitter, prefsPanel;
 
-        NumericStepper num_zoomSpeed, num_fgOpacity, num_bgOpacity;
-        CheckBox checkBox_OGLAA, checkBox_OGLFill, checkBox_OGLPoints, checkBox_drawExtents;
+        NumericStepper[] num_externalGeoCoordsX, num_externalGeoCoordsY;
+
+        NumericStepper num_zoomSpeed, num_fgOpacity, num_bgOpacity, num_angularTolerance;
+        CheckBox checkBox_OGLAA, checkBox_OGLFill, checkBox_OGLPoints, checkBox_drawExtents, checkBox_verticalRectDecomp;
         Label lbl_ss1Color, lbl_ss2Color, lbl_ss3Color,
                 lbl_enabledColor, lbl_backgroundColor, lbl_majorGridColor, lbl_minorGridColor, lbl_extentsColor,
                 lbl_ss1Color_name, lbl_ss2Color_name, lbl_ss3Color_name,
                 lbl_enabledColor_name, lbl_backgroundColor_name, lbl_majorGridColor_name, lbl_minorGridColor_name, lbl_extentsColor_name,
-                lbl_zoomSpeed, lbl_fgOpacity, lbl_bgOpacity;
+                lbl_zoomSpeed, lbl_fgOpacity, lbl_bgOpacity, lbl_angularTolerance;
         Button btn_resetColors;
 
-        TableLayout groupBox_subShapes_table, groupBox_bounding_table;
+        TableLayout groupBox_subShapes_table, groupBox_bounding_table, groupBox_layout_table;
 
         ContextMenu listbox_menu;
+        ButtonMenuItem lb_copy, lb_paste;
 
         int patternIndex; // used to avoid moving the view if the pattern number loses focus, but the value hasn't changed.
 

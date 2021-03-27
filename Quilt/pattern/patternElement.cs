@@ -1,5 +1,8 @@
 ﻿using geoLib;
+using geoWrangler;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Quilt
 {
@@ -49,6 +52,11 @@ namespace Quilt
         static Int32 defaultArrayCount = 1;
 
         public PatternElement()
+        {
+            newPE();
+        }
+
+        public void reset()
         {
             newPE();
         }
@@ -151,6 +159,13 @@ namespace Quilt
             refArrayBoundsAfterRotation = 0;
 
             relativeArray = 0;
+
+            externalGeoCoordX = new List<decimal>();
+            externalGeoCoordY = new List<decimal>();
+
+            linkedElementIndex = -1;
+
+            midpoint = null;
         }
 
         public PatternElement(PatternElement source)
@@ -306,6 +321,13 @@ namespace Quilt
             refArrayPivot = source.refArrayPivot;
             refBoundsAfterRotation = source.refBoundsAfterRotation;
             refArrayBoundsAfterRotation = source.refArrayBoundsAfterRotation;
+
+            externalGeoCoordX = source.externalGeoCoordX.ToList();
+            externalGeoCoordY = source.externalGeoCoordY.ToList();
+
+            linkedElementIndex = source.linkedElementIndex;
+
+            midpoint = source.midpoint;
         }
 
         GeoLibPointF midpoint;
@@ -391,6 +413,7 @@ namespace Quilt
         Int32 refPivot, refArrayPivot;
         Int32 refBoundsAfterRotation, refArrayBoundsAfterRotation;
         Int32 relativeArray;
+        Int32 linkedElementIndex;
 
         public bool isXArray()
         {
@@ -430,7 +453,9 @@ namespace Quilt
             arrayRef,
             refPivot, refArrayPivot,
             refBoundsAfterRotation, refArrayBoundsAfterRotation,
-            relativeArray
+            relativeArray,
+            externalGeoVertexCount,
+            linkedElementIndex
         }
 
         public Int32 getSubShapeCount()
@@ -450,15 +475,19 @@ namespace Quilt
 
         static Int32 pGetSubShapeCount(int shapeIndex_)
         {
+            if (shapeIndex_ == (int)CentralProperties.typeShapes.complex)
+            {
+                return 1;
+            }
             return ShapeLibrary.getSubShapeCount(shapeIndex_);
         }
 
-        public Int32 getInt(properties_i p)
+        public Int32 getInt(properties_i p, int listIndex = 0)
         {
-            return pGetInt(p);
+            return pGetInt(p, listIndex);
         }
 
-        Int32 pGetInt(properties_i p)
+        Int32 pGetInt(properties_i p, int listIndex = 0)
         {
             int ret = 0;
             switch (p)
@@ -610,17 +639,23 @@ namespace Quilt
                 case properties_i.relativeArray:
                     ret = relativeArray;
                     break;
+                case properties_i.externalGeoVertexCount:
+                    ret = externalGeoCoordX.Count;
+                    break;
+                case properties_i.linkedElementIndex:
+                    ret = linkedElementIndex;
+                    break;
             }
 
             return ret;
         }
 
-        public void setInt(properties_i p, int val)
+        public void setInt(properties_i p, int val, int listIndex = 0)
         {
-            pSetInt(p, val);
+            pSetInt(p, val, listIndex);
         }
 
-        void pSetInt(properties_i p, int val)
+        void pSetInt(properties_i p, int val, int listIndex = 0)
         {
             switch (p)
             {
@@ -768,15 +803,18 @@ namespace Quilt
                 case properties_i.relativeArray:
                     relativeArray = val;
                     break;
+                case properties_i.linkedElementIndex:
+                    linkedElementIndex = val;
+                    break;
             }
         }
 
-        public void defaultInt(properties_i p)
+        public void defaultInt(properties_i p, int listIndex = 0)
         {
-            pDefaultInt(p);
+            pDefaultInt(p, listIndex);
         }
 
-        void pDefaultInt(properties_i p)
+        void pDefaultInt(properties_i p, int listIndex = 0)
         {
             switch (p)
             {
@@ -921,6 +959,9 @@ namespace Quilt
                 case properties_i.relativeArray:
                     relativeArray = 0;
                     break;
+                case properties_i.linkedElementIndex:
+                    linkedElementIndex = -1;
+                    break;
             }
         }
 
@@ -1001,6 +1042,9 @@ namespace Quilt
                 case properties_i.alignY:
                     ret = 1;
                     break;
+                case properties_i.linkedElementIndex:
+                    ret = -1;
+                    break;
             }
 
             return ret;
@@ -1071,6 +1115,23 @@ namespace Quilt
         decimal arrayXSpace;
         decimal arrayYSpace;
 
+        List<decimal> externalGeoCoordX;
+        List<decimal> externalGeoCoordY;
+
+        public List<GeoLibPointF[]> decomposedPolys; // used to push back decomposed polygons to the stitcher to populate other elements.
+
+        public List<GeoLibPointF[]> nonOrthoGeometry;
+
+        List<GeoLibPointF[]> pGetNonOrthoGeometry()
+        {
+            GeoLibPointF[] ret = new GeoLibPointF[externalGeoCoordX.Count];
+            for (int i = 0; i < externalGeoCoordX.Count; i++)
+            {
+                ret[i] = new GeoLibPointF(Convert.ToDouble(externalGeoCoordX[i]), Convert.ToDouble(externalGeoCoordY[i]));
+            }
+
+            return new List<GeoLibPointF[]> { ret };
+        }
 
         public enum properties_decimal
         {
@@ -1090,7 +1151,8 @@ namespace Quilt
             boundingLeft, boundingRight, boundingTop, boundingBottom,
             boundingLeftInc, boundingRightInc, boundingTopInc, boundingBottomInc,
             arrayXSpace, arrayYSpace,
-            minArrayRotation, arrayRotationInc, arrayRotation
+            minArrayRotation, arrayRotationInc, arrayRotation,
+            externalGeoCoordX, externalGeoCoordY
         }
 
         public decimal getDecimal(properties_decimal p, int _subShapeRef = 0)
@@ -1299,6 +1361,12 @@ namespace Quilt
                 case properties_decimal.arrayRotation:
                     ret = arrayRotation;
                     break;
+                case properties_decimal.externalGeoCoordX:
+                    ret = externalGeoCoordX[_subShapeRef];
+                    break;
+                case properties_decimal.externalGeoCoordY:
+                    ret = externalGeoCoordY[_subShapeRef];
+                    break;
             }
 
             return ret;
@@ -1387,6 +1455,8 @@ namespace Quilt
                 case properties_decimal.minArrayRotation:
                 case properties_decimal.arrayRotation:
                 case properties_decimal.arrayRotationInc:
+                case properties_decimal.externalGeoCoordX:
+                case properties_decimal.externalGeoCoordY:
                     ret = 0;
                     break;
             }
@@ -1394,12 +1464,12 @@ namespace Quilt
             return ret;
         }
 
-        public void setDecimal(properties_decimal p, decimal val)
+        public void setDecimal(properties_decimal p, decimal val, int listIndex = 0)
         {
-            pSetDecimal(p, val);
+            pSetDecimal(p, val, listIndex);
         }
 
-        void pSetDecimal(properties_decimal p, decimal val)
+        void pSetDecimal(properties_decimal p, decimal val, int listIndex = 0)
         {
             switch (p)
             {
@@ -1580,15 +1650,23 @@ namespace Quilt
                     arrayRotation = val;
                     break;
 
+                case properties_decimal.externalGeoCoordX:
+                    externalGeoCoordX[listIndex] = val;
+                    break;
+
+                case properties_decimal.externalGeoCoordY:
+                    externalGeoCoordY[listIndex] = val;
+                    break;
+
             }
         }
 
-        public void defaultDecimal(properties_decimal p)
+        public void defaultDecimal(properties_decimal p, int listIndex = 0)
         {
-            pDefaultDecimal(p);
+            pDefaultDecimal(p, listIndex);
         }
 
-        void pDefaultDecimal(properties_decimal p)
+        void pDefaultDecimal(properties_decimal p, int listIndex = 0)
         {
             switch (p)
             {
@@ -1761,6 +1839,13 @@ namespace Quilt
                 case properties_decimal.arrayRotationInc:
                     arrayRotationInc = 0;
                     break;
+
+                case properties_decimal.externalGeoCoordX:
+                    externalGeoCoordX[listIndex] = 0;
+                    break;
+                case properties_decimal.externalGeoCoordY:
+                    externalGeoCoordY[listIndex] = 0;
+                    break;
             }
         }
 
@@ -1772,6 +1857,8 @@ namespace Quilt
         bool pEquivalence(PatternElement pe)
         {
             bool ret = true;
+
+            ret = ret && (shapeIndex == pe.shapeIndex);
 
             ret = ret && (subShapeHorLength == pe.subShapeHorLength);
             ret = ret && (subShapeHorOffset == pe.subShapeHorOffset);
@@ -1791,7 +1878,15 @@ namespace Quilt
             ret = ret && (x == pe.x);
             ret = ret && (y == pe.y);
 
-            ret = ret && (rotation % 360 == pe.rotation % 360);
+            decimal rotM360 = rotation % 360;
+            decimal peRotM360 = pe.rotation % 360;
+
+            if (Math.Abs(rotM360 - peRotM360) == 360)
+            {
+                peRotM360 = rotM360;
+            }
+
+            ret = ret && (rotM360 == peRotM360);
 
             ret = ret && (boundingBottom == pe.boundingBottom);
             ret = ret && (boundingTop == pe.boundingTop);
@@ -1808,6 +1903,24 @@ namespace Quilt
             ret = ret && (refBoundsAfterRotation == pe.refBoundsAfterRotation);
 
             ret = ret && (refArrayBoundsAfterRotation == pe.refArrayBoundsAfterRotation);
+
+            // Check our external geometry only if relevant
+            if (shapeIndex == (int)CentralProperties.typeShapes.complex)
+            {
+                ret = ret && (externalGeoCoordX.Count == pe.externalGeoCoordX.Count);
+                if (ret)
+                {
+                    // Could probably use a hash here, but this should be cheap enough for now.
+                    for (int i = 0; i < externalGeoCoordX.Count; i++)
+                    {
+                        if ((externalGeoCoordX[i] != pe.externalGeoCoordX[i]) || (externalGeoCoordY[i] != pe.externalGeoCoordY[i]))
+                        {
+                            ret = false;
+                            break;
+                        }
+                    }
+                }
+            }
 
             return ret;
         }
@@ -1853,117 +1966,144 @@ namespace Quilt
 
             int limit = xSteps * ySteps * rSteps * arrayRSteps;
 
-            if (shapeIndex != (int)CommonVars.shapeNames.bounding)
+            switch (shapeIndex)
             {
-                s0HLSteps = s0HorLengthSteps;
-                if (subShapeHorLengthInc == 0)
-                {
-                    s0HLSteps = 1;
-                }
-
-                s0HOSteps = s0HorOffsetSteps;
-                if (subShapeHorOffsetInc == 0)
-                {
-                    s0HOSteps = 1;
-                }
-
-                s0VLSteps = s0VerLengthSteps;
-                if (subShapeVerLengthInc == 0)
-                {
-                    s0VLSteps = 1;
-                }
-
-                s0VOSteps = s0VerOffsetSteps;
-                if (subShapeVerOffsetInc == 0)
-                {
-                    s0VOSteps = 1;
-                }
-
-                s1HLSteps = s1HorLengthSteps;
-                if (subShape2HorLengthInc == 0)
-                {
-                    s1HLSteps = 1;
-                }
-
-                s1HOSteps = s1HorOffsetSteps;
-                if (subShape2HorOffsetInc == 0)
-                {
-                    s1HOSteps = 1;
-                }
-
-                s1VLSteps = s1VerLengthSteps;
-                if (subShape2VerLengthInc == 0)
-                {
-                    s1VLSteps = 1;
-                }
-
-                s1VOSteps = s1VerOffsetSteps;
-                if (subShape2VerOffsetInc == 0)
-                {
-                    s1VOSteps = 1;
-                }
-
-                s2HLSteps = s2HorLengthSteps;
-                if (subShape3HorLengthInc == 0)
-                {
-                    s2HLSteps = 1;
-                }
-
-                s2HOSteps = s2HorOffsetSteps;
-                if (subShape3HorOffsetInc == 0)
-                {
-                    s2HOSteps = 1;
-                }
-
-                s2VLSteps = s2VerLengthSteps;
-                if (subShape3VerLengthInc == 0)
-                {
-                    s2VLSteps = 1;
-                }
-
-                s2VOSteps = s2VerOffsetSteps;
-                if (subShape3VerOffsetInc == 0)
-                {
-                    s2VOSteps = 1;
-                }
-
-                limit *= s0HLSteps * s0HOSteps * s0VLSteps * s0VOSteps;
-                if ((shapeIndex != (int)CommonVars.shapeNames.none) && (shapeIndex != (int)CommonVars.shapeNames.rect) && (shapeIndex != (int)CommonVars.shapeNames.text))
-                {
-                    limit *= s1HLSteps * s1HOSteps * s1VLSteps * s1VOSteps;
-                    if (shapeIndex == (int)CommonVars.shapeNames.Sshape)
-                    {
-                        limit *= s2HLSteps * s2HOSteps * s2VLSteps * s2VOSteps;
-                    }
-                }
+                case (int)CommonVars.shapeNames.complex:
+                    return calcMaxVariants_external(limit);
+                case (int)CommonVars.shapeNames.bounding:
+                    return calcMaxVariants_bounding(limit);
+                default:
+                    return calcMaxVariants_regular(limit);
             }
-            else
+        }
+
+        int calcMaxVariants_external(int limit)
+        {
+            // Need to calculate our variants based on the edge steps for the edges in the pattern.
+            int extSteps = 1;
+            /*
+            for (int i = 0; i < externalGeoEdgeSteps.Count; i++)
             {
-                bbLSteps = boundingLeftSteps;
-                if (bbLSteps == 0)
-                {
-                    bbLSteps = 1;
-                }
+                extSteps *= externalGeoEdgeSteps[i];
+            }
+            */
+            return limit * extSteps;
+        }
 
-                bbRSteps = boundingRightSteps;
-                if (bbRSteps == 0)
-                {
-                    bbRSteps = 1;
-                }
 
-                bbTSteps = boundingTopSteps;
-                if (bbTSteps == 0)
-                {
-                    bbTSteps = 1;
-                }
+        int calcMaxVariants_bounding(int limit)
+        {
+            bbLSteps = boundingLeftSteps;
+            if (bbLSteps == 0)
+            {
+                bbLSteps = 1;
+            }
 
-                bbBSteps = boundingBottomSteps;
-                if (bbBSteps == 0)
-                {
-                    bbBSteps = 1;
-                }
+            bbRSteps = boundingRightSteps;
+            if (bbRSteps == 0)
+            {
+                bbRSteps = 1;
+            }
 
-                limit *= bbLSteps * bbRSteps * bbBSteps * bbTSteps;
+            bbTSteps = boundingTopSteps;
+            if (bbTSteps == 0)
+            {
+                bbTSteps = 1;
+            }
+
+            bbBSteps = boundingBottomSteps;
+            if (bbBSteps == 0)
+            {
+                bbBSteps = 1;
+            }
+
+            limit *= bbLSteps * bbRSteps * bbBSteps * bbTSteps;
+
+            return limit;
+        }
+
+        int calcMaxVariants_regular(int limit)
+        {
+            s0HLSteps = s0HorLengthSteps;
+            if (subShapeHorLengthInc == 0)
+            {
+                s0HLSteps = 1;
+            }
+
+            s0HOSteps = s0HorOffsetSteps;
+            if (subShapeHorOffsetInc == 0)
+            {
+                s0HOSteps = 1;
+            }
+
+            s0VLSteps = s0VerLengthSteps;
+            if (subShapeVerLengthInc == 0)
+            {
+                s0VLSteps = 1;
+            }
+
+            s0VOSteps = s0VerOffsetSteps;
+            if (subShapeVerOffsetInc == 0)
+            {
+                s0VOSteps = 1;
+            }
+
+            s1HLSteps = s1HorLengthSteps;
+            if (subShape2HorLengthInc == 0)
+            {
+                s1HLSteps = 1;
+            }
+
+            s1HOSteps = s1HorOffsetSteps;
+            if (subShape2HorOffsetInc == 0)
+            {
+                s1HOSteps = 1;
+            }
+
+            s1VLSteps = s1VerLengthSteps;
+            if (subShape2VerLengthInc == 0)
+            {
+                s1VLSteps = 1;
+            }
+
+            s1VOSteps = s1VerOffsetSteps;
+            if (subShape2VerOffsetInc == 0)
+            {
+                s1VOSteps = 1;
+            }
+
+            s2HLSteps = s2HorLengthSteps;
+            if (subShape3HorLengthInc == 0)
+            {
+                s2HLSteps = 1;
+            }
+
+            s2HOSteps = s2HorOffsetSteps;
+            if (subShape3HorOffsetInc == 0)
+            {
+                s2HOSteps = 1;
+            }
+
+            s2VLSteps = s2VerLengthSteps;
+            if (subShape3VerLengthInc == 0)
+            {
+                s2VLSteps = 1;
+            }
+
+            s2VOSteps = s2VerOffsetSteps;
+            if (subShape3VerOffsetInc == 0)
+            {
+                s2VOSteps = 1;
+            }
+
+            limit *= s0HLSteps * s0HOSteps * s0VLSteps * s0VOSteps;
+            if ((shapeIndex != (int)CommonVars.shapeNames.none) && (shapeIndex != (int)CommonVars.shapeNames.rect) && (shapeIndex != (int)CommonVars.shapeNames.text))
+            {
+                limit *= s1HLSteps * s1HOSteps * s1VLSteps * s1VOSteps;
+                if (shapeIndex == (int)CommonVars.shapeNames.Sshape)
+                {
+                    limit *= s2HLSteps * s2HOSteps * s2VLSteps * s2VOSteps;
+                }
             }
 
             return limit;
@@ -1981,6 +2121,7 @@ namespace Quilt
                 variantCounter = 0;
                 return null; // no available variant.
             }
+
             int xIndex = variantCounter % xSteps;
 
             long fields = xSteps;
@@ -1991,114 +2132,117 @@ namespace Quilt
 
             PatternElement ret = new PatternElement(this);
 
-            if (shapeIndex != (int)CommonVars.shapeNames.bounding)
+            if (shapeIndex != (int)CentralProperties.typeShapes.complex)
             {
-                int s0hlIndex = 0;
-                int s0hoIndex = 0;
-                int s0vlIndex = 0;
-                int s0voIndex = 0;
-
-                int s1hlIndex = 0;
-                int s1hoIndex = 0;
-                int s1vlIndex = 0;
-                int s1voIndex = 0;
-
-                int s2hlIndex = 0;
-                int s2hoIndex = 0;
-                int s2vlIndex = 0;
-                int s2voIndex = 0;
-
-                s0hlIndex = (int)(Math.Floor((float)variantCounter / fields) % s0HLSteps);
-
-                fields *= s0HLSteps;
-
-                s0hoIndex = (int)(Math.Floor((float)variantCounter / fields) % s0HOSteps);
-
-                fields *= s0HOSteps;
-
-                s0vlIndex = (int)(Math.Floor((float)variantCounter / fields) % s0VLSteps);
-
-                fields *= s0VLSteps;
-
-                s0voIndex = (int)(Math.Floor((float)variantCounter / fields) % s0VOSteps);
-
-                fields *= s0VOSteps;
-
-                if ((shapeIndex != (int)CommonVars.shapeNames.none) && (shapeIndex != (int)CommonVars.shapeNames.rect) && (shapeIndex != (int)CommonVars.shapeNames.text))
+                if (shapeIndex != (int)CommonVars.shapeNames.bounding)
                 {
-                    s1hlIndex = (int)(Math.Floor((float)variantCounter / fields) % s1HLSteps);
+                    int s0hlIndex = 0;
+                    int s0hoIndex = 0;
+                    int s0vlIndex = 0;
+                    int s0voIndex = 0;
 
-                    fields *= s1HLSteps;
+                    int s1hlIndex = 0;
+                    int s1hoIndex = 0;
+                    int s1vlIndex = 0;
+                    int s1voIndex = 0;
 
-                    s1hoIndex = (int)(Math.Floor((float)variantCounter / fields) % s1HOSteps);
+                    int s2hlIndex = 0;
+                    int s2hoIndex = 0;
+                    int s2vlIndex = 0;
+                    int s2voIndex = 0;
 
-                    fields *= s1HOSteps;
+                    s0hlIndex = (int)(Math.Floor((float)variantCounter / fields) % s0HLSteps);
 
-                    s1vlIndex = (int)(Math.Floor((float)variantCounter / fields) % s1VLSteps);
+                    fields *= s0HLSteps;
 
-                    fields *= s1VLSteps;
+                    s0hoIndex = (int)(Math.Floor((float)variantCounter / fields) % s0HOSteps);
 
-                    s1voIndex = (int)(Math.Floor((float)variantCounter / fields) % s1VOSteps);
+                    fields *= s0HOSteps;
 
-                    fields *= s1VOSteps;
+                    s0vlIndex = (int)(Math.Floor((float)variantCounter / fields) % s0VLSteps);
 
-                    if (shapeIndex == (int)CommonVars.shapeNames.Sshape)
+                    fields *= s0VLSteps;
+
+                    s0voIndex = (int)(Math.Floor((float)variantCounter / fields) % s0VOSteps);
+
+                    fields *= s0VOSteps;
+
+                    if ((shapeIndex != (int)CommonVars.shapeNames.none) && (shapeIndex != (int)CommonVars.shapeNames.rect) && (shapeIndex != (int)CommonVars.shapeNames.text))
                     {
-                        s2hlIndex = (int)(Math.Floor((float)variantCounter / fields) % s2HLSteps);
+                        s1hlIndex = (int)(Math.Floor((float)variantCounter / fields) % s1HLSteps);
 
-                        fields *= s2HLSteps;
+                        fields *= s1HLSteps;
 
-                        s2hoIndex = (int)(Math.Floor((float)variantCounter / fields) % s2HOSteps);
+                        s1hoIndex = (int)(Math.Floor((float)variantCounter / fields) % s1HOSteps);
 
-                        fields *= s2HOSteps;
+                        fields *= s1HOSteps;
 
-                        s2vlIndex = (int)(Math.Floor((float)variantCounter / fields) % s2VLSteps);
+                        s1vlIndex = (int)(Math.Floor((float)variantCounter / fields) % s1VLSteps);
 
-                        fields *= s2VLSteps;
+                        fields *= s1VLSteps;
 
-                        s2voIndex = (int)(Math.Floor((float)variantCounter / fields) % s2VOSteps);
+                        s1voIndex = (int)(Math.Floor((float)variantCounter / fields) % s1VOSteps);
 
-                        fields *= s2VOSteps;
+                        fields *= s1VOSteps;
+
+                        if (shapeIndex == (int)CommonVars.shapeNames.Sshape)
+                        {
+                            s2hlIndex = (int)(Math.Floor((float)variantCounter / fields) % s2HLSteps);
+
+                            fields *= s2HLSteps;
+
+                            s2hoIndex = (int)(Math.Floor((float)variantCounter / fields) % s2HOSteps);
+
+                            fields *= s2HOSteps;
+
+                            s2vlIndex = (int)(Math.Floor((float)variantCounter / fields) % s2VLSteps);
+
+                            fields *= s2VLSteps;
+
+                            s2voIndex = (int)(Math.Floor((float)variantCounter / fields) % s2VOSteps);
+
+                            fields *= s2VOSteps;
+                        }
                     }
+
+                    ret.subShapeHorLength = subShapeMinHorLength + (s0hlIndex * subShapeHorLengthInc);
+                    ret.subShapeVerLength = subShapeMinVerLength + (s0vlIndex * subShapeVerLengthInc);
+                    ret.subShapeHorOffset = subShapeMinHorOffset + (s0hoIndex * subShapeHorOffsetInc);
+                    ret.subShapeVerOffset = subShapeMinVerOffset + (s0voIndex * subShapeVerOffsetInc);
+
+                    ret.subShape2HorLength = subShape2MinHorLength + (s1hlIndex * subShape2HorLengthInc);
+                    ret.subShape2VerLength = subShape2MinVerLength + (s1vlIndex * subShape2VerLengthInc);
+                    ret.subShape2HorOffset = subShape2MinHorOffset + (s1hoIndex * subShape2HorOffsetInc);
+                    ret.subShape2VerOffset = subShape2MinVerOffset + (s1voIndex * subShape2VerOffsetInc);
+
+                    ret.subShape3HorLength = subShape3MinHorLength + (s2hlIndex * subShape3HorLengthInc);
+                    ret.subShape3VerLength = subShape3MinVerLength + (s2vlIndex * subShape3VerLengthInc);
+                    ret.subShape3HorOffset = subShape3MinHorOffset + (s2hoIndex * subShape3HorOffsetInc);
+                    ret.subShape3VerOffset = subShape3MinVerOffset + (s2voIndex * subShape3VerOffsetInc);
                 }
+                else
+                {
+                    int bbLIndex = (int)(Math.Floor((float)variantCounter / fields) % bbLSteps);
 
-                ret.subShapeHorLength = subShapeMinHorLength + (s0hlIndex * subShapeHorLengthInc);
-                ret.subShapeVerLength = subShapeMinVerLength + (s0vlIndex * subShapeVerLengthInc);
-                ret.subShapeHorOffset = subShapeMinHorOffset + (s0hoIndex * subShapeHorOffsetInc);
-                ret.subShapeVerOffset = subShapeMinVerOffset + (s0voIndex * subShapeVerOffsetInc);
+                    fields *= bbLSteps;
 
-                ret.subShape2HorLength = subShape2MinHorLength + (s1hlIndex * subShape2HorLengthInc);
-                ret.subShape2VerLength = subShape2MinVerLength + (s1vlIndex * subShape2VerLengthInc);
-                ret.subShape2HorOffset = subShape2MinHorOffset + (s1hoIndex * subShape2HorOffsetInc);
-                ret.subShape2VerOffset = subShape2MinVerOffset + (s1voIndex * subShape2VerOffsetInc);
+                    int bbRIndex = (int)(Math.Floor((float)variantCounter / fields) % bbRSteps);
 
-                ret.subShape3HorLength = subShape3MinHorLength + (s2hlIndex * subShape3HorLengthInc);
-                ret.subShape3VerLength = subShape3MinVerLength + (s2vlIndex * subShape3VerLengthInc);
-                ret.subShape3HorOffset = subShape3MinHorOffset + (s2hoIndex * subShape3HorOffsetInc);
-                ret.subShape3VerOffset = subShape3MinVerOffset + (s2voIndex * subShape3VerOffsetInc);
-            }
-            else
-            {
-                int bbLIndex = (int)(Math.Floor((float)variantCounter / fields) % bbLSteps);
+                    fields *= bbRSteps;
 
-                fields *= bbLSteps;
+                    int bbBIndex = (int)(Math.Floor((float)variantCounter / fields) % bbBSteps);
 
-                int bbRIndex = (int)(Math.Floor((float)variantCounter / fields) % bbRSteps);
+                    fields *= bbBSteps;
 
-                fields *= bbRSteps;
+                    int bbTIndex = (int)(Math.Floor((float)variantCounter / fields) % bbTSteps);
 
-                int bbBIndex = (int)(Math.Floor((float)variantCounter / fields) % bbBSteps);
+                    fields *= bbTSteps;
 
-                fields *= bbBSteps;
-
-                int bbTIndex = (int)(Math.Floor((float)variantCounter / fields) % bbTSteps);
-
-                fields *= bbTSteps;
-
-                ret.boundingLeft = boundingLeft + (bbLIndex * boundingLeftInc);
-                ret.boundingRight = boundingRight + (bbRIndex * boundingRightInc);
-                ret.boundingBottom = boundingBottom + (bbBIndex * boundingBottomInc);
-                ret.boundingTop = boundingTop + (bbTIndex * boundingTopInc);
+                    ret.boundingLeft = boundingLeft + (bbLIndex * boundingLeftInc);
+                    ret.boundingRight = boundingRight + (bbRIndex * boundingRightInc);
+                    ret.boundingBottom = boundingBottom + (bbBIndex * boundingBottomInc);
+                    ret.boundingTop = boundingTop + (bbTIndex * boundingTopInc);
+                }
             }
 
             ret.x = minXPos + (xIndex * xPosInc);
@@ -2117,27 +2261,30 @@ namespace Quilt
                 fields *= arrayRSteps;
             }
 
-            // We need to worry about clamping here....
-
-            if ((shapeIndex != (int)CommonVars.shapeNames.none) && (shapeIndex != (int)CommonVars.shapeNames.rect) && (shapeIndex != (int)CommonVars.shapeNames.text) && (shapeIndex != (int)CommonVars.shapeNames.bounding))
+            if (shapeIndex != (int)CentralProperties.typeShapes.complex)
             {
-                switch (shapeIndex)
+                // We need to worry about clamping here....
+
+                if ((shapeIndex != (int)CommonVars.shapeNames.none) && (shapeIndex != (int)CommonVars.shapeNames.rect) && (shapeIndex != (int)CommonVars.shapeNames.text) && (shapeIndex != (int)CommonVars.shapeNames.bounding) && (shapeIndex != (int)CommonVars.shapeNames.complex))
                 {
-                    case (int)CommonVars.shapeNames.Lshape:
-                        Lshape_limits(ref ret);
-                        break;
-                    case (int)CommonVars.shapeNames.Tshape:
-                        Tshape_limits(ref ret);
-                        break;
-                    case (int)CommonVars.shapeNames.Ushape:
-                        Ushape_limits(ref ret);
-                        break;
-                    case (int)CommonVars.shapeNames.Sshape:
-                        Sshape_limits(ref ret);
-                        break;
-                    case (int)CommonVars.shapeNames.Xshape:
-                        Xshape_limits(ref ret);
-                        break;
+                    switch (shapeIndex)
+                    {
+                        case (int)CommonVars.shapeNames.Lshape:
+                            Lshape_limits(ref ret);
+                            break;
+                        case (int)CommonVars.shapeNames.Tshape:
+                            Tshape_limits(ref ret);
+                            break;
+                        case (int)CommonVars.shapeNames.Ushape:
+                            Ushape_limits(ref ret);
+                            break;
+                        case (int)CommonVars.shapeNames.Sshape:
+                            Sshape_limits(ref ret);
+                            break;
+                        case (int)CommonVars.shapeNames.Xshape:
+                            Xshape_limits(ref ret);
+                            break;
+                    }
                 }
             }
             variantCounter++;
@@ -2171,8 +2318,17 @@ namespace Quilt
             ret.subShape2VerLength = Math.Min(ret.subShape2VerLength, ret.subShapeVerLength - 0.01m);
 
             // Pin subshape in place.
-            ret.subShape2HorOffset = (ret.subShapeHorLength - ret.subShape2HorLength) / 2;
-            ret.subShape2VerOffset = ret.subShapeVerLength - ret.subShape2VerLength;
+            if (ret.subShape2HorOffset < 0.01m)
+            {
+                ret.subShape2HorOffset = 0.01m;
+            }
+            else
+            {
+                if (ret.subShapeHorLength - (ret.subShape2HorOffset + ret.subShape2HorLength) < 0.01m)
+                {
+                    ret.subShape2HorOffset = ret.subShapeHorLength - (ret.subShape2HorLength + 0.01m);
+                }
+            }
 
             ret.subShape3HorLength = 0;
             ret.subShape3VerLength = 0;
@@ -2260,6 +2416,9 @@ namespace Quilt
                 case (int)CommonVars.shapeNames.bounding:
                     description = "bounding";
                     bounding = true;
+                    break;
+                case (int)CommonVars.shapeNames.complex:
+                    description = "complex";
                     break;
             }
 
@@ -2353,6 +2512,588 @@ namespace Quilt
             }
 
             return description;
+        }
+
+        public void parsePoints(GeoLibPointF[] points, bool isText, bool vertical)
+        {
+            pParsePoints(points, isText, vertical:vertical);
+        }
+
+        void pParsePoints(GeoLibPointF[] points, bool isText, bool vertical)
+        {
+            // So this is where it gets tricky. We need to analyze our point data. We may be able to map it into a primitive type already known to us. Defer to the pattern element to sort it out.
+            // This should already be the case, but let's be careful in case the caller was not kind.
+            points = GeoWrangler.removeDuplicates(points);
+            points = GeoWrangler.stripColinear(points);
+            points = GeoWrangler.clockwiseAndReorder(points);
+            bool ortho = GeoWrangler.orthogonal(points);
+
+            minXPos = Convert.ToDecimal(points[0].X);
+            minYPos = Convert.ToDecimal(points[0].Y);
+
+            // Remove the closing point from the geometry and any duplicate terminators.
+            points = GeoWrangler.stripTerminators(points, false);
+
+            int pointsLength = points.Length;
+            // This can be our first hint of what kind of geometry we're dealing with.
+            bool ok = false;
+
+            // If orthogonal, we can try and set up a primitive. Failsafe to complex if no match found.
+            if (ortho)
+            {
+                switch (pointsLength)
+                {
+                    case 4: // rectangle.
+                        if (isText)
+                        {
+                            ok = text(points);
+                        }
+                        else
+                        {
+                            ok = rectangle(points);
+                        }
+                        break;
+                    case 6: // L
+                        ok = lShape(points);
+                        break;
+                    case 8: // T or U.
+                        ok = mightBeTorU(points);
+                        break;
+                    case 12: // X or S.
+                        ok = mightBeXorS(points);
+                        break;
+                    default: // complex
+                        break;
+                }
+            }
+
+            if (!ok) // map to complex.
+            {
+                points = GeoWrangler.close(points);
+                // Run decomposition
+                decomposedPolys = new List<GeoLibPointF[]>();
+                nonOrthoGeometry = new List<GeoLibPointF[]>();
+                GeoLibPoint[] o = GeoWrangler.pointsFromPointF(points, CentralProperties.scaleFactorForOperation);
+                List<GeoLibPoint[]> t = GeoWrangler.rectangular_decomposition(o, scaling: 10, maxRayLength: 1000000, vertical: vertical);
+                decomposedPolys = GeoWrangler.pointFsFromPoints(t, CentralProperties.scaleFactorForOperation);
+                decomposedPolys = GeoWrangler.xySequence(decomposedPolys);
+
+                if (decomposedPolys.Count == 1)
+                {
+                    // Using absolute positioning for non-orthogonal, so set to 0
+                    minXPos = 0;
+                    minYPos = 0;
+                    // No decomposition, so treat as complex.
+                    shapeIndex = (int)CentralProperties.typeShapes.complex;
+                    GeoLibPointF[] tmpNO = new GeoLibPointF[pointsLength];
+                    for (int p = 0; p < pointsLength; p++)
+                    {
+                        externalGeoCoordX.Add(Convert.ToDecimal(points[p].X));
+                        externalGeoCoordY.Add(Convert.ToDecimal(points[p].Y));
+                        tmpNO[p] = new GeoLibPointF(points[p].X, points[p].Y);
+                    }
+                    tmpNO = GeoWrangler.close(tmpNO);
+                    nonOrthoGeometry.Add(tmpNO);
+                    decomposedPolys.RemoveAt(0);
+                }
+                else
+                {
+                    pParsePoints(decomposedPolys[0], isText:false, vertical: vertical);
+                    if (decomposedPolys.Count > 0)
+                    {
+                        decomposedPolys.RemoveAt(0);
+                    }
+                }
+            }
+        }
+
+        bool text(GeoLibPointF[] points)
+        {
+            bool ret = rectangle(points);
+            if (ret)
+            {
+                shapeIndex = (int)CentralProperties.typeShapes.text;
+            }
+            return ret;
+        }
+
+        bool rectangle(GeoLibPointF[] points)
+        {
+            try
+            {
+                GeoLibPointF dist;
+                shapeIndex = (int)CentralProperties.typeShapes.rectangle;
+                dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
+                subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        bool lShape(GeoLibPointF[] points)
+        {
+            try
+            {
+                GeoLibPointF dist;
+                GeoLibPointF[] bounds;
+
+                shapeIndex = (int)CentralProperties.typeShapes.L;
+                // Start naively, taking geometry as-is.
+                // Get bounds.
+                bounds = GeoWrangler.getBounds(points);
+                GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+                double extents_x = Math.Abs(extents.X);
+                double extents_y = Math.Abs(extents.Y);
+
+                dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
+                decimal poss_subShapeMinHorLength = Convert.ToDecimal(dist.X);
+                decimal poss_subShapeMinVerLength = Convert.ToDecimal(dist.Y);
+                dist = GeoWrangler.distanceBetweenPoints_point(points[3], points[5]);
+                decimal poss_subShape2MinHorLength = Convert.ToDecimal(dist.X);
+                decimal poss_subShape2MinVerLength = Convert.ToDecimal(dist.Y);
+
+                bool handled = true;
+
+                // Transforms may now make this awkward. Let's see what we have. using our extents to figure things out.
+                // Left-hand edge is correctly located. Dig deeper.
+                if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[5]).X) == extents_x)
+                {
+                    if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) == extents_y)
+                    {
+                        // Bottom edge is correctly located for a non-transformed L.
+                    }
+                    else
+                    {
+                        if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).Y) == extents_y)
+                        {
+                            // 90 defree counter-clockwise rotation
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[5]);
+                            poss_subShapeMinHorLength = Convert.ToDecimal(dist.Y);
+                            poss_subShapeMinVerLength = Convert.ToDecimal(dist.X);
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
+                            poss_subShape2MinHorLength = Convert.ToDecimal(dist.Y);
+                            poss_subShape2MinVerLength = Convert.ToDecimal(dist.X);
+                            minRotation = 90.0m;
+                        }
+                        else
+                        {
+                            handled = false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).X) == extents_x)
+                    {
+                        // Two scenarios lead to tbe same result here numerically - vertical flip or rotated 90 degrees clockwise.
+
+                        if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) == extents_y)
+                        {
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
+                            poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[4]);
+                            poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                            minRotation = -90.0m;
+                        }
+                        else
+                        {
+                            if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).Y) == extents_y)
+                            {
+                                // 180 degree rotation.
+                                dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
+                                poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                                poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                                dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[5]);
+                                poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                                poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                                minRotation = 180.0m;
+                            }
+                            else
+                            {
+                                handled = false;
+                            }
+                        }
+                        if (handled)
+                        { 
+                        }
+                    }
+                    else
+                    {
+                        handled = false;
+                    }
+                }
+
+                if (!handled)
+                {
+                    throw new Exception("L: unhandled geometry state!");
+                }
+
+                subShapeMinHorLength = Math.Abs(poss_subShapeMinHorLength);
+                subShapeMinVerLength = Math.Abs(poss_subShapeMinVerLength);
+                subShape2MinHorLength = Math.Abs(poss_subShape2MinHorLength);
+                subShape2MinVerLength = Math.Abs(poss_subShape2MinVerLength);
+                subShape2MinHorOffset = subShapeMinHorLength;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        bool mightBeTorU(GeoLibPointF[] points)
+        {
+            // Abuse tone inversion to see whether we have two islands afterwards (the gaps for the T) or 1 (for the U).
+            int polyCount = GeoWrangler.invertTone(points, CentralProperties.scaleFactorForOperation, useBounds: true).Count;
+            switch (polyCount)
+            {
+                case 1:
+                    return uShape(points);
+                case 2:
+                    return tShape(points);
+                default:
+                    return false;
+            }
+        }
+
+        bool tShape(GeoLibPointF[] points)
+        {
+            try
+            {
+                shapeIndex = (int)CentralProperties.typeShapes.T;
+
+                GeoLibPointF dist;
+                GeoLibPointF[] bounds;
+
+                // Start naively, taking geometry as-is.
+                // Get bounds.
+                bounds = GeoWrangler.getBounds(points);
+                GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+                double extents_x = Math.Abs(extents.X);
+                double extents_y = Math.Abs(extents.Y);
+
+                decimal poss_subShapeMinHorLength = 0;
+                decimal poss_subShapeMinVerLength = 0;
+                decimal poss_subShape2MinHorLength = 0;
+                decimal poss_subShape2MinVerLength = 0;
+
+                bool handled = true;
+
+                // Figure out the transforms.
+                if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) == extents_y)
+                {
+                    // T-shape appears to be correctly located.
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
+                    poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                    poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[4], points[6]);
+                    poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                    poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                    subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).Y));
+                }
+                else
+                {
+                    if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X) == extents_x)
+                    {
+                        // T-shape appears to be rotated 90 degrees CCW.
+                        minRotation = -90.0m;
+                        dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[7]);
+                        poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                        poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+
+                        dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
+                        poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                        poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                        subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[5], points[6]).X));
+                    }
+                    else
+                    {
+                        if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).X) == extents_x)
+                        {
+                            // T-shape appears to be rotated 90 degrees.
+                            minRotation = 90.0m;
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
+                            poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[4], points[6]);
+                            poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                            subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X));
+                        }
+                        else
+                        {
+                            if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).Y) == extents_y)
+                            {
+                                // T-shape appears to be rotated 180 degrees.
+                                minRotation = 180.0m;
+                                dist = GeoWrangler.distanceBetweenPoints_point(points[4], points[6]);
+                                poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                                poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+
+                                dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
+                                poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                                poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                                subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).Y));
+                            }
+                            else
+                            {
+                                handled = false;
+                            }
+                        }
+                    }
+                }
+
+                if (!handled)
+                {
+                    throw new Exception("T illegal geometry");
+                }
+
+                subShapeMinHorLength = poss_subShapeMinHorLength;
+                subShapeMinVerLength = poss_subShapeMinVerLength;
+                subShape2MinHorLength = poss_subShape2MinHorLength;
+                subShape2MinVerLength = poss_subShape2MinVerLength;
+                subShape2MinHorOffset = subShapeMinHorLength;
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        bool uShape(GeoLibPointF[] points)
+        {
+            try
+            {
+                shapeIndex = (int)CentralProperties.typeShapes.U;
+
+                GeoLibPointF dist;
+                GeoLibPointF[] bounds;
+
+                // Start naively, taking geometry as-is.
+                // Get bounds.
+                bounds = GeoWrangler.getBounds(points);
+                GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+                double extents_x = Math.Abs(extents.X);
+                double extents_y = Math.Abs(extents.Y);
+
+                bool handled = true;
+
+                // Figure out the transforms.
+                subShapeMinHorLength = Convert.ToDecimal(extents_x);
+                subShapeMinVerLength = Convert.ToDecimal(extents_y);
+
+                // Figure out the transforms.
+                if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) == extents_y)
+                {
+                    if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).X) == extents_x)
+                    {
+                        if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).Y) == extents_y)
+                        {
+                            // U notch facing downwards.
+                            minRotation = 180.0m;
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[5], points[7]);
+                            subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[3], points[5]);
+                            subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                            subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.Y));
+                        }
+                        else
+                        {
+                            if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X) == extents_x)
+                            {
+                                // U notch right
+                                minRotation = -90.0m;
+                                dist = GeoWrangler.distanceBetweenPoints_point(points[3], points[5]);
+                                subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                                subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                                dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
+                                subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                                subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.X));
+                            }
+                            else
+                            {
+                                handled = false;
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X) == extents_x)
+                        {
+                            // U notch up
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
+                            subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
+                            subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                            subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.Y));
+                        }
+                        else
+                        {
+                            handled = false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).Y) == extents_y)
+                    {
+                        // U notch left
+                        minRotation = 90.0m;
+                        dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
+                        subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                        subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                        dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[3]);
+                        subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                        subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.X));
+                    }
+                    else
+                    {
+                        handled = false;
+                    }
+                }
+
+                if (!handled)
+                {
+                    throw new Exception("U illegal geometry");
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        bool mightBeXorS(GeoLibPointF[] points)
+        {
+            // Abuse tone inversion to see whether we have 4 islands afterwards (the gaps for the X) or 2 (for the S).
+            int polyCount = GeoWrangler.invertTone(points, CentralProperties.scaleFactorForOperation, useBounds: true).Count;
+            switch (polyCount)
+            {
+                case 2:
+                    return sShape(points);
+                case 4:
+                    return xShape(points);
+                default:
+                    return false;
+            }
+        }
+
+        bool xShape(GeoLibPointF[] points)
+        {
+            try
+            {
+                // This one is quite simple.
+
+                shapeIndex = (int)CentralProperties.typeShapes.X;
+
+                // Xshape is unusual as the X, Y point is not the leftmost X, lowest Y.
+                minXPos = Convert.ToDecimal(points[10].X);
+                minYPos = Convert.ToDecimal(points[10].Y);
+
+                // Extract the subshape 1 values.
+                GeoLibPointF ss1 = GeoWrangler.distanceBetweenPoints_point(points[10], points[4]);
+
+                subShapeMinHorLength = Math.Abs(Convert.ToDecimal(ss1.X));
+                subShapeMinVerLength = Math.Abs(Convert.ToDecimal(ss1.Y));
+
+                // Extract the subshape 2 values.
+                GeoLibPointF ss2 = GeoWrangler.distanceBetweenPoints_point(points[0], points[6]);
+
+                subShape2MinHorLength = Math.Abs(Convert.ToDecimal(ss2.X));
+                subShape2MinVerLength = Math.Abs(Convert.ToDecimal(ss2.Y));
+
+                GeoLibPointF ss2offsets = GeoWrangler.distanceBetweenPoints_point(points[0], points[10]);
+                subShape2MinHorOffset = -Math.Abs(Convert.ToDecimal(ss2offsets.X));
+                subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(ss2offsets.Y));
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        bool sShape(GeoLibPointF[] points)
+        {
+            try
+            {
+                shapeIndex = (int)CentralProperties.typeShapes.S;
+
+                GeoLibPointF dist;
+                GeoLibPointF[] bounds;
+
+                // Start naively, taking geometry as-is.
+                // Get bounds.
+                bounds = GeoWrangler.getBounds(points);
+                GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+                double extents_x = Math.Abs(extents.X);
+                double extents_y = Math.Abs(extents.Y);
+
+                // Figure out the transforms.
+                subShapeMinHorLength = Convert.ToDecimal(extents_x);
+                subShapeMinVerLength = Convert.ToDecimal(extents_y);
+
+                // Figure out the transforms.
+                if (Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) != extents_y)
+                {
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
+                    subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                    subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[0]);
+                    subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                    subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[7], points[9]);
+                    subShape3MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                    subShape3MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[6], points[8]);
+                    subShape3MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                    subShape3MinVerOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                }
+                else
+                {
+                    minRotation = -90.0m;
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
+                    subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                    subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[2]);
+                    subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                    subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(dist.X));
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[9], points[11]);
+                    subShape3MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                    subShape3MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[7], points[9]);
+                    subShape3MinHorOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                    subShape3MinVerOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
