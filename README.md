@@ -1,16 +1,16 @@
 # Quilt_GPL
 Quilt is a pattern generator. It outputs hierarchical layout (GDSII or Oasis) from a factorial DOE of pattern elements
-![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/versions/2.3_pattern_extents.png)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/pattern_extents.png)
 Linux:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/Quilt220Gtk_patt.png)
 Mac:
-![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/Quilt220Mac_patt.png)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/Quilt320Mac_patt.png)
 
 Pattern from layout, including non-orthogonal shape:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/non_ortho_and_orth__samelayer.png)
 
 Pattern from layout, involving decomposition:
-![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/versions/3.0_decomp.png)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/layout_decomp.png)
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/non_ortho_decomp_samelayer.png)
 
 Dependent parameters:
