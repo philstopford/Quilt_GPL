@@ -1,23 +1,22 @@
 ﻿using Error;
-using Eto;
 using Eto.Drawing;
 using Eto.Forms;
 using geoCoreLib;
-using geoLib;
-using geoWrangler;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Quilt
 {
-    public partial class MainForm : Form
+    public partial class MainForm
     {
-        void newHandler(object sender, EventArgs e)
+        private string layout_filename;
+        private BackgroundWorker bw;
+        private ProcessLayout pl;
+        private bool abortLoad;
+        void pNewHandler(object sender, EventArgs e)
         {
             var result = MessageBox.Show("Are you sure?", "New", MessageBoxButtons.YesNo, type: MessageBoxType.Question);
             if (result == DialogResult.Yes)
@@ -41,16 +40,16 @@ namespace Quilt
             UIFreeze = false;
             if (!empty)
             {
-                doPatternElementUI(0, updateUI: true);
+                pDoPatternElementUI(0, updateUI: true);
             }
             ovpSettings.fullReset();
             viewPort.reset();
-            updateViewport_2();
+            pUpdateViewport_2();
             pasteLayer.Enabled = commonVars.stitcher.isCopySet();
-            updateLBContextMenu();
+            pUpdateLBContextMenu();
         }
 
-        void fromLayoutHandler(object sender, EventArgs e)
+        void pFromLayoutHandler(object sender, EventArgs e)
         {
             pNew(true);
             // Need to request input file location and name.
@@ -65,26 +64,35 @@ namespace Quilt
             };
             if (ofd.ShowDialog(ParentWindow) == DialogResult.Ok)
             {
-                indeterminateQuiltUI("Processing", "Processing");
-                processLayout(ofd.FileName);
+                pIndeterminateQuiltUI("Processing", "Processing");
+                layout_filename = ofd.FileName;
+                pLoadLayoutFromFile();
             }
-            updateLBContextMenu();
+            pUpdateLBContextMenu();
         }
 
-        void processLayout(object sender, EventArgs e)
+        void pProcessLayout(object sender, EventArgs e)
         {
             int index = comboBox_layout_structures.SelectedIndex;
             if (index < 0)
             {
                 return;
             }
-            processLayout(index);
+            pProcessLayoutWithWorker(index);
         }
 
-        void processLayout(string filename)
+        void pProcessLayoutWithWorker(int index)
         {
-            string[] tokens = filename.Split(new char[] { '.' });
-            string ext = tokens[tokens.Length - 1].ToUpper();
+            pPreWorker(index);
+            pPrepLayoutBW();
+            bw.RunWorkerAsync();
+        }
+        
+        void pLoadLayoutFromFile()
+        {
+            string[] tokens = layout_filename.Split(new[] { '.' });
+            string ext = tokens[^1].ToUpper();
+            string filename = String.Join(',', tokens.SkipLast(1));
 
             if ((ext == "GDS") || (ext == "OAS") || (ext == "OASIS") || (ext == "GZ"))
             {
@@ -92,19 +100,19 @@ namespace Quilt
                 commonVars.gCH.reset();
                 commonVars.gCH.getGeo().baseScale = 1000.0;
 
-                if ((ext == "GDS") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "GDS")))
+                if ((ext == "GDS") || ((ext == "GZ") && (tokens[^2].ToUpper() == "GDS")))
                 {
-                    commonVars.gCH.updateGeoCoreHandler(filename, GeoCore.fileType.gds);
+                    commonVars.gCH.updateGeoCoreHandler(layout_filename, GeoCore.fileType.gds);
                 }
 
-                if ((ext == "OAS") || (ext == "OASIS") || ((ext == "GZ") && ((tokens[tokens.Length - 2].ToUpper() == "OAS") || (tokens[tokens.Length - 2].ToUpper() == "OASIS"))))
+                if ((ext == "OAS") || (ext == "OASIS") || ((ext == "GZ") && ((tokens[^2].ToUpper() == "OAS") || (tokens[^2].ToUpper() == "OASIS"))))
                 {
-                    commonVars.gCH.updateGeoCoreHandler(filename, GeoCore.fileType.oasis);
+                    commonVars.gCH.updateGeoCoreHandler(layout_filename, GeoCore.fileType.oasis);
                 }
 
                 if (commonVars.gCH.isValid())
                 {
-                    processLayout(0);
+                    pProcessLayoutWithWorker(0);
                 }
                 else
                 {
@@ -122,11 +130,33 @@ namespace Quilt
                     
                 }
             }
-            updatePatternElementUI();
+
+            commonVars.projectFileName = filename + ".quilt";
+            Title = commonVars.titleText + " - " + commonVars.projectFileName;
+            pUpdatePatternElementUI();
+            layout_filename = "";
         }
 
-        async void processLayout(int structureIndex)
+        void pCancelLayoutProcessing(object sender, EventArgs e)
         {
+            bw.CancelAsync();
+            abortLoad = true;
+            pUpdateProgressLabel("Cancelling...");
+            pNew(true);
+            pUpdateProgressLabel("Cancelled.");
+        }
+        
+        void pPrepLayoutBW()
+        {
+            abortLoad = false;
+            bw = new BackgroundWorker {WorkerSupportsCancellation = true};
+            bw.RunWorkerCompleted += pPostWorker;
+            bw.DoWork += pProcessLayoutWithWorker;
+        }
+
+        void pPreWorker(int structureIndex)
+        {
+            btn_Cancel.Enabled = true;
             UIFreeze = true;
             commonVars.stitcher.reset(true);
 
@@ -143,7 +173,7 @@ namespace Quilt
             commonVars.gCH.getGeo().updateCollections();
 
             // Set our UI list for the cells in the layout.
-            comboBox_layout_structures.SelectedIndexChanged -= processLayout;
+            comboBox_layout_structures.SelectedIndexChanged -= pProcessLayout;
             comboBox_layout_structures.SelectedIndex = structureIndex;
 
             // Get list of layers and datatypes in the specified cell.
@@ -152,65 +182,46 @@ namespace Quilt
             // Global list of layer names - we'll need to pick these out later.
             Dictionary<string, string> structureLDNames = commonVars.gCH.getGeo().getLayerNames();
 
-            ProcessLayout pl = new ProcessLayout(structureLDs, structureLDNames);
-            pl.getGeoCore = getGeoCore;
+            pl = new ProcessLayout(structureLDs, structureLDNames) {getGeoCore = pGetGeoCore};
 
-            CancellationTokenSource fileLoad_cancelTS = new CancellationTokenSource();
-
-            bool done = false;
-
-            Task bob = Task.Run(() =>
-                {
-                    try
-                    {
-                        using (fileLoad_cancelTS.Token.Register(Thread.CurrentThread.Abort))
-                        {
-                            done = pl.processLayout(quiltContext.angularTolerance, quiltContext.verticalRectDecomp);
-                        }
-                    }
-                    catch (ThreadAbortException)
-                    {
-                    }
-                    finally
-                    {
-                    }
-                }
-            , fileLoad_cancelTS.Token);
-
-            try
-            {
-                await bob;// fileLoadTask;
-            }
-            catch (Exception)
-            {
-            }
-
-            fileLoad_cancelTS.Dispose();
-            bob.Dispose();
-
-            commonVars.stitcher.addPatternElements(pl.pattElements);
-
-            comboBox_layout_structures.SelectedIndexChanged += processLayout;
-            UIFreeze = false;
-            updatePatternElementUI(true);
         }
 
-        GeoCore getGeoCore()
+        void pPostWorker(object sender, EventArgs e)
+        {
+            if (pl.pattElements.Count > 0)
+            {
+                commonVars.stitcher.addPatternElements(pl.pattElements);
+                comboBox_layout_structures.SelectedIndexChanged += pProcessLayout;
+                UIFreeze = false;
+                pUpdatePatternElementUI();
+            }
+            else
+            {
+                // Something went wrong or processing was cancelled. Reset the system.
+                UIFreeze = false;
+                pNew(true);
+                comboBox_layout_structures.SelectedIndexChanged += pProcessLayout;
+                progressLabel.Text = "Cancelled.";
+            }
+            btn_Cancel.Enabled = false;
+        }
+        
+        void pProcessLayoutWithWorker(object sender, EventArgs e)
+        {
+            pl.processLayout(ref abortLoad, quiltContext.angularTolerance, quiltContext.verticalRectDecomp);
+        }
+
+        GeoCore pGetGeoCore()
         {
             return commonVars.gCH.getGeo();
         }
 
-        int getGeoActiveStructure()
+        void pSaveHandler(object sender, EventArgs e)
         {
-            return commonVars.gCH.getGeo().activeStructure;
+            pSaveProject(commonVars.projectFileName);
         }
 
-        void saveHandler(object sender, EventArgs e)
-        {
-            saveProject(commonVars.projectFileName);
-        }
-
-        void saveProject(string filename)
+        void pSaveProject(string filename)
         {
             Application.Instance.Invoke(() =>
             {
@@ -231,7 +242,7 @@ namespace Quilt
                     }
                     else
                     {
-                        saveEnabler();
+                        pSaveEnabler();
                         return;
                     }
                 }
@@ -243,16 +254,16 @@ namespace Quilt
                 {
                     MessageBox.Show("Error during save.", "Save failed", MessageBoxButtons.OK);
                 }
-                saveEnabler();
+                pSaveEnabler();
             });
         }
 
-        void saveAsHandler(object sender, EventArgs e)
+        void pSaveAsHandler(object sender, EventArgs e)
         {
-            saveProject("");
+            pSaveProject("");
         }
 
-        void saveEnabler()
+        void pSaveEnabler()
         {
             Application.Instance.Invoke(() =>
             {
@@ -269,15 +280,15 @@ namespace Quilt
             });
         }
 
-        void dragEvent(object sender, DragEventArgs e)
+        void pDragEvent(object sender, DragEventArgs e)
         {
             if (e.Data.ContainsUris)
             {
                 // Check that we have a valid file somewhere in the dropped resources
-                for (int i = 0; i < e.Data.Uris.Length; i++)
+                foreach (Uri t in e.Data.Uris)
                 {
-                    string[] tokens = e.Data.Uris[i].LocalPath.Split(new char[] { '.' });
-                    if ((tokens[tokens.Length - 1].ToUpper() == "QUILT") || (tokens[tokens.Length - 1].ToUpper() == "XML"))
+                    string[] tokens = t.LocalPath.Split(new[] { '.' });
+                    if ((tokens[^1].ToUpper() == "QUILT") || (tokens[^1].ToUpper() == "XML"))
                     {
                         e.Effects = DragEffects.Copy;
                         break;
@@ -286,7 +297,7 @@ namespace Quilt
             }
         }
 
-        void dragAndDrop(object sender, DragEventArgs e)
+        void pDragAndDrop(object sender, DragEventArgs e)
         {
             // Only allow a single selection; pick the first.
             DataObject d = e.Data;
@@ -303,8 +314,8 @@ namespace Quilt
                 if (d.Uris[i].IsFile)
                 {
                     // Actually a supported file?
-                    string[] tokens = d.Uris[i].LocalPath.Split(new char[] { '.' });
-                    if ((tokens[tokens.Length - 1].ToUpper() == "QUILT") || (tokens[tokens.Length - 1].ToUpper() == "XML"))
+                    string[] tokens = d.Uris[i].LocalPath.Split(new[] { '.' });
+                    if ((tokens[^1].ToUpper() == "QUILT") || (tokens[^1].ToUpper() == "XML"))
                     {
                         index = i;
                         break;
@@ -314,11 +325,11 @@ namespace Quilt
 
             if (index != -1)
             {
-                doLoad(d.Uris[index].LocalPath);
+                pDoLoad(d.Uris[index].LocalPath);
             }
         }
 
-        void openHandler(object sender, EventArgs e)
+        void pOpenHandler(object sender, EventArgs e)
         {
             // Need to request input file location and name.
             OpenFileDialog ofd = new OpenFileDialog()
@@ -332,34 +343,34 @@ namespace Quilt
             };
             if (ofd.ShowDialog(ParentWindow) == DialogResult.Ok)
             {
-                doLoad(ofd.FileName);
+                pDoLoad(ofd.FileName);
             }
         }
 
-        void copyHandler(object sender, EventArgs e)
+        void pCopyHandler(object sender, EventArgs e)
         {
-            copy();
+            pCopy();
         }
 
-        void copy()
+        void pCopy()
         {
             commonVars.stitcher.setCopy(listBox_entries.SelectedIndex);
             pasteLayer.Enabled = true;
-            updateLBContextMenu();
+            pUpdateLBContextMenu();
         }
 
-        void pasteHandler(object sender, EventArgs e)
+        void pPasteHandler(object sender, EventArgs e)
         {
-            paste();
+            pPaste();
         }
 
-        void paste()
+        void pPaste()
         {
             commonVars.stitcher.paste(listBox_entries.SelectedIndex);
-            updatePatternElementUI();
+            pUpdatePatternElementUI();
         }
 
-        async void doLoad(string xmlFile)
+        async void pDoLoad(string xmlFile)
         {
             try
             {
@@ -374,28 +385,28 @@ namespace Quilt
             }
         }
 
-        void revertHandler(object sender, EventArgs e)
+        void pRevertHandler(object sender, EventArgs e)
         {
-            doLoad(commonVars.projectFileName);
+            pDoLoad(commonVars.projectFileName);
         }
 
-        void quit(object sender, EventArgs e)
+        void pQuit(object sender, EventArgs e)
         {
-            savePrefs();
+            pSavePrefs();
             Application.Instance.Quit();
         }
 
-        void quitHandler(object sender, EventArgs e)
+        void pQuitHandler(object sender, EventArgs e)
         {
-            savePrefs();
+            pSavePrefs();
         }
 
-        void addPatternElement(object sender, EventArgs e)
+        void pAddPatternElement(object sender, EventArgs e)
         {
-            addPatternElement();
+            pAddPatternElement();
         }
 
-        void addPatternElement(int index = -1)
+        void pAddPatternElement(int index = -1)
         {
             if (index == -1)
             {
@@ -412,17 +423,17 @@ namespace Quilt
                 commonVars.stitcher.addPatternElement(commonVars.stitcher.getPatternElement(patternIndex:0, index));
             }
             listBox_entries.SelectedIndex = commonVars.stitcher.patternElementNames.Count - 1;
-            updatePatternElementUI();
+            pUpdatePatternElementUI();
 
             text_patternElement.Text = "";
         }
 
-        void renamePatternElement(object sender, EventArgs e)
+        void pRenamePatternElement(object sender, EventArgs e)
         {
-            renamePatternElement();
+            pRenamePatternElement();
         }
 
-        void renamePatternElement()
+        void pRenamePatternElement()
         {
             int index = listBox_entries.SelectedIndex;
             if (index == -1)
@@ -432,15 +443,15 @@ namespace Quilt
             commonVars.stitcher.renamePatternElement(index, text_patternElement.Text);
             text_patternElement.Text = "";
 
-            updatePatternElementUI();
+            pUpdatePatternElementUI();
         }
 
-        void removePatternElement(object sender, EventArgs e)
+        void pRemovePatternElement(object sender, EventArgs e)
         {
-            removePatternElement();
+            pRemovePatternElement();
         }
 
-        void removePatternElement()
+        void pRemovePatternElement()
         {
             var result = MessageBox.Show("Are you sure?", "Remove element", MessageBoxButtons.YesNo, type: MessageBoxType.Question);
             if (result == DialogResult.Yes)
@@ -452,26 +463,26 @@ namespace Quilt
                 }
                 commonVars.stitcher.removePatternElement(index);
 
-                updatePatternElementUI();
+                pUpdatePatternElementUI();
             }
         }
 
-        void duplicatePatternElement()
+        void pDuplicatePatternElement()
         {
             int index = listBox_entries.SelectedIndex;
-            addPatternElement(index);
+            pAddPatternElement(index);
         }
 
-        void exportClicked(object sender, EventArgs e)
+        void pExportClicked(object sender, EventArgs e)
         {
             // Avoid users trying to export with no patterns
             if (commonVars.stitcher.getPatternCount() > 0)
             {
-                doExport();
+                pDoExport();
             }
         }
 
-        async void doExport()
+        async void pDoExport()
         {
             if (commonVars.stitcher.getPatternCount() <= 0)
             {
@@ -492,20 +503,25 @@ namespace Quilt
             if (sfd.ShowDialog(ParentWindow) == DialogResult.Ok)
             {
                 string filename = sfd.FileName;
-                string[] tokens = filename.Split(new char[] { '.' });
-                string ext = tokens[tokens.Length - 1].ToUpper();
+                string[] tokens = filename.Split(new[] { '.' });
+                string ext = tokens[^1].ToUpper();
 
                 int type = -1;
 
-                if (((ext == "GDS") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "GDS"))) ||
-                    ((ext == "GDSII") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "GDSII"))))
+                switch (ext)
                 {
-                    type = (int)GeoCore.fileType.gds;
-                }
-                else if (((ext == "OAS") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "OAS"))) ||
-                    ((ext == "OASIS") || ((ext == "GZ") && (tokens[tokens.Length - 2].ToUpper() == "OASIS"))))
-                {
-                    type = (int)GeoCore.fileType.oasis;
+                    case "GDS":
+                    case "GZ" when (tokens[^2].ToUpper() == "GDS"):
+                    case "GDSII":
+                    case "GZ" when (tokens[^2].ToUpper() == "GDSII"):
+                        type = (int)GeoCore.fileType.gds;
+                        break;
+                    case "OAS":
+                    case "GZ" when (tokens[^2].ToUpper() == "OAS"):
+                    case "OASIS":
+                    case "GZ" when (tokens[^2].ToUpper() == "OASIS"):
+                        type = (int)GeoCore.fileType.oasis;
+                        break;
                 }
 
                 if (type == -1)
@@ -521,20 +537,12 @@ namespace Quilt
                 {
                     await Task.Run(() =>
                     {
-                        // If build is suspended, we need to udpate the quilt to ensure export makes sense.
+                        // If build is suspended, we need to update the quilt to ensure export makes sense.
                         if (suspendBuild)
                         {
                             commonVars.stitcher.updateQuilt();
                         }
                         commonVars.stitcher.toGeoCore(type, filename);
-                        string csvFile = tokens[0];
-                        for (int t = 1; t < tokens.Length - 1; t++)
-                        {
-                            csvFile += "." + tokens[t];
-                        }
-                        csvFile += "_" + tokens[tokens.Length - 1];
-
-                        commonVars.stitcher.toCSV(csvFile + ".csv");
                     });
                 }
                 catch (TaskCanceledException)
@@ -548,9 +556,9 @@ namespace Quilt
             }
         }
 
-        void aboutMe(object sender, EventArgs e)
+        void pAboutMe(object sender, EventArgs e)
         {
-            if (aboutBox == null || !aboutBox.Visible)
+            if (!(aboutBox is {Visible: true}))
             {
                 string creditText = "Version " + CentralProperties.version + ", " +
                 "© " + CentralProperties.author + " 2018-2021" + "\r\n\r\n";
@@ -564,49 +572,49 @@ namespace Quilt
                 creditText += "  KD-Sharp : for viewport selection\r\n\thttps://code.google.com/p/kd-sharp/\r\n";
                 creditText += "  LibTessDotNet : for Delauney triangulation\r\n\thttps://github.com/speps/LibTessDotNet\r\n";
                 creditText += "  MiscUtil : \r\n\thttp://yoda.arachsys.com/csharp/miscutil/\r\n";
-                aboutBox = new CreditsScreen(this, creditText);
+                aboutBox = new CreditsScreen(creditText);
             }
-            Point location = new Point((Int32)(Location.X + (Width - aboutBox.Width) / 2),
-                                       (Int32)(Location.Y + (Height - aboutBox.Height) / 2));
+            Point location = new Point(Location.X + (Width - aboutBox.Width) / 2,
+                                       Location.Y + (Height - aboutBox.Height) / 2);
             aboutBox.Location = location;
             aboutBox.Show();
         }
 
-        void addPrefsHandlers()
+        void pAddPrefsHandlers()
         {
             Application.Instance.Invoke(() =>
             {
-                lbl_ss1Color.MouseDoubleClick += layerColorChange;
-                lbl_ss2Color.MouseDoubleClick += layerColorChange;
-                lbl_ss3Color.MouseDoubleClick += layerColorChange;
+                lbl_ss1Color.MouseDoubleClick += pLayerColorChange;
+                lbl_ss2Color.MouseDoubleClick += pLayerColorChange;
+                lbl_ss3Color.MouseDoubleClick += pLayerColorChange;
 
-                lbl_minorGridColor.MouseDoubleClick += layerColorChange;
-                lbl_majorGridColor.MouseDoubleClick += layerColorChange;
-                lbl_axisColor.MouseDoubleClick += layerColorChange;
-                lbl_vpbgColor.MouseDoubleClick += layerColorChange;
+                lbl_minorGridColor.MouseDoubleClick += pLayerColorChange;
+                lbl_majorGridColor.MouseDoubleClick += pLayerColorChange;
+                lbl_axisColor.MouseDoubleClick += pLayerColorChange;
+                lbl_vpbgColor.MouseDoubleClick += pLayerColorChange;
 
-                lbl_enabledColor.MouseDoubleClick += layerColorChange;
-                lbl_backgroundColor.MouseDoubleClick += layerColorChange;
-                lbl_extentsColor.MouseDoubleClick += layerColorChange;
+                lbl_enabledColor.MouseDoubleClick += pLayerColorChange;
+                lbl_backgroundColor.MouseDoubleClick += pLayerColorChange;
+                lbl_extentsColor.MouseDoubleClick += pLayerColorChange;
 
-                checkBox_OGLAA.CheckedChanged += preferencesChange;
-                checkBox_OGLFill.CheckedChanged += preferencesChange;
-                checkBox_OGLPoints.CheckedChanged += preferencesChange;
-                checkBox_drawExtents.CheckedChanged += preferencesChange;
-                checkBox_verticalRectDecomp.CheckedChanged += preferencesChange;
-                num_fgOpacity.LostFocus += preferencesChange;
-                num_bgOpacity.LostFocus += preferencesChange;
-                num_zoomSpeed.LostFocus += preferencesChange;
+                checkBox_OGLAA.CheckedChanged += pPreferencesChange;
+                checkBox_OGLFill.CheckedChanged += pPreferencesChange;
+                checkBox_OGLPoints.CheckedChanged += pPreferencesChange;
+                checkBox_drawExtents.CheckedChanged += pPreferencesChange;
+                checkBox_verticalRectDecomp.CheckedChanged += pPreferencesChange;
+                num_fgOpacity.LostFocus += pPreferencesChange;
+                num_bgOpacity.LostFocus += pPreferencesChange;
+                num_zoomSpeed.LostFocus += pPreferencesChange;
 
-                num_angularTolerance.LostFocus += preferencesChange;
+                num_angularTolerance.LostFocus += pPreferencesChange;
 
-                checkBox_suspendBuild.CheckedChanged += suspendQuiltBuild;
-                checkBox_showInput.CheckedChanged += showInput;
-                btn_resetColors.Click += resetColors;
+                checkBox_suspendBuild.CheckedChanged += pSuspendQuiltBuild;
+                checkBox_showInput.CheckedChanged += pShowInput;
+                btn_resetColors.Click += pResetColors;
             });
         }
 
-        void layerColorChange(Label id, Color colDialogColor)
+        void pLayerColorChange(Label id, Color colDialogColor)
         {
             Application.Instance.Invoke(() =>
             {
@@ -654,11 +662,11 @@ namespace Quilt
                 quiltContext.colors.rebuildLists();
                 commonVars.setColors(quiltContext.colors);
 
-                updateUIColors();
+                pUpdateUIColors();
             });
         }
 
-        void layerColorChange(object sender, EventArgs e)
+        void pLayerColorChange(object sender, EventArgs e)
         {
             if (colUIFrozen)
             {
@@ -667,9 +675,7 @@ namespace Quilt
 
             try
             {
-                Label senderLabel = sender as Label;
-
-                if (senderLabel != null)
+                if (sender is Label senderLabel)
                 {
                     Color sourceColor = Colors.Black;
 
@@ -728,7 +734,7 @@ namespace Quilt
                     {
                         colDialog.ColorChanged += delegate
                         {
-                            layerColorChange(senderLabel, colDialog.Color);
+                            pLayerColorChange(senderLabel, colDialog.Color);
                         };
                     }
 
@@ -738,7 +744,7 @@ namespace Quilt
                     {
                         if (dR == DialogResult.Ok)
                         {
-                            layerColorChange(senderLabel, colDialog.Color);
+                            pLayerColorChange(senderLabel, colDialog.Color);
                         }
                     }
                 }
@@ -749,7 +755,7 @@ namespace Quilt
             }
         }
 
-        void preferencesChange(object sender, EventArgs e)
+        void pPreferencesChange(object sender, EventArgs e)
         {
             if (utilsUIFrozen)
             {
@@ -757,29 +763,28 @@ namespace Quilt
             }
             quiltContext.AA = (bool)checkBox_OGLAA.Checked;
             ovpSettings.aA(quiltContext.AA);
-            commonVars.setOpenGLProp(CommonVars.properties_gl.aa, (bool)checkBox_OGLAA.Checked);
+            commonVars.setOpenGLProp(CommonVars.properties_gl.aa);
 
             quiltContext.filledPolygons = (bool)checkBox_OGLFill.Checked;
             ovpSettings.drawFilled(quiltContext.filledPolygons);
-            commonVars.setOpenGLProp(CommonVars.properties_gl.fill, (bool)checkBox_OGLFill.Checked);
+            commonVars.setOpenGLProp(CommonVars.properties_gl.fill);
 
             quiltContext.drawPoints = (bool)checkBox_OGLPoints.Checked;
             ovpSettings.drawPoints(quiltContext.drawPoints);
-            commonVars.setOpenGLProp(CommonVars.properties_gl.points, (bool)checkBox_OGLPoints.Checked);
+            commonVars.setOpenGLProp(CommonVars.properties_gl.points);
 
             quiltContext.drawExtents = (bool)checkBox_drawExtents.Checked;
 
             quiltContext.verticalRectDecomp = (bool)checkBox_verticalRectDecomp.Checked;
-            commonVars.verticalRectDecomp = quiltContext.verticalRectDecomp;
 
             quiltContext.openGLZoomFactor = Convert.ToInt32(num_zoomSpeed.Value);
             ovpSettings.setZoomFactor(quiltContext.openGLZoomFactor);
-            commonVars.setGLInt(CommonVars.gl_i.zoom, (Convert.ToInt32(num_zoomSpeed.Value)));
+            commonVars.setGLInt(CommonVars.gl_i.zoom);
 
             quiltContext.FGOpacity = num_fgOpacity.Value;
-            commonVars.setOpacity(CommonVars.opacity_gl.fg, num_fgOpacity.Value);
+            commonVars.setOpacity(CommonVars.opacity_gl.fg);
             quiltContext.BGOpacity = num_bgOpacity.Value;
-            commonVars.setOpacity(CommonVars.opacity_gl.bg, num_bgOpacity.Value);
+            commonVars.setOpacity(CommonVars.opacity_gl.bg);
 
             quiltContext.angularTolerance = num_angularTolerance.Value;
 
@@ -787,14 +792,14 @@ namespace Quilt
             utilsUIFrozen = false;
         }
 
-        void resetColors(object sender, EventArgs e)
+        void pResetColors(object sender, EventArgs e)
         {
             quiltContext.colors.reset();
             commonVars.setColors(quiltContext.colors);
-            updateUIColors();
+            pUpdateUIColors();
         }
 
-        void updateUIColors()
+        void pUpdateUIColors()
         {
             Application.Instance.Invoke(() =>
             {
@@ -809,13 +814,13 @@ namespace Quilt
                 lbl_majorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.major_Color.toArgb());
                 lbl_minorGridColor.BackgroundColor = Color.FromArgb(quiltContext.colors.minor_Color.toArgb());
                 lbl_vpbgColor.BackgroundColor = Color.FromArgb(quiltContext.colors.background_Color.toArgb());
-                doColors();
+                pDoColors();
                 colUIFrozen = false;
             });
 
         }
 
-        void setPadding(object sender, EventArgs e)
+        void pSetPadding(object sender, EventArgs e)
         {
             pSetPadding();
         }
@@ -827,10 +832,10 @@ namespace Quilt
             {
                 return;
             }
-            drawPreviewPanelHandler();
+            pDrawPreviewPanelHandler();
         }
 
-        void suspendQuiltBuild(object sender, EventArgs e)
+        void pSuspendQuiltBuild(object sender, EventArgs e)
         {
             pSuspendQuiltBuild();
         }
@@ -846,14 +851,13 @@ namespace Quilt
                     if (commonVars.stitcher.patternElementNames.Count > 0)
                     {
                         listBox_entries.SelectedIndex = 0;
-                        index = 0;
                     }
                 }
-                generatePreviewPanelContent(index);
+                pGeneratePreviewPanelContent();
             }
         }
 
-        void showInput(object sender, EventArgs e)
+        void pShowInput(object sender, EventArgs e)
         {
             pShowInput();
         }
@@ -880,10 +884,9 @@ namespace Quilt
                     if (commonVars.stitcher.patternElementNames.Count > 0)
                     {
                         listBox_entries.SelectedIndex = 0;
-                        index = 0;
                     }
                 }
-                generatePreviewPanelContent(index);
+                pGeneratePreviewPanelContent();
             }
         }
     }

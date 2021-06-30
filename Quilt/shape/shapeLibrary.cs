@@ -8,33 +8,30 @@ namespace Quilt
 {
     public class ShapeLibrary
     {
-        public Int32 shapeIndex { get; set; }
-        public Boolean shapeValid { get; set; }
-        public MyVertex[] Vertex { get; set; }
-        public MyRound[] round1 { get; set; }
-        public Boolean[] tips { get; set; }
+        public Int32 shapeIndex { get; private set; }
+        public MyVertex[] Vertex { get; private set; }
+        public MyRound[] round1 { get; private set; }
+        private Boolean[] tips { get; set; }
         PatternElement patternelement;
 
         public ShapeLibrary(PatternElement patternElement_)
         {
-            init(patternElement_);
+            pInit(patternElement_);
         }
 
         public ShapeLibrary(Int32 shapeIndex, PatternElement patternElement_)
         {
-            init(shapeIndex, patternElement_);
+            pInit(shapeIndex, patternElement_);
         }
 
-        void init(PatternElement patternElement_)
+        void pInit(PatternElement patternElement_)
         {
-            shapeValid = false;
-            init(patternElement_.getInt(PatternElement.properties_i.shapeIndex), patternElement_);
+            pInit(patternElement_.getInt(PatternElement.properties_i.shapeIndex), patternElement_);
         }
 
-        void init(Int32 shapeIndex, PatternElement patternElement_)
+        void pInit(Int32 shapeIndex_, PatternElement patternElement_)
         {
-            this.shapeIndex = shapeIndex;
-            shapeValid = false;
+            shapeIndex = shapeIndex_;
             patternelement = patternElement_;
             setShape(shapeIndex);
         }
@@ -95,45 +92,43 @@ namespace Quilt
 
             }
 
-            return new GeoLibPointF[] { new GeoLibPointF(minX, minY), new GeoLibPointF(maxX, maxY) };
+            return new [] { new GeoLibPointF(minX, minY), new GeoLibPointF(maxX, maxY) };
         }
 
-        public void setShape(Int32 shapeIndex, GeoLibPointF[] sourcePoly = null)
+        public void setShape(Int32 shapeIndex_, GeoLibPointF[] sourcePoly = null)
         {
-            pSetShape(shapeIndex, sourcePoly);
+            pSetShape(shapeIndex_, sourcePoly);
         }
 
-        void pSetShape(Int32 shapeIndex, GeoLibPointF[] sourcePoly = null)
+        void pSetShape(Int32 shapeIndex_, GeoLibPointF[] sourcePoly = null)
         {
             try
             {
-                this.shapeIndex = shapeIndex;
+                shapeIndex = shapeIndex_;
                 switch (shapeIndex)
                 {
                     case (Int32)CommonVars.shapeNames.rect:
                     case (Int32)CommonVars.shapeNames.text:
                     case (Int32)CommonVars.shapeNames.bounding:
-                        rectangle();
+                        pRectangle();
                         break;
                     case (Int32)CommonVars.shapeNames.Lshape:
-                        Lshape();
+                        pLshape();
                         break;
                     case (Int32)CommonVars.shapeNames.Tshape:
-                        Tshape();
+                        pTshape();
                         break;
                     case (Int32)CommonVars.shapeNames.Xshape:
-                        crossShape();
+                        pXShape();
                         break;
                     case (Int32)CommonVars.shapeNames.Ushape:
-                        Ushape();
+                        pUshape();
                         break;
                     case (Int32)CommonVars.shapeNames.Sshape:
-                        Sshape();
+                        pSshape();
                         break;
                     case (Int32)CommonVars.shapeNames.complex:
-                        customShape(sourcePoly);
-                        break;
-                    default:
+                        pCustomShape(sourcePoly);
                         break;
                 }
             }
@@ -164,7 +159,7 @@ namespace Quilt
             }
         }
 
-        void configureArrays()
+        void pConfigureArrays()
         {
             double vertexCount = 0;
             switch (shapeIndex)
@@ -188,8 +183,6 @@ namespace Quilt
                     break;
                 case (Int32)CommonVars.shapeNames.Sshape: // S
                     vertexCount = 25;
-                    break;
-                default:
                     break;
             }
             int limit = (Int32)vertexCount;
@@ -221,9 +214,9 @@ namespace Quilt
 #endif
         }
 
-        void rectangle()
+        void pRectangle()
         {
-            configureArrays();
+            pConfigureArrays();
 
             // Sort out the tips by setting 'true' to center vertex that defines tip in each case.
             switch (patternelement.getInt(PatternElement.properties_i.shape0Tip))
@@ -309,8 +302,8 @@ namespace Quilt
 
             double lowerX = 0.0;
             double lowerY = 0.0;
-            double width = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
-            double height = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+            double width = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
+            double height = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0));
 
             double tmpX = lowerX;
             double tmpY = lowerY;
@@ -338,14 +331,12 @@ namespace Quilt
             tmpX -= 0.5 * width;
             Vertex[7] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            processEdgesForRounding();
-
-            shapeValid = true;
+            pProcessEdgesForRounding();
         }
 
-        void Tshape()
+        void pTshape()
         {
-            configureArrays();
+            pConfigureArrays();
             // Sort out the tips by setting 'true' to center vertex that defines tip in each case.
             switch (patternelement.getInt(PatternElement.properties_i.shape0Tip))
             {
@@ -490,60 +481,58 @@ namespace Quilt
             double tmpY = 0.0;
             Vertex[0] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) / 2);
+            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) / 2);
             Vertex[1] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0));
             Vertex[2] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2);
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2);
             Vertex[3] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2);
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2);
             Vertex[4] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) +
-                (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerOffset))))) / 2;
+            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) +
+                (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 0))))) / 2;
             Vertex[5] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
             Vertex[6] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
             Vertex[7] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
             Vertex[8] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength) / 2);
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1) / 2);
             Vertex[9] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength) / 2);
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1) / 2);
             Vertex[10] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
             Vertex[11] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
             Vertex[12] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) / 2;
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) / 2;
             Vertex[13] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
             tmpY = 0;
             Vertex[14] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength) / 2);
+            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0) / 2);
             Vertex[15] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            processEdgesForRounding();
-
-            shapeValid = true;
+            pProcessEdgesForRounding();
         }
 
-        void Lshape()
+        void pLshape()
         {
-            configureArrays();
+            pConfigureArrays();
             // Sort out the tips by setting 'true' to center vertex that defines tip in each case.
             switch (patternelement.getInt(PatternElement.properties_i.shape0Tip))
             {
@@ -680,47 +669,45 @@ namespace Quilt
             double tmpY = 0.0;
             Vertex[0] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) / 2);
+            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) / 2);
             Vertex[1] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) / 2);
+            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) / 2);
             Vertex[2] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2);
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2);
             Vertex[3] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2);
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2);
             Vertex[4] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength))) / 2;
+            tmpY -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1))) / 2;
             Vertex[5] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
-            tmpY -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength))) / 2;
+            tmpY -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1))) / 2;
             Vertex[6] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) / 2;
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) / 2;
             Vertex[7] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) / 2;
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) / 2;
             Vertex[8] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[9] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[10] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength))) / 2;
+            tmpX -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1))) / 2;
             Vertex[11] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            processEdgesForRounding();
-
-            shapeValid = true;
+            pProcessEdgesForRounding();
         }
 
-        void Ushape()
+        void pUshape()
         {
-            configureArrays();
+            pConfigureArrays();
             // Sort out the tips by setting 'true' to center vertex that defines tip in each case.
             switch (patternelement.getInt(PatternElement.properties_i.shape0Tip))
             {
@@ -865,40 +852,40 @@ namespace Quilt
             double tmpY = 0.0;
             Vertex[0] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) / 2);
+            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) / 2);
             Vertex[1] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0));
             Vertex[2] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorOffset)) / 2);
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 1)) / 2);
             Vertex[3] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorOffset)) / 2);
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 1)) / 2);
             Vertex[4] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[5] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[6] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) / 2;
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) / 2;
             Vertex[7] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) / 2;
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) / 2;
             Vertex[8] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[9] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0));
             Vertex[10] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorOffset)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)))) / 2;
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 1)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)))) / 2;
             Vertex[11] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
             Vertex[12] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
             tmpY = tmpY / 2;
@@ -910,14 +897,12 @@ namespace Quilt
             tmpX = tmpX / 2;
             Vertex[15] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            processEdgesForRounding();
-
-            shapeValid = true;
+            pProcessEdgesForRounding();
         }
 
-        void crossShape()
+        void pXShape()
         {
-            configureArrays();
+            pConfigureArrays();
             // Sort out the tips.
             switch (patternelement.getInt(PatternElement.properties_i.shape0Tip))
             {
@@ -1094,23 +1079,23 @@ namespace Quilt
             double tmpY = 0.0;
             Vertex[0] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) / 2);
+            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) / 2);
             Vertex[1] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
             Vertex[2] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorOffset));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 1));
             tmpX = tmpX / 2;
             Vertex[3] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
             tmpX = tmpX * 2;
             Vertex[4] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2);
+            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2);
             Vertex[5] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2);
+            tmpY += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2);
             Vertex[6] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
             tmpX = tmpX / 2;
@@ -1119,66 +1104,64 @@ namespace Quilt
             tmpX = 0.0;
             Vertex[8] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset))) / 2);
+            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1))) / 2);
             Vertex[9] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0));
             Vertex[10] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2;
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2;
             Vertex[11] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
             Vertex[12] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset))) / 2);
+            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1))) / 2);
             Vertex[13] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1));
             Vertex[14] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
             // Need midpoint of edge
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
-            tmpX += ((Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength))) / 2) / 2; // midpoint
-            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorOffset));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
+            tmpX += ((Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0))) / 2) / 2; // midpoint
+            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 1));
             Vertex[15] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength));
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorOffset));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1));
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 1));
             Vertex[16] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[17] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[18] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
             // Need midpoint of edge
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
-            tmpX += ((Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength))) / 2) / 2; // midpoint
-            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorOffset));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
+            tmpX += ((Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0))) / 2) / 2; // midpoint
+            tmpX -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 1));
             Vertex[19] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
             Vertex[20] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) / 2);
+            tmpY -= (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) / 2);
             Vertex[21] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
 
             tmpY = 0.0;
             Vertex[22] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2);
+            tmpX += (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2);
             Vertex[23] = new MyVertex(tmpX, tmpY, typeDirection.down1, true, false, typeVertex.center);
 
-            processEdgesForRounding();
-
-            shapeValid = true;
+            pProcessEdgesForRounding();
         }
 
-        void Sshape()
+        void pSshape()
         {
-            configureArrays();
+            pConfigureArrays();
             // Sort out the tips by setting 'true' to center vertex that defines tip in each case.
             switch (patternelement.getInt(PatternElement.properties_i.shape0Tip))
             {
@@ -1390,66 +1373,66 @@ namespace Quilt
             double tmpY = 0.0;
             Vertex[0] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) / 2);
+            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) / 2);
             Vertex[1] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
             Vertex[2] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) / 2);
+            tmpX = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) / 2);
             Vertex[3] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1));
             Vertex[4] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength)) / 2;
+            tmpY += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1)) / 2;
             Vertex[5] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1VerLength));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) + Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 1));
             Vertex[6] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s1HorLength)) / 2;
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 1)) / 2;
             Vertex[7] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
             tmpX = 0;
             Vertex[8] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - tmpY) / 2;
+            tmpY = (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - tmpY) / 2;
             Vertex[9] = new MyVertex(tmpX, tmpY, typeDirection.left1, true, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0));
             Vertex[10] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2;
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2;
             Vertex[11] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
             // Center so no rounding definition
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
             Vertex[12] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY = tmpY - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2VerOffset)) / 2);
+            tmpY = tmpY - (Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 2)) / 2);
             Vertex[13] = new MyVertex(tmpX, tmpY, typeDirection.right1, true, false, typeVertex.center);
             // Center so no rounding definition
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2VerOffset));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 2));
             Vertex[14] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX = tmpX - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2HorLength) / 2);
+            tmpX = tmpX - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 2) / 2);
             Vertex[15] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2HorOffset));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horOffset, 2));
             Vertex[16] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2VerLength) / 2);
+            tmpY -= Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 2) / 2);
             Vertex[17] = new MyVertex(tmpX, tmpY, typeDirection.right1, false, false, typeVertex.center);
 
-            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0VerLength)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2VerLength)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2VerOffset));
+            tmpY = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 0)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verLength, 2)) - Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.verOffset, 2));
             Vertex[18] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s2HorLength) / 2);
+            tmpX += Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 2) / 2);
             Vertex[19] = new MyVertex(tmpX, tmpY, typeDirection.up1, false, false, typeVertex.center);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0));
             Vertex[20] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
             tmpY /= 2;
@@ -1458,15 +1441,13 @@ namespace Quilt
             tmpY = 0;
             Vertex[22] = new MyVertex(tmpX, tmpY, typeDirection.tilt1, true, false, typeVertex.corner);
 
-            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.s0HorLength)) / 2;
+            tmpX = Convert.ToDouble(patternelement.getDecimal(PatternElement.properties_decimal.horLength, 0)) / 2;
             Vertex[23] = new MyVertex(tmpX, tmpY, typeDirection.down1, false, false, typeVertex.center);
 
-            processEdgesForRounding();
-
-            shapeValid = true;
+            pProcessEdgesForRounding();
         }
 
-        void processEdgesForRounding()
+        void pProcessEdgesForRounding()
         {
             int horEdge = Vertex.Length - 2; // deal with padding.
             int verEdge = 1;
@@ -1513,30 +1494,30 @@ namespace Quilt
                     if (r % 2 == 0)
                     {
                         horEdge += 4;
+                        // ReSharper disable once ConvertToCompoundAssignment
                         horEdge = horEdge % Vertex.Length;
                     }
                     else
                     {
                         verEdge += 4;
+                        // ReSharper disable once ConvertToCompoundAssignment
                         verEdge = verEdge % Vertex.Length;
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    string t = e.ToString();
                 }
             }
 
             // First and last are the same.
-            round1[round1.Length - 1] = round1[0];
+            round1[^1] = round1[0];
         }
 
         // Intended to take geometry from an external source and map it into our shape engine.
-        void customShape(GeoLibPointF[] sourcePoly)
+        void pCustomShape(GeoLibPointF[] sourcePoly)
         {
             if (sourcePoly == null)
             {
-                shapeValid = false;
                 return;
             }
 
@@ -1554,17 +1535,15 @@ namespace Quilt
 
             if (!geoCoreShapeOrthogonal)
             {
-                customShape_nonOrthogonal(sourcePoly);
+                pCustomShape_nonOrthogonal(sourcePoly);
             }
             else
             {
-                customShape_orthogonal(sourcePoly);
+                pCustomShape_orthogonal(sourcePoly);
             }
-
-            shapeValid = true;
         }
 
-        void customShape_nonOrthogonal(GeoLibPointF[] sourcePoly)
+        void pCustomShape_nonOrthogonal(GeoLibPointF[] sourcePoly)
         {
             int sCount = sourcePoly.Length;
             Vertex = new MyVertex[sCount + 1]; // add one to close.
@@ -1582,10 +1561,10 @@ namespace Quilt
             );
 #endif
             // Close the shape.
-            Vertex[Vertex.Length - 1] = new MyVertex(Vertex[0]);
+            Vertex[^1] = new MyVertex(Vertex[0]);
         }
 
-        void customShape_orthogonal(GeoLibPointF[] sourcePoly)
+        void pCustomShape_orthogonal(GeoLibPointF[] sourcePoly)
         {
             int sCount = sourcePoly.Length;
             Int32 vertexCount = (sCount * 2) + 1; // assumes no point in midpoint of edges, and 1 to close.
@@ -1623,7 +1602,7 @@ namespace Quilt
             round1[0].MaxRadius = 0;
             round1[0].verFace = 1;
             round1[0].horFace = vertexCount - 2;
-            round1[round1.Length - 1] = round1[0]; // close the loop
+            round1[^1] = round1[0]; // close the loop
 
             // Set up first vertex.
             Vertex[0] = new MyVertex(sourcePoly[0].X, sourcePoly[0].Y, typeDirection.tilt1, false, false, typeVertex.corner);
@@ -1633,13 +1612,12 @@ namespace Quilt
             vertexCounter++;
 
             // Also set our end points
-            Vertex[vertexCount - 2] = new MyVertex((sourcePoly[0].X + sourcePoly[sourcePoly.Length - 1].X) / 2.0f,
-                                                  (sourcePoly[0].Y + sourcePoly[sourcePoly.Length - 1].Y) / 2.0f, typeDirection.down1, false, false, typeVertex.center);
+            Vertex[vertexCount - 2] = new MyVertex((sourcePoly[0].X + sourcePoly[^1].X) / 2.0f,
+                                                  (sourcePoly[0].Y + sourcePoly[^1].Y) / 2.0f, typeDirection.down1, false, false, typeVertex.center);
 
             // Figure out our rounding characteristics.
 
             // First edge is always vertical, left facing.
-            bool vertical = true;
             bool left = true;
             bool up = false;
 
@@ -1681,59 +1659,41 @@ namespace Quilt
                 GeoLibPointF normalPt = new GeoLibPointF(-dy, dx);
 
                 // Vertical edge has a normal with an X value non-zero and Y value ~0.
-                if (Math.Abs(normalPt.X) > 0.01) // treating a 0.01 difference as being ~0
-                {
-                    vertical = true;
-                }
-                else
-                {
-                    vertical = false;
-                }
+                // treating a 0.01 difference as being ~0
+                bool vertical = Math.Abs(normalPt.X) > 0.01;
 
-                // Assess the normal to establish directionn
+                // Assess the normal to establish direction
                 if (vertical)
                 {
-                    if (normalPt.X < 0) // left facing vertical edge has normal with negative X value.
-                    {
-                        left = true;
-                    }
-                    else
-                    {
-                        left = false;
-                    }
+                    // left facing vertical edge has normal with negative X value.
+                    left = normalPt.X < 0;
                 }
                 else
                 {
-                    if (normalPt.Y < 0) // down facing horizontal edge has normal with negative Y value.
-                    {
-                        up = false;
-                    }
-                    else
-                    {
-                        up = true;
-                    }
+                    // down facing horizontal edge has normal with negative Y value.
+                    up = !(normalPt.Y < 0);
                 }
 
                 if (!vertical)
                 {
                     if (up)
                     {
-                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.up1, vertical, false, typeVertex.center);
+                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.up1, vertical:false, false, typeVertex.center);
                     }
                     else
                     {
-                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.down1, vertical, false, typeVertex.center);
+                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.down1, vertical:false, false, typeVertex.center);
                     }
                 }
                 else
                 {
                     if (left)
                     {
-                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.left1, vertical, false, typeVertex.center);
+                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.left1, vertical:true, false, typeVertex.center);
                     }
                     else
                     {
-                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.right1, vertical, false, typeVertex.center);
+                        Vertex[vertexCounter] = new MyVertex(midPt.X, midPt.Y, typeDirection.right1, vertical:true, false, typeVertex.center);
                     }
                 }
                 vertexCounter++;
@@ -1746,23 +1706,17 @@ namespace Quilt
             for (int pt = 0; pt < roundCount; pt++)
 #endif
             {
-                bool outerVertex = false;
+                bool outerVertex = (pt == 0) || (pt == round1.Length - 1) ||
+                                   ((round1[pt].verFace < round1[pt].horFace) &&
+                                    ((Vertex[round1[pt].verFace].direction == typeDirection.left1) && (Vertex[round1[pt].horFace].direction == typeDirection.up1))) ||
+                                   ((round1[pt].verFace > round1[pt].horFace) &&
+                                    ((Vertex[round1[pt].horFace].direction == typeDirection.up1) && (Vertex[round1[pt].verFace].direction == typeDirection.right1))) ||
+                                   ((round1[pt].verFace < round1[pt].horFace) &&
+                                    ((Vertex[round1[pt].verFace].direction == typeDirection.right1) && (Vertex[round1[pt].horFace].direction == typeDirection.down1))) ||
+                                   ((round1[pt].verFace > round1[pt].horFace) &&
+                                    ((Vertex[round1[pt].horFace].direction == typeDirection.down1) && (Vertex[round1[pt].verFace].direction == typeDirection.left1)));
 
                 // Only certain changes in direction correspond to an outer vertex, for a clockwise ordered series of points.
-                if (
-                    (pt == 0) || (pt == round1.Length - 1) ||
-                    ((round1[pt].verFace < round1[pt].horFace) &&
-                     ((Vertex[round1[pt].verFace].direction == typeDirection.left1) && (Vertex[round1[pt].horFace].direction == typeDirection.up1))) ||
-                    ((round1[pt].verFace > round1[pt].horFace) &&
-                     ((Vertex[round1[pt].horFace].direction == typeDirection.up1) && (Vertex[round1[pt].verFace].direction == typeDirection.right1))) ||
-                    ((round1[pt].verFace < round1[pt].horFace) &&
-                     ((Vertex[round1[pt].verFace].direction == typeDirection.right1) && (Vertex[round1[pt].horFace].direction == typeDirection.down1))) ||
-                    ((round1[pt].verFace > round1[pt].horFace) &&
-                     ((Vertex[round1[pt].horFace].direction == typeDirection.down1) && (Vertex[round1[pt].verFace].direction == typeDirection.left1)))
-                   )
-                {
-                    outerVertex = true;
-                }
 
                 if (outerVertex)
                 {

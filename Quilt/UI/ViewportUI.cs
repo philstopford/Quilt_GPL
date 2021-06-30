@@ -6,31 +6,23 @@ using System.Threading.Tasks;
 
 namespace Quilt
 {
-    public partial class MainForm : Form
+    public partial class MainForm
     {
-        void applyLocationToViewports(PointF location)
-        {
-            Application.Instance.Invoke(() =>
-            {
-                ovpSettings.setCameraPos(location.X, location.Y);
-            });
-        }
-
-        void setViewportCamera(double[] parameters)
+        void pSetViewportCamera(double[] parameters)
         {
             ovpSettings.setCameraPos((float)parameters[0], (float)parameters[1]);
             ovpSettings.setZoomFactor((float)parameters[2]);
         }
 
-        double[] getViewportCamera()
+        double[] pGetViewportCamera()
         {
             double x = ovpSettings.getCameraX();
             double y = ovpSettings.getCameraY();
             double zoom = ovpSettings.getZoomFactor();
-            return new double[] { x, y, zoom };
+            return new[] { x, y, zoom };
         }
 
-        async void generatePreviewPanelContent(int selectedIndex)
+        async void pGeneratePreviewPanelContent()
         {
             if (openGLErrorReported)
             {
@@ -65,14 +57,14 @@ namespace Quilt
             }
         }
 
-        void updateViewport_2()
+        void pUpdateViewport_2()
         {
             Application.Instance.Invoke(() =>
             {
                 progressBar.Indeterminate = false;
 
                 float progress = 0.0f;
-                updateProgressBar(progress);
+                pUpdateProgressBar(progress);
                 int pShapesCount = commonVars.stitcher.previewShapes.Length;
                 int progressChunk = pShapesCount / 100;
 
@@ -136,7 +128,7 @@ namespace Quilt
                                     alpha: alpha,
                                     drawn: drawn,
                                     layerIndex: i,
-                                    mask: pattern == num_patNum.Value  // tag our chosen pattern polys for zoom-to-selected.    // (pattern % commonVars.getColors().simPreviewColors.Count)
+                                    mask: pattern == (Int32)num_patNum.Value  // tag our chosen pattern polys for zoom-to-selected.    // (pattern % commonVars.getColors().simPreviewColors.Count)
                                 );
                             }
                             finally
@@ -167,7 +159,7 @@ namespace Quilt
                     }
                     if ((pattern % progressChunk) == 0)
                     {
-                        updateProgressBar(progress);
+                        pUpdateProgressBar(progress);
                         progress += 0.01f;
                     }
                 }
@@ -175,16 +167,16 @@ namespace Quilt
 
             UIFreeze = false;
 
-            updateViewport();
+            pUpdateViewport();
             Application.Instance.Invoke(() =>
             {
                 progressBar.ToolTip = "";
                 progressBar.Value = 0;
-                setUI(true);
+                pSetUI(true);
             });
         }
 
-        void updateViewport()
+        void pUpdateViewport()
         {
             if (UIFreeze)
             {
@@ -208,7 +200,7 @@ namespace Quilt
             });
         }
 
-        void createVPContextMenu()
+        void pCreateVPContextMenu()
         {
             if (viewPort.dragging)
             {
@@ -218,7 +210,6 @@ namespace Quilt
             vp_menu = new ContextMenu();
 
             int itemIndex = 0;
-            int svgIndex = 1;
             vp_menu.Items.Add(new ButtonMenuItem { Text = "Reset (r)" });
             vp_menu.Items[itemIndex].Click += delegate
             {
@@ -233,23 +224,23 @@ namespace Quilt
             VPMenuDisplayOptionsMenu.Items[displayOptionsSubItemIndex].Click += delegate
             {
                 viewPort.ovpSettings.aA(!viewPort.ovpSettings.aA());
-                updateViewport();
+                pUpdateViewport();
             };
             displayOptionsSubItemIndex++;
             VPMenuDisplayOptionsMenu.Items.Add(new ButtonMenuItem { Text = "Toggle Fill" });
             VPMenuDisplayOptionsMenu.Items[displayOptionsSubItemIndex].Click += delegate
             {
                 viewPort.ovpSettings.drawFilled(!viewPort.ovpSettings.drawFilled());
-                updateViewport();
+                pUpdateViewport();
             };
             displayOptionsSubItemIndex++;
             VPMenuDisplayOptionsMenu.Items.Add(new ButtonMenuItem { Text = "Toggle Points" });
             VPMenuDisplayOptionsMenu.Items[displayOptionsSubItemIndex].Click += delegate
             {
                 viewPort.ovpSettings.drawPoints(!viewPort.ovpSettings.drawPoints());
-                updateViewport();
+                pUpdateViewport();
             };
-            displayOptionsSubItemIndex++;
+            // displayOptionsSubItemIndex++;
 
             {
                 if (viewPort.ovpSettings.isLocked())
@@ -333,7 +324,7 @@ namespace Quilt
             {
                 viewPort.fastZoomIn(-1000);
             };
-            zoomInSubItemIndex++;
+            // zoomInSubItemIndex++;
 
             vp_menu.Items.AddSeparator();
             itemIndex++;
@@ -343,10 +334,10 @@ namespace Quilt
             {
                 viewPort.zoomOut(-1);
             };
-            itemIndex++;
+            // itemIndex++;
 
             var VPMenuZoomOutMenu = vp_menu.Items.GetSubmenu("Fast Zoom Out");
-            itemIndex++;
+            // itemIndex++;
             int zoomOutSubItemIndex = 0;
             VPMenuZoomOutMenu.Items.Add(new ButtonMenuItem { Text = "Zoom Out (x5)" });
             VPMenuZoomOutMenu.Items[zoomOutSubItemIndex].Click += delegate
@@ -371,34 +362,12 @@ namespace Quilt
             {
                 viewPort.fastZoomOut(-1000);
             };
-            zoomOutSubItemIndex++;
+            // zoomOutSubItemIndex++;
 
             viewPort.setContextMenu(ref vp_menu);
         }
 
-        void updatePreview(object sender, EventArgs e)
-        {
-            if (Monitor.TryEnter(drawingLock))
-            {
-                try
-                {
-                    Application.Instance.Invoke((() =>
-                    {
-                        // also sets commonVars.drawing to 'false'
-                        previewUpdate();
-                    }));
-                }
-                catch (Exception)
-                {
-                }
-                finally
-                {
-                    Monitor.Exit(drawingLock);
-                }
-            }
-        }
-
-        void previewUpdate()
+        void pPreviewUpdate()
         {
             if (viewPort == null)
             {
@@ -407,7 +376,7 @@ namespace Quilt
             viewPort.updateViewport();
         }
 
-        void posChanged(object sender, EventArgs e)
+        void pPosChanged(object sender, EventArgs e)
         {
             if (openGLErrorReported)
             {
@@ -418,15 +387,15 @@ namespace Quilt
                 return;
             }
 
-            moveCamera((float)num_viewportX.Value, (float)num_viewportY.Value);
+            pMoveCamera((float)num_viewportX.Value, (float)num_viewportY.Value);
         }
 
-        void moveCamera(float x, float y)
+        void pMoveCamera(float x, float y)
         {
             viewPort.ovpSettings.setCameraPos(x, y);
         }
 
-        void zoomChanged(object sender, EventArgs e)
+        void pZoomChanged(object sender, EventArgs e)
         {
             if (openGLErrorReported)
             {
@@ -437,9 +406,7 @@ namespace Quilt
                 return;
             }
 
-            double zoomValue = 1.0f;
-
-            zoomValue = Convert.ToDouble(num_viewportZoom.Value);
+            double zoomValue = Convert.ToDouble(num_viewportZoom.Value);
             if (zoomValue < num_viewportZoom.MinValue)
             {
                 zoomValue = num_viewportZoom.MinValue;
@@ -448,7 +415,7 @@ namespace Quilt
             viewPort.ovpSettings.setZoomFactor((float)(1.0f / zoomValue));
         }
 
-        void viewportUpdateHost()
+        void pViewportUpdateHost()
         {
             UIFreeze = true;
             double value = 1.0f / viewPort.ovpSettings.getZoomFactor();
@@ -461,10 +428,10 @@ namespace Quilt
             num_viewportY.Value = viewPort.ovpSettings.getCameraY();
             viewPort.ovpSettings.selectedIndex = listBox_entries.SelectedIndex;
             UIFreeze = false;
-            createVPContextMenu();
+            pCreateVPContextMenu();
         }
 
-        void viewportSelectionFunc(int index)
+        void pViewportSelectionFunc(int index)
         {
             Application.Instance.Invoke(() =>
             {
@@ -472,7 +439,7 @@ namespace Quilt
             });
         }
 
-        void goToPattern(object sender, EventArgs e)
+        void pGoToPattern(object sender, EventArgs e)
         {
             int index = (int)num_patNum.Value;
             if (index < 0)
@@ -489,21 +456,20 @@ namespace Quilt
             }
             patternIndex = index;
 
-            doPatternElementUI(patternIndex);
+            pDoPatternElementUI(patternIndex);
 
             PointF tmp = commonVars.stitcher.findPattern((int)num_patNum.Value);
-            moveCamera(tmp.X, tmp.Y);
+            pMoveCamera(tmp.X, tmp.Y);
         }
 
-        void drawPreviewPanelHandler()
+        void pDrawPreviewPanelHandler()
         {
             if (UIFreeze)
             {
                 return;
             }
             UIFreeze = true;
-            int selectedIndex = listBox_entries.SelectedIndex;
-            generatePreviewPanelContent(selectedIndex);
+            pGeneratePreviewPanelContent();
             progressBar.Indeterminate = false;
         }
     }

@@ -61,33 +61,33 @@ namespace Quilt
         ParallelOptions po;
 
         // Quilt will hold the list of patterns
-        public ObservableCollection<string> patternElementNames { get; set; }
-        public ObservableCollection<string> patternElementNames_filtered { get; set; } // screens out active layer and adds 'World Origin' at top of the list. Helper function is available to get index of layer.
-        public ObservableCollection<string> patternElementNamesForMerge_filtered { get; set; } // screens out active layer and adds 'Self' at top of the list. Helper function is available to get index of layer.
-        public ObservableCollection<string> patternElementNames_filtered_array { get; set; }
+        public ObservableCollection<string> patternElementNames { get; private set; }
+        public ObservableCollection<string> patternElementNames_filtered { get; private set; } // screens out active layer and adds 'World Origin' at top of the list. Helper function is available to get index of layer.
+        public ObservableCollection<string> patternElementNamesForMerge_filtered { get; private set; } // screens out active layer and adds 'Self' at top of the list. Helper function is available to get index of layer.
+        public ObservableCollection<string> patternElementNames_filtered_array { get; private set; }
 
         List<Pattern> patterns;
         HashSet<int> hashes;
         List<PatternElement> patternElements; // our pattern elements from which patterns will be constructed.
-        public List<PreviewShape>[] previewShapes { get; set; }
-        public PreviewShape[] backgroundShapes { get; set; }
+        public List<PreviewShape>[] previewShapes { get; private set; }
+        public PreviewShape[] backgroundShapes { get; private set; }
         QuiltContext quiltContext;
 
         PatternElement copyBuffer;
 
         System.Timers.Timer timer;
 
-        void timerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        void pTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             updateUIProgress?.Invoke((double)counter / max);
         }
 
-        void statusUIWrapper(string text)
+        void pStatusUIWrapper(string text)
         {
             updateUIStatus?.Invoke(text);
         }
 
-        void progressUIWrapper(double val)
+        void pProgressUIWrapper(double val)
         {
             updateUIProgress?.Invoke(val);
         }
@@ -104,10 +104,10 @@ namespace Quilt
 
         public Stitcher(ref QuiltContext context)
         {
-            init(ref context);
+            pInit(ref context);
         }
 
-        void init(ref QuiltContext context)
+        void pInit(ref QuiltContext context)
         {
             exportLock = new object();
             evalLock = new object();
@@ -173,6 +173,8 @@ namespace Quilt
 
         void pCleanup()
         {
+            pCleanup_distinct();
+            /*
             // Alternative methods to screen patterns; open to comment about which is best (performance / robustness)
             int m = 2;
             switch (m)
@@ -192,6 +194,7 @@ namespace Quilt
                     pCleanup_distinctParallel();
                     break;
             }
+            */
         }
 
         void pAddPattern_(Pattern pattern)
@@ -215,14 +218,13 @@ namespace Quilt
                 ParallelOptions pco = new ParallelOptions();
                 // Attempt at parallelism.
                 CancellationTokenSource pcs = new CancellationTokenSource();
-                CancellationToken pct = pcs.Token;                
                 // Try to thread it for best possible performance.
                 Parallel.For(0, patterns.Count(), pco, (p, loopState) =>
                 {
                     // If we find an equivalent pattern, we need to abort.
                     if (patterns[p] == pattern)
                     {
-                        Interlocked.Equals(add, false);
+                        Equals(add, false);
                         pcs.Cancel();
                     }
                 });
@@ -244,10 +246,10 @@ namespace Quilt
             bool pEquals(Pattern x, Pattern y)
             {
                 // Check whether the compared objects reference the same data.
-                if (Object.ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, y)) return true;
 
                 // Check whether any of the compared objects is null.
-                if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
+                if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
                     return false;
 
                 // Check whether the products' properties are equal.
@@ -266,26 +268,20 @@ namespace Quilt
             int pGetHashCode(Pattern x)
             {
                 // Check whether the object is null.
-                if (Object.ReferenceEquals(x, null)) return 0;
+                if (ReferenceEquals(x, null)) return 0;
 
                 // Get the hash code for the instance if it is not null.
                 return x.GetHashCode();
             }
         }
 
+        /*
         void pCleanup_distinctParallel()
         {
             indeterminateQuiltUI?.Invoke("Clean-up", "Clean-up");
-            ParallelOptions po = new ParallelOptions();
+            po = new ParallelOptions();
             int threads = po.MaxDegreeOfParallelism;
             var clean_ = patterns.Distinct(new PatternComparer()).AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism).WithDegreeOfParallelism(threads);
-            patterns = clean_.ToList();
-        }
-
-        void pCleanup_distinct()
-        {
-            indeterminateQuiltUI?.Invoke("Clean-up", "Clean-up");
-            var clean_ = patterns.Distinct(new PatternComparer());
             patterns = clean_.ToList();
         }
 
@@ -296,10 +292,9 @@ namespace Quilt
 
             // Make use of threading here to reduce overhead in large patterns.
             // Set our parallel task options based on user settings.
-            ParallelOptions po = new ParallelOptions();
+            po = new ParallelOptions();
             // Attempt at parallelism.
             CancellationTokenSource cancelSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = cancelSource.Token;
 
             int updateSample = patterns.Count / 100;
 
@@ -321,7 +316,7 @@ namespace Quilt
                 Parallel.For(0, cleanHash.Count, po, (p, loopState) =>
                 {
                     // Fail the attempt to add if an equivalent pattern is found in the clean list.
-                    add = Interlocked.Equals(add, !(pHC == cleanHash[p]));
+                    add = Equals(add, !(pHC == cleanHash[p]));
 
                     if (!add)
                     {
@@ -345,10 +340,13 @@ namespace Quilt
 
             patterns = clean.ToList();
         }
-
-        public Pattern getPattern(int index)
+        */
+        
+        void pCleanup_distinct()
         {
-            return patterns[index];
+            indeterminateQuiltUI?.Invoke("Clean-up", "Clean-up");
+            var clean_ = patterns.Distinct(new PatternComparer());
+            patterns = clean_.ToList();
         }
 
         public void reset(bool empty = false)
@@ -489,9 +487,9 @@ namespace Quilt
         {
             patternElements = p.ToList();
             patternElementNames.Clear();
-            for (int i = 0; i < patternElements.Count; i++)
+            foreach (PatternElement t in patternElements)
             {
-                patternElementNames.Add(patternElements[i].getString(PatternElement.properties_s.name));
+                patternElementNames.Add(t.getString(PatternElement.properties_s.name));
             }
 
             pUpdate_filteredPatternedElementNames(0);
@@ -505,7 +503,7 @@ namespace Quilt
         void pAddPatternElement(string name)
         {
             patternElements.Add(new PatternElement());
-            postAdd(name);
+            pPostAdd(name);
         }
 
         public void addPatternElement(PatternElement source)
@@ -516,10 +514,10 @@ namespace Quilt
         void pAddPatternElement(PatternElement source)
         {
             patternElements.Add(new PatternElement(source));
-            postAdd(source.getString(PatternElement.properties_s.name));
+            pPostAdd(source.getString(PatternElement.properties_s.name));
         }
 
-        void postAdd(string name)
+        void pPostAdd(string name)
         {
             patternElementNames.Add(name);
             patternElementNames_filtered.Add(name);
@@ -538,6 +536,64 @@ namespace Quilt
             patternElementNames[index] = name;
             pUpdate_filteredPatternedElementNames(index);
         }
+        
+        bool pRemoveReferenceToElement(int currElIndex, int removedElIndex, PatternElement.properties_i shapeProp, PatternElement.properties_i subShapeProp, int currElSubShapeIndex = -1)
+        {
+            bool changed = false;
+            int relElIndex = patternElements[currElIndex].getInt(shapeProp, currElSubShapeIndex);
+            int relElSSIndex = 0;
+            patternElements[currElIndex].getInt(subShapeProp, currElSubShapeIndex);
+
+            int newref = 0;
+            if (relElIndex == removedElIndex)
+            {
+                changed = true;
+            }
+            else if (relElIndex > removedElIndex)
+            {
+                newref = relElIndex - 1; // decrement the reference as the reference layer below this point is being removed.
+                changed = true;
+            }
+
+            if (changed)
+            {
+                // Make sure we don't have an invalid subshape reference index.
+                int subshapeRefCount = patternElements[newref].getSubShapeCount();
+                if (relElSSIndex >= subshapeRefCount)
+                {
+                    relElSSIndex = 0;
+                }
+                patternElements[currElIndex].setInt(shapeProp, newref, currElSubShapeIndex); // global reference as the reference layer will be removed.
+                patternElements[currElIndex].setInt(subShapeProp, relElSSIndex, currElSubShapeIndex); // change subshape index if needed.
+            }
+            
+            return changed;
+        }        
+
+        bool pRemoveReferenceToElement(int currElIndex, int removedElIndex, PatternElement.properties_i shapeProp, int currElSubShapeIndex = -1)
+        {
+            bool changed = false;
+            int relElIndex = patternElements[currElIndex].getInt(shapeProp, currElSubShapeIndex);
+
+            int newref = 0;
+            if (relElIndex == removedElIndex)
+            {
+                changed = true;
+            }
+            else if (relElIndex > removedElIndex)
+            {
+                newref = relElIndex - 1; // decrement the reference as the reference layer below this point is being removed.
+                changed = true;
+            }
+
+            if (changed)
+            {
+                // Make sure we don't have an invalid subshape reference index.
+                patternElements[currElIndex].setInt(shapeProp, newref, currElSubShapeIndex); // global reference as the reference layer will be removed.
+            }
+            
+            return changed;
+        }        
 
         public void removePatternElement(int index)
         {
@@ -546,6 +602,9 @@ namespace Quilt
 
         void pRemovePatternElement(int index)
         {
+            patternElementNames.RemoveAt(index);
+            patternElements.RemoveAt(index);
+
             // We need to adjust any other elements in the pattern that have references to the element being removed.
 #if QUILTTHREADED
             Parallel.For(0, patternElements.Count, (i) =>
@@ -553,120 +612,73 @@ namespace Quilt
             for (int i = 0; i < patternElements.Count; i++)
 #endif
             {
-                if (i != index)
+                bool changed = pRemoveReferenceToElement(i, index, PatternElement.properties_i.xPosRef);
+
+                bool tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.yPosRef);
+
+                changed = changed || tmp;
+                
+                tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.xPosSubShapeRef);
+
+                changed = changed || tmp;
+                
+                tmp =  pRemoveReferenceToElement(i, index, PatternElement.properties_i.yPosSubShapeRef);
+
+                changed = changed || tmp;
+
+                tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.arrayRotationRef);
+
+                changed = changed || tmp;
+
+                tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.rotationRef);
+
+                changed = changed || tmp;
+
+                tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.arrayRef);
+
+                changed = changed || tmp;
+
+                tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.linkedElementIndex);
+
+                changed = changed || tmp;
+
+                for (int ss = 0; ss < 3; ss++)
                 {
-                    bool changed = false;
-                    int xRef = patternElements[i].getInt(PatternElement.properties_i.xPosRef);
-                    if (xRef == index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.xPosRef, 0); // global reference as the reference layer will be removed.
-                        changed = true;
-                    }
-                    else if (xRef > index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.xPosRef, xRef - 1); // decrement the reference as the reference layer below this point is being removed.
-                        changed = true;
-                    }
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.MinHLRef, PatternElement.properties_i.MinHLSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.HLIncRef, PatternElement.properties_i.HLIncSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.HLStepsRef, PatternElement.properties_i.HLStepsSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.MinVLRef, PatternElement.properties_i.MinVLSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.VLIncRef, PatternElement.properties_i.VLIncSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.VLStepsRef, PatternElement.properties_i.VLStepsSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.MinHORef, PatternElement.properties_i.MinHOSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.HOIncRef, PatternElement.properties_i.HOIncSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.HOStepsRef, PatternElement.properties_i.HOStepsSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.MinVORef, PatternElement.properties_i.MinVOSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.VOIncRef, PatternElement.properties_i.VOIncSubShapeRef, ss);
+                    changed = changed || tmp;
+                    tmp = pRemoveReferenceToElement(i, index, PatternElement.properties_i.VOStepsRef, PatternElement.properties_i.VOStepsSubShapeRef, ss);
+                    changed = changed || tmp;
+                }
 
-                    int yRef = patternElements[i].getInt(PatternElement.properties_i.yPosRef);
-                    if (yRef == index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.yPosRef, 0); // global reference as the reference layer will be removed.
-                        changed = true;
-                    }
-                    else if (yRef > index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.yPosRef, yRef - 1); // decrement the reference as the reference layer below this point is being removed.
-                        changed = true;
-                    }
-
-                    int xSSRef = patternElements[i].getInt(PatternElement.properties_i.xPosSubShapeRef);
-                    if (xSSRef == index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.xPosSubShapeRef, 0); // global reference as the reference layer will be removed.
-                        changed = true;
-                    }
-                    else if (xSSRef > index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.xPosSubShapeRef, xSSRef - 1); // decrement the reference as the reference layer below this point is being removed.
-                        changed = true;
-                    }
-
-                    int ySSRef = patternElements[i].getInt(PatternElement.properties_i.yPosSubShapeRef);
-                    if (ySSRef == index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.yPosSubShapeRef, 0); // global reference as the reference layer will be removed.
-                        changed = true;
-                    }
-                    else if (ySSRef > index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.yPosSubShapeRef, ySSRef - 1); // decrement the reference as the reference layer below this point is being removed.
-                        changed = true;
-                    }
-
-                    int aRRef = patternElements[i].getInt(PatternElement.properties_i.arrayRotationRef);
-                    if (aRRef == index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.arrayRotationRef, 0); // global reference as the reference layer will be removed.
-                        changed = true;
-                    }
-                    else if (aRRef > index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.arrayRotationRef, aRRef - 1); // decrement the reference as the reference layer below this point is being removed.
-                        changed = true;
-                    }
-
-                    int rRef = patternElements[i].getInt(PatternElement.properties_i.rotationRef);
-                    if (rRef == index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.rotationRef, 0); // global reference as the reference layer will be removed.
-                        changed = true;
-                    }
-                    else if (rRef > index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.rotationRef, rRef - 1); // decrement the reference as the reference layer below this point is being removed.
-                        changed = true;
-                    }
-
-                    int rARef = patternElements[i].getInt(PatternElement.properties_i.arrayRef);
-                    if (rARef == index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.arrayRef, 0); // global reference as the reference layer will be removed.
-                        changed = true;
-                    }
-                    else if (rARef > index)
-                    {
-                        patternElements[i].setInt(PatternElement.properties_i.arrayRef, rARef - 1); // decrement the reference as the reference layer below this point is being removed.
-                        changed = true;
-                    }
-
-                    int linkedElement = patternElements[i].getInt(PatternElement.properties_i.linkedElementIndex);
-                    if (linkedElement != -1)
-                    {
-                        if (linkedElement == index)
-                        {
-                            patternElements[i].setInt(PatternElement.properties_i.linkedElementIndex, -1); // drop referencee as the linked element layer will be removed.
-                            changed = true;
-                        }
-                        else if (linkedElement > index)
-                        {
-                            patternElements[i].setInt(PatternElement.properties_i.linkedElementIndex, linkedElement - 1); // decrement the reference as the reference layer below this point is being removed.
-                            changed = true;
-                        }
-                    }
-
-                    if (changed)
-                    {
-                        // Clear midpoint to force a recompute
-                        patternElements[i].setMidPoint(null);
-                    }
+                if (changed)
+                {
+                    // Clear midpoint to force a recompute
+                    patternElements[i].setMidPoint(null);
                 }
             }
 #if QUILTTHREADED
             );
 #endif
-            patternElementNames.RemoveAt(index);
-            patternElements.RemoveAt(index);
             pUpdateQuilt();
         }
 
@@ -679,10 +691,22 @@ namespace Quilt
         {
             if (patternIndex == 0) // reference pattern
             {
+                if (index >= patternElements.Count)
+                {
+                    throw new Exception("Pattern element index exceeds pattern element count!");
+                }
                 return patternElements[index];
             }
-            else // querying a specific pattern for its elememt.
+            else // querying a specific pattern for its element.
             {
+                if (patternIndex >= patterns.Count)
+                {
+                    throw new Exception("Pattern index exceeds pattern count!");
+                }
+                if (index >= patterns[patternIndex].getPatternElements().Count)
+                {
+                    throw new Exception("Pattern element index exceeds pattern element count!");
+                }
                 return patterns[patternIndex].getPatternElement(index);
             }
         }
@@ -697,7 +721,7 @@ namespace Quilt
             return patterns[pattern].getPatternElements();
         }
 
-        void clearPatterns()
+        void pClearPatterns()
         {
             patterns.Clear();
             if (mode == 0)
@@ -706,6 +730,214 @@ namespace Quilt
             }
         }
 
+        decimal pGetDecimalValue(PatternElement pattEl, int pattElIndex, PatternElement.properties_i pattElProp, PatternElement.properties_i pattElSSProp, PatternElement.properties_decimal pattElDec, int subshapeindex)
+        {
+            decimal ret = pattEl.getDecimal(pattElDec, subshapeindex);
+
+            int ref_ = pattEl.getInt(pattElProp, subshapeindex);
+            if (ref_ > 0)
+            {
+                if (ref_ <= pattElIndex)
+                {
+                    ref_--; // Offset due to missing index for current element.
+                }
+
+                int ssref = pattEl.getInt(pattElSSProp, subshapeindex);
+
+                // Any cascading references.....
+                int nestedRef = patternElements[ref_].getInt(pattElProp, ssref);
+
+                if (nestedRef > 0)
+                {
+                    if (nestedRef - 1 <= ref_)
+                    {
+                        nestedRef--; // Offset due to missing index for current element.
+                    }
+                    ssref = patternElements[ref_].getInt(pattElSSProp, subshapeindex);
+                }
+                
+                ret = pGetDecimalValue(patternElements[nestedRef], nestedRef, pattElProp, pattElSSProp, pattElDec, ssref);
+            }
+            
+            return ret;
+        }
+
+        int pGetIntValue(PatternElement pattEl, int pattElIndex, PatternElement.properties_i pattElProp, PatternElement.properties_i pattElSSProp, PatternElement.properties_i pattElInt, int subshapeindex)
+        {
+            int ret = pattEl.getInt(pattElInt, subshapeindex);
+
+            int ref_ = pattEl.getInt(pattElProp, subshapeindex);
+            if (ref_ > 0)
+            {
+                if (ref_ <= pattElIndex)
+                {
+                    ref_--; // Offset due to missing index for current element.
+                }
+
+                int ssref = pattEl.getInt(pattElSSProp, subshapeindex);
+
+                // Any cascading references.....
+                int nestedRef = patternElements[ref_].getInt(pattElProp, ssref);
+                
+                if (nestedRef > 0)
+                {
+                    if (nestedRef - 1 <= ref_)
+                    {
+                        nestedRef--; // Offset due to missing index for current element.
+                    }
+                    ssref = patternElements[ref_].getInt(pattElSSProp, subshapeindex);
+                }
+                
+                ret = pGetIntValue(patternElements[nestedRef], nestedRef, pattElProp, pattElSSProp, pattElInt, ssref);
+            }
+            
+            return ret;
+        }
+
+        PatternElement pSetDependentValues(PatternElement pattEl, int pattElIndex, PatternElement.properties_i pattElProp, PatternElement.properties_i pattElSSProp, PatternElement.properties_decimal pattElDec, int subshapeindex)
+        {
+            pattEl.setDecimal(pattElDec, pGetDecimalValue(pattEl, pattElIndex, pattElProp, pattElSSProp, pattElDec, subshapeindex), subshapeindex);
+
+            return pattEl;
+        }
+
+        PatternElement pSetDependentValues(PatternElement pattEl, int pattElIndex, PatternElement.properties_i pattElProp, PatternElement.properties_i pattElSSProp, PatternElement.properties_i pattElInt, int subshapeindex)
+        {
+            pattEl.setInt(pattElInt, pGetIntValue(pattEl, pattElIndex, pattElProp, pattElSSProp, pattElInt, subshapeindex), subshapeindex);
+
+            return pattEl;
+        }
+        
+        PatternElement pSetDependentDimensions(PatternElement pattEl, int pattElIndex)
+        {
+            for (int subshapeindex = 0; subshapeindex < 3; subshapeindex++)
+            {
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.MinHLRef,
+                    PatternElement.properties_i.MinHLSubShapeRef, PatternElement.properties_decimal.minHorLength, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.MinHORef,
+                    PatternElement.properties_i.MinHOSubShapeRef, PatternElement.properties_decimal.minHorOffset, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.MinVLRef,
+                    PatternElement.properties_i.MinVLSubShapeRef, PatternElement.properties_decimal.minVerLength, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.MinVORef,
+                    PatternElement.properties_i.MinVOSubShapeRef, PatternElement.properties_decimal.minVerOffset, subshapeindex);
+            }
+            
+            return pattEl;
+        }
+
+        PatternElement pSetDependentIncrements(PatternElement pattEl, int pattElIndex)
+        {
+            for (int subshapeindex = 0; subshapeindex < 3; subshapeindex++)
+            {
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.HLIncRef,
+                    PatternElement.properties_i.HLIncSubShapeRef, PatternElement.properties_decimal.horLengthInc, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.HOIncRef,
+                    PatternElement.properties_i.HOIncSubShapeRef, PatternElement.properties_decimal.horOffsetInc, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.VLIncRef,
+                    PatternElement.properties_i.VLIncSubShapeRef, PatternElement.properties_decimal.verLengthInc, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.VOIncRef,
+                    PatternElement.properties_i.VOIncSubShapeRef, PatternElement.properties_decimal.verOffsetInc, subshapeindex);
+            }
+
+            return pattEl;
+        }
+
+        PatternElement pSetDependentSteps(PatternElement pattEl, int pattElIndex)
+        {
+            for (int subshapeindex = 0; subshapeindex < 3; subshapeindex++)
+            {
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.HLStepsRef,
+                    PatternElement.properties_i.HLStepsSubShapeRef, PatternElement.properties_i.horLengthSteps, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.HOStepsRef,
+                    PatternElement.properties_i.HOStepsSubShapeRef, PatternElement.properties_i.horOffsetSteps, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.VLStepsRef,
+                    PatternElement.properties_i.VLStepsSubShapeRef, PatternElement.properties_i.verLengthSteps, subshapeindex);
+
+                pattEl = pSetDependentValues(pattEl, pattElIndex, PatternElement.properties_i.VOStepsRef,
+                    PatternElement.properties_i.VOStepsSubShapeRef, PatternElement.properties_i.verOffsetSteps, subshapeindex);
+            }
+
+            return pattEl;
+        }
+
+        void pCheckDependentSubShapes()
+        {
+            for (int i = 0; i < patternElements.Count; i++)
+            {
+                pCheckDependentSubShapes_LO(i);
+                pCheckDependentSubShapes_LOInc(i);
+                pCheckDependentSubShapes_LOSteps(i);
+            }
+        }
+
+        void pCheckDependentSubShapes_LO(int elementIndex)
+        {
+            pCheckSubShapeIsValid(PatternElement.properties_i.MinHLRef,
+                PatternElement.properties_i.MinHLSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.MinVLRef,
+                PatternElement.properties_i.MinVLSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.MinHORef,
+                PatternElement.properties_i.MinHOSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.MinVORef,
+                PatternElement.properties_i.MinVOSubShapeRef, elementIndex);
+        }
+
+        void pCheckSubShapeIsValid(PatternElement.properties_i prop, PatternElement.properties_i ssprop, int elementIndex)
+        {
+            for (int ss = 0; ss < 3; ss++)
+            {
+                int refIndex = patternElements[elementIndex].getInt(prop, _subShapeRef: ss);
+                if (refIndex > 0)
+                {
+                    if (refIndex <= elementIndex)
+                    {
+                        refIndex--;
+                    }
+
+                    int subShapeIndex = patternElements[elementIndex].getInt(ssprop, _subShapeRef: ss);
+                    // Does the reference element have enough subshapes to satisfy?
+                    int refSubShapeCount = patternElements[refIndex].getSubShapeCount();
+                    if (subShapeIndex >= refSubShapeCount)
+                    {
+                        // Fix references, also in main pattern.
+                        patternElements[elementIndex].setInt(ssprop, 0, ss);
+                    }
+                }
+            }
+        }
+
+        void pCheckDependentSubShapes_LOInc(int elementIndex)
+        {
+            pCheckSubShapeIsValid(PatternElement.properties_i.HLIncRef,
+                PatternElement.properties_i.HLIncSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.VLIncRef,
+                PatternElement.properties_i.VLIncSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.HOIncRef,
+                PatternElement.properties_i.HOIncSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.VOIncRef,
+                PatternElement.properties_i.VOIncSubShapeRef, elementIndex);
+        }
+
+        void pCheckDependentSubShapes_LOSteps(int elementIndex)
+        {
+            pCheckSubShapeIsValid(PatternElement.properties_i.HLStepsRef,
+                PatternElement.properties_i.HLStepsSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.VLStepsRef,
+                PatternElement.properties_i.VLStepsSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.HOStepsRef,
+                PatternElement.properties_i.HOStepsSubShapeRef, elementIndex);
+            pCheckSubShapeIsValid(PatternElement.properties_i.VOStepsRef,
+                PatternElement.properties_i.VOStepsSubShapeRef, elementIndex);
+        }
+        
         public void updateQuilt()
         {
             pUpdateQuilt();
@@ -722,7 +954,7 @@ namespace Quilt
             try
             {
                 // Here, we need to generate our quilt based on the variations in the reference pattern definition and create patterns.
-                clearPatterns();
+                pClearPatterns();
 
                 if (patternElements.Count == 0)
                 {
@@ -735,17 +967,14 @@ namespace Quilt
                 sw.Reset();
                 sw.Start();
 
-                timer = new System.Timers.Timer();
+                timer = new System.Timers.Timer {AutoReset = true, Interval = CentralProperties.timer_interval};
                 // Set up timers for the UI refresh
-                timer.AutoReset = true;
-                timer.Interval = CentralProperties.timer_interval;
-                timer.Elapsed += new System.Timers.ElapsedEventHandler(timerElapsed);
+                timer.Elapsed += pTimerElapsed;
 
                 // Get our total variant count for all elements
-                long variantCount = 1;
                 long variant = 1;
 
-                variantCount = patternElements[0].getInt(PatternElement.properties_i.maxVariants);
+                long variantCount = patternElements[0].getInt(PatternElement.properties_i.maxVariants);
 
                 for (int i = 1; i < patternElements.Count; i++)
                 {
@@ -763,7 +992,11 @@ namespace Quilt
                     variantCount = 1;
                 }
 
-                PatternElement pattEl = new PatternElement(patternElements[0]); // get our base pattern first element
+                // Do the subshape dependencies make sense? If not, fix them up.
+                pCheckDependentSubShapes();
+
+                PatternElement pattEl = new PatternElement(pGetPatternElement(0, 0)); // get our base pattern first element
+                
                 string pattName = pattEl.getString(PatternElement.properties_s.name);
 
                 updateUIStatus?.Invoke(pattName);
@@ -802,22 +1035,27 @@ namespace Quilt
                 while (level < patternElements.Count())
                 {
                     List<Pattern> oldPatterns = patterns.ToList();
-                    clearPatterns();
+                    pClearPatterns();
 
                     pattEl = new PatternElement(patternElements[level]);
-
+                    
+                    // We need to substitute dependent parameters here.
+                    pattEl = pSetDependentDimensions(pattEl, level);
+                    pattEl = pSetDependentIncrements(pattEl, level);
+                    pattEl = pSetDependentSteps(pattEl, level);
+                    
                     pattName = pattEl.getString(PatternElement.properties_s.name);
 
                     updateUIStatus?.Invoke(pattName);
 
-                    for (int pattern = 0; pattern < oldPatterns.Count; pattern++)
+                    foreach (Pattern t in oldPatterns)
                     {
                         varEl = pattEl.getNextVariant();
 
                         while (varEl != null)
                         {
                             // Get our upper level element definitions for this pattern.
-                            List<PatternElement> pattElements = oldPatterns[pattern].getPatternElements().ToList();
+                            List<PatternElement> pattElements = t.getPatternElements().ToList();
 
                             // Add our new pattern element to the list for the pattern.
                             pattElements.Add(varEl);
@@ -841,25 +1079,36 @@ namespace Quilt
 
                 pCleanup();
 
+                int patternCount = patterns.Count;
+                po = new ParallelOptions();
+
+                // The below forces dimensions to be equivalent, overriding any individual variation. 
+                // This code works, but UI control is missing right now and needs thought about how to implement.
+                // Here, we walk the dependencies of the elements in each pattern.
+                // The dependent dimensions are computed (e.g. linked width, height, etc.)
+#if QUILTTHREADED
+                Parallel.For(0, patternCount, po, (pattern, loopState) =>
+#else
+                for (int pattern = 0; pattern < patternCount; pattern++)
+#endif
+                {
+                    patterns[pattern].computeDimensions(true);
+                }
+#if QUILTTHREADED
+                );
+#endif
+
                 // Generate the preview shapes
-                previewShapes = new List<PreviewShape>[0];
-                backgroundShapes = new PreviewShape[0];
-                if (patterns.Count == 0)
+                previewShapes = Array.Empty<List<PreviewShape>>();
+                backgroundShapes = Array.Empty<PreviewShape>();
+                if (patternCount == 0)
                 {
                     doneQuiltUI?.Invoke("");
                     return;
                 }
-
-                int patternCount = patterns.Count;
-                int progressChunk = patternCount / 100;
-
+                
                 updateUIProgress?.Invoke(0.0f);
-
-                if (progressChunk < 1)
-                {
-                    progressChunk = 1;
-                }
-
+                
                 // Get our bounding box information to inform grid placement.
                 List<GeoLibPointF> bb = new List<GeoLibPointF>();
                 try
@@ -886,9 +1135,7 @@ namespace Quilt
 
                 previewShapes = new List<PreviewShape>[patternCount];
                 backgroundShapes = new PreviewShape[patternCount];
-
-                ParallelOptions po = new ParallelOptions();
-
+                
                 counter = 0;
                 max = patternCount;
 
@@ -950,7 +1197,7 @@ namespace Quilt
                 timer.Stop();
 
                 sw.Stop();
-                doneQuiltUI?.Invoke(patternCount.ToString() + " patterns in " + sw.Elapsed.TotalSeconds.ToString("0.00") + " s.");
+                doneQuiltUI?.Invoke(patternCount + " patterns in " + sw.Elapsed.TotalSeconds.ToString("0.00") + " s.");
             }
             catch (Exception)
             {
@@ -980,7 +1227,7 @@ namespace Quilt
             return new PointF((float)x, (float)y);
         }
 
-        List<List<PreviewShape>> consolidate()
+        List<List<PreviewShape>> pConsolidate()
         {
             List<List<PreviewShape>> consolidated = new List<List<PreviewShape>>();
 
@@ -1024,7 +1271,7 @@ namespace Quilt
                         {
                             previewShapesForPattern[linkedElementIndex].addPoints(geo[poly].ToArray(), false, text: previewShapesForPattern[element].isText(poly));
                             // Override the source index.
-                            previewShapesForPattern[linkedElementIndex].sourceIndices[previewShapesForPattern[linkedElementIndex].sourceIndices.Count - 1] = previewShapesForPattern[element].sourceIndices[poly];
+                            previewShapesForPattern[linkedElementIndex].sourceIndices[^1] = previewShapesForPattern[element].sourceIndices[poly];
                         }
 
                         previewShapesForPattern.RemoveAt(element);
@@ -1034,31 +1281,31 @@ namespace Quilt
             }
 
             // We now need to crunch our unified polygons. Currently using a second state here for testing purposes.
-            for (int pattern = 0; pattern < consolidated.Count; pattern++)
+            foreach (List<PreviewShape> t in consolidated)
             {
-                for (int element = 0; element < consolidated[pattern].Count; element++)
+                foreach (PreviewShape t1 in t)
                 {
-                    List<GeoLibPointF[]> geo = consolidated[pattern][element].getPoints().ToList();
+                    List<GeoLibPointF[]> geo = t1.getPoints().ToList();
                     int geoCount = geo.Count;
                     for (int poly = geoCount - 1; poly >= 0; poly--)
                     {
                         // Avoid allowing text shapes to be considered for consolidation.
-                        if (consolidated[pattern][element].isText(poly))
+                        if (t1.isText(poly))
                         {
                             geo.RemoveAt(poly);
                         }
                         else
                         {
-                            consolidated[pattern][element].removePoly(poly);
+                            t1.removePoly(poly);
                         }
                     }
 
                     // Now consolidate our 'not drawn' elements. Drive some optional parameters to try and avoid losing keyholes.
                     List<GeoLibPointF[]> c = GeoWrangler.clean_and_flatten(geo, CentralProperties.scaleFactorForOperation, customSizing: 2, extension: 1.0).ToList();
 
-                    for (int poly = 0; poly < c.Count; poly++)
+                    foreach (GeoLibPointF[] t2 in c)
                     {
-                        consolidated[pattern][element].addPoints(c[poly], false);
+                        t1.addPoints(t2, false);
                     }
                 }
             }
@@ -1066,7 +1313,7 @@ namespace Quilt
             return consolidated;
         }
 
-        List<string> consolidateNames(List<List<PreviewShape>> consolidated)
+        List<string> pConsolidateNames(List<List<PreviewShape>> consolidated)
         {
             List<string> consolidated_elementNames = new List<string>();
             for (int i = 0; i < consolidated[0].Count; i++)
@@ -1076,7 +1323,7 @@ namespace Quilt
 
             // Scan our element names to see if we have any duplicates.
             bool changed = true;
-            int startIndex = 0;
+            const int startIndex = 0;
             while (changed)
             {
                 changed = false;
@@ -1095,20 +1342,19 @@ namespace Quilt
                         if (consolidated_elementNames[element] == name)
                         {
                             // Duplicate name, need to merge the geometry.
-                            for (int pattern = 0; pattern < consolidated.Count; pattern++)
+                            foreach (List<PreviewShape> t in consolidated)
                             {
-                                List<GeoLibPointF[]> geoFromSameNamedElement = consolidated[pattern][element].getPoints().ToList();
+                                List<GeoLibPointF[]> geoFromSameNamedElement = t[element].getPoints().ToList();
                                 for (int poly = 0; poly < geoFromSameNamedElement.Count; poly++)
                                 {
-                                    if (!consolidated[pattern][element].getDrawnPoly(poly))
+                                    if (!t[element].getDrawnPoly(poly))
                                     {
-                                        consolidated[pattern][index].addPoints(geoFromSameNamedElement[poly], false);
+                                        t[index].addPoints(geoFromSameNamedElement[poly], false);
                                     }
                                 }
 
                                 // Remove same-named pattern element.
-                                consolidated[pattern].RemoveAt(element);
-
+                                t.RemoveAt(element);
                             }
 
                             // Remove our duplicate name.
@@ -1127,7 +1373,7 @@ namespace Quilt
             return consolidated_elementNames;
         }
 
-        void registerLayerNames(ref GeoCore g, List<string> consolidated_elementNames)
+        void pRegisterLayerNames(List<string> consolidated_elementNames)
         {
             for (int i = 0; i < consolidated_elementNames.Count; i++)
             {
@@ -1137,9 +1383,9 @@ namespace Quilt
                 try
                 {
                     // Do we have a LxxxDxxx type layer name that we should use instead?
-                    string[] tokens = consolidated_elementNames[i].Split(new char[] { 'D' });
+                    string[] tokens = consolidated_elementNames[i].Split(new [] { 'D' });
                     int dt = Math.Abs(Convert.ToInt32(tokens[1]));
-                    string token = tokens[0].Split(new char[] { 'L' })[1];
+                    string token = tokens[0].Split(new [] { 'L' })[1];
                     int lt = Math.Abs(Convert.ToInt32(token));
 
                     targetLayer = lt;
@@ -1147,13 +1393,13 @@ namespace Quilt
                 }
                 catch (Exception)
                 {
-                    // Rely on a general exception to trap for invalid layernames mapping to LD target.
+                    // Rely on a general exception to trap for invalid layer names mapping to LD target.
                 }
-                g.addLayerName("L" + targetLayer.ToString() + "D" + targetDataType.ToString(), consolidated_elementNames[i]);
+                g.addLayerName("L" + targetLayer + "D" + targetDataType, consolidated_elementNames[i]);
             }
         }
 
-        void updateDrawing(List<string> consolidated_elementNames, List<List<PreviewShape>> consolidated, int scale, int updateInterval)
+        void pUpdateDrawing(List<string> consolidated_elementNames, List<List<PreviewShape>> consolidated, int scale, int updateInterval)
         {
             double progress = 0;
             int consolidatedCount = consolidated.Count;
@@ -1161,21 +1407,23 @@ namespace Quilt
 
             Parallel.For(0, consolidatedCount, po, (i, loopState) =>
             {
-                drawing_.cellList[i] = new GCCell();
-                drawing_.cellList[i].accyear = (short)DateTime.Now.Year;
-                drawing_.cellList[i].accmonth = (short)DateTime.Now.Month;
-                drawing_.cellList[i].accday = (short)DateTime.Now.Day;
-                drawing_.cellList[i].acchour = (short)DateTime.Now.Hour;
-                drawing_.cellList[i].accmin = (short)DateTime.Now.Minute;
-                drawing_.cellList[i].accsec = (short)DateTime.Now.Second;
-                drawing_.cellList[i].modyear = (short)DateTime.Now.Year;
-                drawing_.cellList[i].modmonth = (short)DateTime.Now.Month;
-                drawing_.cellList[i].modday = (short)DateTime.Now.Day;
-                drawing_.cellList[i].modhour = (short)DateTime.Now.Hour;
-                drawing_.cellList[i].modmin = (short)DateTime.Now.Minute;
-                drawing_.cellList[i].modsec = (short)DateTime.Now.Second;
+                drawing_.cellList[i] = new GCCell
+                {
+                    accyear = (short) DateTime.Now.Year,
+                    accmonth = (short) DateTime.Now.Month,
+                    accday = (short) DateTime.Now.Day,
+                    acchour = (short) DateTime.Now.Hour,
+                    accmin = (short) DateTime.Now.Minute,
+                    accsec = (short) DateTime.Now.Second,
+                    modyear = (short) DateTime.Now.Year,
+                    modmonth = (short) DateTime.Now.Month,
+                    modday = (short) DateTime.Now.Day,
+                    modhour = (short) DateTime.Now.Hour,
+                    modmin = (short) DateTime.Now.Minute,
+                    modsec = (short) DateTime.Now.Second,
+                    cellName = "pattern" + i
+                };
 
-                drawing_.cellList[i].cellName = "pattern" + i.ToString();
 
                 GeoLibPointF loc = patterns[i].getPos();
 
@@ -1204,9 +1452,9 @@ namespace Quilt
                     try
                     {
                         // Do we have a LxxxDxxx type layer name that we should use instead?
-                        string[] tokens = consolidated_elementNames[element].Split(new char[] { 'D' });
+                        string[] tokens = consolidated_elementNames[element].Split(new [] { 'D' });
                         int dt = Math.Abs(Convert.ToInt32(tokens[1]));
-                        string token = tokens[0].Split(new char[] { 'L' })[1];
+                        string token = tokens[0].Split(new [] { 'L' })[1];
                         int lt = Math.Abs(Convert.ToInt32(token));
 
                         targetLayer = lt;
@@ -1214,19 +1462,19 @@ namespace Quilt
                     }
                     catch (Exception)
                     {
-                        // Rely on a general exception to trap for invalid layernames mapping to LD target.
+                        // Rely on a general exception to trap for invalid layer names mapping to LD target.
                     }
 
                     // Might not have the LD registered. Add it, just in case.
                     try
                     {
-                        string test_for_layer_registered = g.getLayerNames()["L" + targetLayer.ToString() + "D" + targetDataType.ToString()];
+                        string test_for_layer_registered = g.getLayerNames()["L" + targetLayer + "D" + targetDataType];
                     }
                     catch (Exception)
                     {
                         try
                         {
-                            g.addLayerName("L" + targetLayer.ToString() + "D" + targetDataType.ToString(), consolidated_elementNames[element]);
+                            g.addLayerName("L" + targetLayer + "D" + targetDataType, consolidated_elementNames[element]);
                         }
                         catch (Exception)
                         {
@@ -1265,10 +1513,10 @@ namespace Quilt
             });
         }
 
-        void buildQuilt(int scale, int updateInterval)
+        void pBuildQuilt(int scale, int updateInterval)
         {
             double progress = 0;
-            bool mirror_x = false;
+            //bool mirror_x = false;
             GCCell gcell_root = drawing_.addCell();
 
             gcell_root.addCellrefs(patterns.Count);
@@ -1280,13 +1528,15 @@ namespace Quilt
                 gcell_root.elementList[i].setPos(new GeoLibPoint(loc.X * scale, loc.Y * scale));
 
                 gcell_root.elementList[i].setCellRef(drawing_.cellList[i]);
-                gcell_root.elementList[i].setName("pattern" + i.ToString());
+                gcell_root.elementList[i].setName("pattern" + i);
                 gcell_root.elementList[i].rotate(0);
                 gcell_root.elementList[i].scale(1);
+                /*
                 if (mirror_x)
                 {
                     gcell_root.elementList[i].setMirrorx();
                 }
+                */
                 if (i % updateInterval == 0)
                 {
                     updateUIProgress?.Invoke(progress);
@@ -1298,26 +1548,28 @@ namespace Quilt
             g.setValid(true);
         }
 
-        void initQuilt(int scale)
+        void pInitQuilt(int scale)
         {
             g = new GeoCore();
             g.reset();
-            drawing_ = new GCDrawingfield("");
-            drawing_.accyear = (short)DateTime.Now.Year;
-            drawing_.accmonth = (short)DateTime.Now.Month;
-            drawing_.accday = (short)DateTime.Now.Day;
-            drawing_.acchour = (short)DateTime.Now.Hour;
-            drawing_.accmin = (short)DateTime.Now.Minute;
-            drawing_.accsec = (short)DateTime.Now.Second;
-            drawing_.modyear = (short)DateTime.Now.Year;
-            drawing_.modmonth = (short)DateTime.Now.Month;
-            drawing_.modday = (short)DateTime.Now.Day;
-            drawing_.modhour = (short)DateTime.Now.Hour;
-            drawing_.modmin = (short)DateTime.Now.Minute;
-            drawing_.modsec = (short)DateTime.Now.Second;
-            drawing_.databaseunits = 1000 * scale;
-            drawing_.userunits = 0.001 / scale;
-            drawing_.libname = "quilt";
+            drawing_ = new GCDrawingfield("")
+            {
+                accyear = (short) DateTime.Now.Year,
+                accmonth = (short) DateTime.Now.Month,
+                accday = (short) DateTime.Now.Day,
+                acchour = (short) DateTime.Now.Hour,
+                accmin = (short) DateTime.Now.Minute,
+                accsec = (short) DateTime.Now.Second,
+                modyear = (short) DateTime.Now.Year,
+                modmonth = (short) DateTime.Now.Month,
+                modday = (short) DateTime.Now.Day,
+                modhour = (short) DateTime.Now.Hour,
+                modmin = (short) DateTime.Now.Minute,
+                modsec = (short) DateTime.Now.Second,
+                databaseunits = 1000 * scale,
+                userunits = 0.001 / scale,
+                libname = "quilt"
+            };
 
             // Set our parallel task options based on user settings.
             po = new ParallelOptions();
@@ -1339,16 +1591,16 @@ namespace Quilt
                 indeterminateQuiltUI?.Invoke("Saving", "Saving");
 
                 int scale = 100; // for 0.01 nm resolution
-                initQuilt(scale);
+                pInitQuilt(scale);
 
                 // Decomposition means that we need to unify output.
-                List<List<PreviewShape>> consolidated = consolidate();
+                List<List<PreviewShape>> consolidated = pConsolidate();
 
                 // Get a list of our current element names
-                List<string> consolidated_elementNames = consolidateNames(consolidated);
+                List<string> consolidated_elementNames = pConsolidateNames(consolidated);
 
                 // Register layer names with geoCore.
-                registerLayerNames(ref g, consolidated_elementNames);
+                pRegisterLayerNames(consolidated_elementNames);
 
                 // The quilt is already consistent with the UI, so we can use it without a rebuild.
                 updateUIStatus?.Invoke("Weaving");
@@ -1356,12 +1608,12 @@ namespace Quilt
 
                 // Set to 1 to avoid problems if there are fewer than 100 patterns.
                 int updateInterval = Math.Max(1, patterns.Count / 100);
-                updateDrawing(consolidated_elementNames, consolidated, scale, updateInterval);
+                pUpdateDrawing(consolidated_elementNames, consolidated, scale, updateInterval);
 
                 // Now build the quilt.
                 updateUIStatus?.Invoke("Stitching");
                 updateUIProgress?.Invoke(0);
-                buildQuilt(scale, updateInterval);
+                pBuildQuilt(scale, updateInterval);
 
                 indeterminateQuiltUI?.Invoke("Saving Quilt", "Saving");
 
@@ -1369,17 +1621,19 @@ namespace Quilt
                 {
                     case (int)GeoCore.fileType.gds:
                         gds.gdsWriter gw = new gds.gdsWriter(g, file);
-                        gw.statusUpdateUI = statusUIWrapper;
-                        gw.progressUpdateUI = progressUIWrapper;
+                        gw.statusUpdateUI = pStatusUIWrapper;
+                        gw.progressUpdateUI = pProgressUIWrapper;
                         gw.save();
                         break;
                     case (int)GeoCore.fileType.oasis:
                         oasis.oasWriter ow = new oasis.oasWriter(g, file);
-                        ow.statusUpdateUI = statusUIWrapper;
-                        ow.progressUpdateUI = progressUIWrapper;
+                        ow.statusUpdateUI = pStatusUIWrapper;
+                        ow.progressUpdateUI = pProgressUIWrapper;
                         ow.save();
                         break;
                 }
+
+                pToCSV(file + ".csv");
             }
             finally
             {
@@ -1399,40 +1653,32 @@ namespace Quilt
             FileStream csvFile = File.OpenWrite(filename);
             StreamWriter sw = new StreamWriter(csvFile);
 
-            sw.WriteLine(CentralProperties.productName + " " + CentralProperties.version.ToString());
-            string out_ = left.ToString() + ",";
-            out_ += bottom.ToString() + ",";
-            out_ += width.ToString() + ",";
-            out_ += height.ToString() + ",";
-            out_ += rows.ToString() + ",";
-            out_ += cols.ToString();
+            sw.WriteLine(CentralProperties.productName + " " + CentralProperties.version);
+            string out_ = left + ",";
+            out_ += bottom + ",";
+            out_ += width + ",";
+            out_ += height + ",";
+            out_ += rows + ",";
+            out_ += cols + ",";
+            out_ += padding;
 
             sw.WriteLine(out_);
 
-            out_ = "";
-            List<string> descriptions = new List<string>();
+            string[] descriptions = new string[patterns.Count];
+#if QUILTTHREADED
+            Parallel.For(0, descriptions.Length, po, (p, loopstate) =>
+#else
             for (int p = 0; p < patterns.Count; p++)
+#endif
             {
-                out_ += patterns[p].getDescription();
-                if (p != patterns.Count - 1)
-                {
-                    out_ += ",";
-                }
-                if ((p != 0) && (p % cols == 0))
-                {
-                    descriptions.Add(out_);
-                    out_ = "";
-                }
+                descriptions[p] = patterns[p].getDescription();
             }
-
-            for (int line = 0; line < descriptions.Count; line++)
+#if QUILTTHREADED
+            );
+#endif
+            foreach (string t in descriptions)
             {
-                string ln = descriptions[line];
-                if (line != descriptions.Count - 1)
-                {
-                    ln += ",";
-                }
-                sw.WriteLine(ln);
+                sw.WriteLine(t);
             }
 
             sw.Close();

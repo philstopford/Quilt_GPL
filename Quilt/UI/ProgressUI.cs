@@ -2,37 +2,38 @@
 
 namespace Quilt
 {
-    public partial class MainForm : Form
+    public partial class MainForm
     {
-        void delegates()
+        void pDelegates()
         {
-            commonVars.storage.viewportLoad = setViewportCamera;
-            commonVars.storage.viewportSave = getViewportCamera;
-            commonVars.storage.preLoadUI = preLoad_Storage;
-            commonVars.storage.postLoadUI = loadOK_Storage;
+            commonVars.storage.viewportLoad = pSetViewportCamera;
+            commonVars.storage.viewportSave = pGetViewportCamera;
+            commonVars.storage.preLoadUI = pPreLoad_Storage;
+            commonVars.storage.postLoadUI = pLoadOK_Storage;
 
-            commonVars.stitcher.indeterminateQuiltUI = indeterminateQuiltUI;
-            commonVars.stitcher.updateUIProgress = updateProgressBar;
-            commonVars.stitcher.updateUIStatus = updateProgressLabel;
-            commonVars.stitcher.generatingPatternUI = generatingPatternUI;
-            commonVars.stitcher.stitchingQuiltUI = stitchingQuiltUI;
-            commonVars.stitcher.viewport = updateViewport_2;
-            commonVars.stitcher.doneQuiltUI = doneQuiltUI;
+            commonVars.stitcher.indeterminateQuiltUI = pIndeterminateQuiltUI;
+            commonVars.stitcher.updateUIProgress = pUpdateProgressBar;
+            commonVars.stitcher.updateUIStatus = pUpdateProgressLabel;
+            commonVars.stitcher.generatingPatternUI = pGeneratingPatternUI;
+            commonVars.stitcher.stitchingQuiltUI = pStitchingQuiltUI;
+            commonVars.stitcher.viewport = pUpdateViewport_2;
+            commonVars.stitcher.doneQuiltUI = pDoneQuiltUI;
 
-            commonVars.storage.updateUIProgress = updateProgressBar;
+            commonVars.storage.updateUIProgress = pUpdateProgressBar;
+            commonVars.storage.updateUIstatus = pUpdateProgressLabel;
         }
 
-        void preLoad_Storage()
+        void pPreLoad_Storage()
         {
             Application.Instance.Invoke(() =>
             {
-                setUI(false);
+                pSetUI(false);
                 progressBar.Indeterminate = true;
                 UIFreeze = true;
             });
         }
 
-        void loadOK_Storage(string loadOK)
+        void pLoadOK_Storage(string loadOK)
         {
             Application.Instance.Invoke(() =>
             {
@@ -59,12 +60,12 @@ namespace Quilt
                 progressBar.Indeterminate = false;
                 UIFreeze = false;
 
-                setUI(true);
-                updatePatternElementUI();
+                pSetUI(true);
+                pUpdatePatternElementUI();
             });
         }
 
-        void updateProgressBar(double val)
+        void pUpdateProgressBar(double val)
         {
             Application.Instance.Invoke(() =>
             {
@@ -85,13 +86,13 @@ namespace Quilt
             });
         }
 
-        void updateProgressBar(int count, int max)
+        void pUpdateProgressBar(int count, int max)
         {
             double val = (double)count / max;
-            updateProgressBar(val);
+            pUpdateProgressBar(val);
         }
 
-        void updateProgressLabel(string text)
+        void pUpdateProgressLabel(string text)
         {
             if (text == "")
             {
@@ -100,11 +101,11 @@ namespace Quilt
             Application.Instance.Invoke(() => progressLabel.Text = text);
         }
 
-        void indeterminateQuiltUI(string tooltipText, string labelText)
+        void pIndeterminateQuiltUI(string tooltipText, string labelText)
         {
             Application.Instance.Invoke(() =>
             {
-                setUI(false);
+                pSetUI(false);
                 progressBar.Indeterminate = true;
                 progressBar.ToolTip = tooltipText;
                 progressLabel.Text = labelText;
@@ -112,7 +113,7 @@ namespace Quilt
 
         }
 
-        void generatingPatternUI()
+        void pGeneratingPatternUI()
         {
             Application.Instance.Invoke(() =>
             {
@@ -121,7 +122,7 @@ namespace Quilt
             });
         }
 
-        void stitchingQuiltUI()
+        void pStitchingQuiltUI()
         {
             Application.Instance.Invoke(() =>
             {
@@ -132,7 +133,7 @@ namespace Quilt
             });
         }
 
-        void doneQuiltUI(string text)
+        void pDoneQuiltUI(string text)
         {
             Application.Instance.Invoke(() =>
             {
@@ -140,9 +141,9 @@ namespace Quilt
                 progressBar.Indeterminate = false;
                 progressBar.Value = progressBar.MaxValue;
                 progressBar.ToolTip = "";
-                updateProgressLabel(text);
-                setUI(true);
-                updatePatternElementUI();
+                pUpdateProgressLabel(text);
+                pSetUI(true);
+                pUpdatePatternElementUI();
             });
         }
 

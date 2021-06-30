@@ -3,7 +3,7 @@ using geoLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Xml.Linq;
 
 namespace Quilt
@@ -17,6 +17,10 @@ namespace Quilt
 
         public delegate void UpdateUIProgress(int val, int max);
         public UpdateUIProgress updateUIProgress { get; set; }
+
+        public delegate void UpdateUIStatus(string text);
+        public UpdateUIStatus updateUIstatus { get; set; }
+
 
         double padding;
         int showDrawn;
@@ -71,8 +75,8 @@ namespace Quilt
         {
             List<GeoLibPointF[]> returnList = new List<GeoLibPointF[]>();
 
-            char[] polySep = new char[] { ';' };
-            char[] coordSep = new char[] { ',' };
+            char[] polySep = new[] { ';' };
+            char[] coordSep = new[] { ',' };
 
             if (fileDataString.Length > 0)
             {
@@ -101,9 +105,9 @@ namespace Quilt
             }
             else
             {
-                returnList.Add(new GeoLibPointF[] { new GeoLibPointF(0, 0) });
-                returnList.Add(new GeoLibPointF[] { new GeoLibPointF(0, 0) });
-                returnList.Add(new GeoLibPointF[] { new GeoLibPointF(0, 0) });
+                returnList.Add(new[] { new GeoLibPointF(0, 0) });
+                returnList.Add(new[] { new GeoLibPointF(0, 0) });
+                returnList.Add(new[] { new GeoLibPointF(0, 0) });
             }
             return returnList;
         }
@@ -115,11 +119,11 @@ namespace Quilt
             {
                 int poly = 0;
                 int pt = 0;
-                returnString += fileData[poly][pt].X.ToString() + "," + fileData[poly][pt].Y.ToString();
+                returnString += fileData[poly][pt].X + "," + fileData[poly][pt].Y;
                 pt++;
                 while (pt < fileData[poly].Count())
                 {
-                    returnString += "," + fileData[poly][pt].X.ToString() + "," + fileData[poly][pt].Y.ToString();
+                    returnString += "," + fileData[poly][pt].X + "," + fileData[poly][pt].Y;
                     pt++;
                 }
                 poly++;
@@ -127,11 +131,11 @@ namespace Quilt
                 {
                     returnString += ";";
                     pt = 0;
-                    returnString += fileData[poly][0].X.ToString() + "," + fileData[poly][0].Y.ToString();
+                    returnString += fileData[poly][0].X + "," + fileData[poly][0].Y;
                     pt++;
                     while (pt < fileData[poly].Count())
                     {
-                        returnString += "," + fileData[poly][pt].X.ToString() + "," + fileData[poly][pt].Y.ToString();
+                        returnString += "," + fileData[poly][pt].X + "," + fileData[poly][pt].Y;
                         pt++;
                     }
                     poly++;
@@ -150,57 +154,163 @@ namespace Quilt
 
         bool pSaveQuiltSettings(string filename, ref Stitcher quilt)
         {
-            double[] camParameters;
             XDocument doc = new XDocument(new XElement(CentralProperties.productName));
+            // ReSharper disable once PossibleNullReferenceException
             doc.Root.Add(new XElement("version", CentralProperties.version));
             doc.Root.Add(new XElement("elementCount", quilt.getPatternElements(0).Count));
-            for (int i = 0; i < quilt.getPatternElements(0).Count; i++)
+
+            int elementCount = quilt.getPatternElements(0).Count;
+            
+            int progressInterval = elementCount / 100;
+            int maxProgress = Math.Max(1, elementCount);
+            if (progressInterval < 1)
+            {
+                progressInterval = 1;
+            }
+            
+            for (int i = 0; i < elementCount; i++)
             {
                 PatternElement tmp = quilt.getPatternElement(patternIndex: 0, i);
-                XElement xelement = new XElement("layer" + (i + 1).ToString(),
+                XElement xelement = new XElement("layer" + (i + 1),
                     new XElement("name", tmp.getString(PatternElement.properties_s.name)),
 
                     new XElement("shapeIndex", tmp.getInt(PatternElement.properties_i.shapeIndex)),
 
-                    new XElement("s0MinHorLength", tmp.getDecimal(PatternElement.properties_decimal.s0MinHorLength)),
-                    new XElement("s0MinHorOffset", tmp.getDecimal(PatternElement.properties_decimal.s0MinHorOffset)),
-                    new XElement("s0MinVerLength", tmp.getDecimal(PatternElement.properties_decimal.s0MinVerLength)),
-                    new XElement("s0MinVerOffset", tmp.getDecimal(PatternElement.properties_decimal.s0MinVerOffset)),
-                    new XElement("s0HorLengthInc", tmp.getDecimal(PatternElement.properties_decimal.s0HorLengthInc)),
-                    new XElement("s0HorOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.s0HorOffsetInc)),
-                    new XElement("s0VerLengthInc", tmp.getDecimal(PatternElement.properties_decimal.s0VerLengthInc)),
-                    new XElement("s0VerOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.s0VerOffsetInc)),
-                    new XElement("s0HorLengthSteps", tmp.getInt(PatternElement.properties_i.s0HorLengthSteps)),
-                    new XElement("s0HorOffsetSteps", tmp.getInt(PatternElement.properties_i.s0HorOffsetSteps)),
-                    new XElement("s0VerLengthSteps", tmp.getInt(PatternElement.properties_i.s0VerLengthSteps)),
-                    new XElement("s0VerOffsetSteps", tmp.getInt(PatternElement.properties_i.s0VerOffsetSteps)),
+                    new XElement("s0MinHorLength", tmp.getDecimal(PatternElement.properties_decimal.minHorLength, 0)),
+                    new XElement("s0MinHorOffset", tmp.getDecimal(PatternElement.properties_decimal.minHorOffset, 0)),
+                    new XElement("s0MinVerLength", tmp.getDecimal(PatternElement.properties_decimal.minVerLength, 0)),
+                    new XElement("s0MinVerOffset", tmp.getDecimal(PatternElement.properties_decimal.minVerOffset, 0)),
+                    new XElement("s0HorLengthInc", tmp.getDecimal(PatternElement.properties_decimal.horLengthInc, 0)),
+                    new XElement("s0HorOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.horOffsetInc, 0)),
+                    new XElement("s0VerLengthInc", tmp.getDecimal(PatternElement.properties_decimal.verLengthInc, 0)),
+                    new XElement("s0VerOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.verOffsetInc, 0)),
+                    new XElement("s0HorLengthSteps", tmp.getInt(PatternElement.properties_i.horLengthSteps, 0)),
+                    new XElement("s0HorOffsetSteps", tmp.getInt(PatternElement.properties_i.horOffsetSteps, 0)),
+                    new XElement("s0VerLengthSteps", tmp.getInt(PatternElement.properties_i.verLengthSteps, 0)),
+                    new XElement("s0VerOffsetSteps", tmp.getInt(PatternElement.properties_i.verOffsetSteps, 0)),
+                    
+                    new XElement("s1MinHorLength", tmp.getDecimal(PatternElement.properties_decimal.minHorLength, 1)),
+                    new XElement("s1MinHorOffset", tmp.getDecimal(PatternElement.properties_decimal.minHorOffset, 1)),
+                    new XElement("s1MinVerLength", tmp.getDecimal(PatternElement.properties_decimal.minVerLength, 1)),
+                    new XElement("s1MinVerOffset", tmp.getDecimal(PatternElement.properties_decimal.minVerOffset, 1)),
+                    new XElement("s1HorLengthInc", tmp.getDecimal(PatternElement.properties_decimal.horLengthInc, 1)),
+                    new XElement("s1HorOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.horOffsetInc, 1)),
+                    new XElement("s1VerLengthInc", tmp.getDecimal(PatternElement.properties_decimal.verLengthInc, 1)),
+                    new XElement("s1VerOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.verOffsetInc, 1)),
+                    new XElement("s1HorLengthSteps", tmp.getInt(PatternElement.properties_i.horLengthSteps, 1)),
+                    new XElement("s1HorOffsetSteps", tmp.getInt(PatternElement.properties_i.horOffsetSteps, 1)),
+                    new XElement("s1VerLengthSteps", tmp.getInt(PatternElement.properties_i.verLengthSteps, 1)),
+                    new XElement("s1VerOffsetSteps", tmp.getInt(PatternElement.properties_i.verOffsetSteps, 1)),
 
-                    new XElement("s1MinHorLength", tmp.getDecimal(PatternElement.properties_decimal.s1MinHorLength)),
-                    new XElement("s1MinHorOffset", tmp.getDecimal(PatternElement.properties_decimal.s1MinHorOffset)),
-                    new XElement("s1MinVerLength", tmp.getDecimal(PatternElement.properties_decimal.s1MinVerLength)),
-                    new XElement("s1MinVerOffset", tmp.getDecimal(PatternElement.properties_decimal.s1MinVerOffset)),
-                    new XElement("s1HorLengthInc", tmp.getDecimal(PatternElement.properties_decimal.s1HorLengthInc)),
-                    new XElement("s1HorOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.s1HorOffsetInc)),
-                    new XElement("s1VerLengthInc", tmp.getDecimal(PatternElement.properties_decimal.s1VerLengthInc)),
-                    new XElement("s1VerOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.s1VerOffsetInc)),
-                    new XElement("s1HorLengthSteps", tmp.getInt(PatternElement.properties_i.s1HorLengthSteps)),
-                    new XElement("s1HorOffsetSteps", tmp.getInt(PatternElement.properties_i.s1HorOffsetSteps)),
-                    new XElement("s1VerLengthSteps", tmp.getInt(PatternElement.properties_i.s1VerLengthSteps)),
-                    new XElement("s1VerOffsetSteps", tmp.getInt(PatternElement.properties_i.s1VerOffsetSteps)),
+                    new XElement("s2MinHorLength", tmp.getDecimal(PatternElement.properties_decimal.minHorLength, 2)),
+                    new XElement("s2MinHorOffset", tmp.getDecimal(PatternElement.properties_decimal.minHorOffset, 2)),
+                    new XElement("s2MinVerLength", tmp.getDecimal(PatternElement.properties_decimal.minVerLength, 2)),
+                    new XElement("s2MinVerOffset", tmp.getDecimal(PatternElement.properties_decimal.minVerOffset, 2)),
+                    new XElement("s2HorLengthInc", tmp.getDecimal(PatternElement.properties_decimal.horLengthInc, 2)),
+                    new XElement("s2HorOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.horOffsetInc, 2)),
+                    new XElement("s2VerLengthInc", tmp.getDecimal(PatternElement.properties_decimal.verLengthInc, 2)),
+                    new XElement("s2VerOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.verOffsetInc, 2)),
+                    new XElement("s2HorLengthSteps", tmp.getInt(PatternElement.properties_i.horLengthSteps, 2)),
+                    new XElement("s2HorOffsetSteps", tmp.getInt(PatternElement.properties_i.horOffsetSteps, 2)),
+                    new XElement("s2VerLengthSteps", tmp.getInt(PatternElement.properties_i.verLengthSteps, 2)),
+                    new XElement("s2VerOffsetSteps", tmp.getInt(PatternElement.properties_i.verOffsetSteps, 2)),
 
-                    new XElement("s2MinHorLength", tmp.getDecimal(PatternElement.properties_decimal.s2MinHorLength)),
-                    new XElement("s2MinHorOffset", tmp.getDecimal(PatternElement.properties_decimal.s2MinHorOffset)),
-                    new XElement("s2MinVerLength", tmp.getDecimal(PatternElement.properties_decimal.s2MinVerLength)),
-                    new XElement("s2MinVerOffset", tmp.getDecimal(PatternElement.properties_decimal.s2MinVerOffset)),
-                    new XElement("s2HorLengthInc", tmp.getDecimal(PatternElement.properties_decimal.s2HorLengthInc)),
-                    new XElement("s2HorOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.s2HorOffsetInc)),
-                    new XElement("s2VerLengthInc", tmp.getDecimal(PatternElement.properties_decimal.s2VerLengthInc)),
-                    new XElement("s2VerOffsetInc", tmp.getDecimal(PatternElement.properties_decimal.s2VerOffsetInc)),
-                    new XElement("s2HorLengthSteps", tmp.getInt(PatternElement.properties_i.s2HorLengthSteps)),
-                    new XElement("s2HorOffsetSteps", tmp.getInt(PatternElement.properties_i.s2HorOffsetSteps)),
-                    new XElement("s2VerLengthSteps", tmp.getInt(PatternElement.properties_i.s2VerLengthSteps)),
-                    new XElement("s2VerOffsetSteps", tmp.getInt(PatternElement.properties_i.s2VerOffsetSteps)),
+                    new XElement("s0MinHorLengthRef", tmp.getInt(PatternElement.properties_i.MinHLRef, 0)),
+                    new XElement("s0MinHorLengthSubShapeRef", tmp.getInt(PatternElement.properties_i.MinHLSubShapeRef, 0)),
+                    new XElement("s0HorLengthRefFinal", tmp.getInt(PatternElement.properties_i.HLRefFinal, 0)),
+                    new XElement("s0HorLengthIncRef", tmp.getInt(PatternElement.properties_i.HLIncRef, 0)),
+                    new XElement("s0HorLengthIncSubShapeRef", tmp.getInt(PatternElement.properties_i.HLIncSubShapeRef, 0)),
+                    new XElement("s0HorLengthStepsRef", tmp.getInt(PatternElement.properties_i.HLStepsRef, 0)),
+                    new XElement("s0HorLengthStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.HLStepsSubShapeRef, 0)),
 
+                    new XElement("s1MinHorLengthRef", tmp.getInt(PatternElement.properties_i.MinHLRef, 1)),
+                    new XElement("s1MinHorLengthSubShapeRef", tmp.getInt(PatternElement.properties_i.MinHLSubShapeRef, 1)),
+                    new XElement("s1HorLengthRefFinal", tmp.getInt(PatternElement.properties_i.HLRefFinal, 1)),
+                    new XElement("s1HorLengthIncRef", tmp.getInt(PatternElement.properties_i.HLIncRef, 1)),
+                    new XElement("s1HorLengthIncSubShapeRef", tmp.getInt(PatternElement.properties_i.HLIncSubShapeRef, 1)),
+                    new XElement("s1HorLengthStepsRef", tmp.getInt(PatternElement.properties_i.HLStepsRef, 1)),
+                    new XElement("s1HorLengthStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.HLStepsSubShapeRef, 1)),
+
+                    new XElement("s2MinHorLengthRef", tmp.getInt(PatternElement.properties_i.MinHLRef, 2)),
+                    new XElement("s2MinHorLengthSubShapeRef", tmp.getInt(PatternElement.properties_i.MinHLSubShapeRef, 2)),
+                    new XElement("s2HorLengthRefFinal", tmp.getInt(PatternElement.properties_i.HLRefFinal, 2)),
+                    new XElement("s2HorLengthIncRef", tmp.getInt(PatternElement.properties_i.HLIncRef, 2)),
+                    new XElement("s2HorLengthIncSubShapeRef", tmp.getInt(PatternElement.properties_i.HLIncSubShapeRef, 2)),
+                    new XElement("s2HorLengthStepsRef", tmp.getInt(PatternElement.properties_i.HLStepsRef, 2)),
+                    new XElement("s2HorLengthStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.HLStepsSubShapeRef, 2)),
+                    
+                    new XElement("s0MinVerLengthRef", tmp.getInt(PatternElement.properties_i.MinVLRef, 0)),
+                    new XElement("s0MinVerLengthSubShapeRef", tmp.getInt(PatternElement.properties_i.MinVLSubShapeRef, 0)),
+                    new XElement("s0VerLengthRefFinal", tmp.getInt(PatternElement.properties_i.VLRefFinal, 0)),
+                    new XElement("s0VerLengthIncRef", tmp.getInt(PatternElement.properties_i.VLIncRef, 0)),
+                    new XElement("s0VerLengthIncSubShapeRef", tmp.getInt(PatternElement.properties_i.VLIncSubShapeRef, 0)),
+                    new XElement("s0VerLengthStepsRef", tmp.getInt(PatternElement.properties_i.VLStepsRef, 0)),
+                    new XElement("s0VerLengthStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.VLStepsSubShapeRef, 0)),
+
+                    new XElement("s1MinVerLengthRef", tmp.getInt(PatternElement.properties_i.MinVLRef, 1)),
+                    new XElement("s1MinVerLengthSubShapeRef", tmp.getInt(PatternElement.properties_i.MinVLSubShapeRef, 1)),
+                    new XElement("s1VerLengthRefFinal", tmp.getInt(PatternElement.properties_i.VLRefFinal, 1)),
+                    new XElement("s1VerLengthIncRef", tmp.getInt(PatternElement.properties_i.VLIncRef, 1)),
+                    new XElement("s1VerLengthIncSubShapeRef", tmp.getInt(PatternElement.properties_i.VLIncSubShapeRef, 1)),
+                    new XElement("s1VerLengthStepsRef", tmp.getInt(PatternElement.properties_i.VLStepsRef, 1)),
+                    new XElement("s1VerLengthStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.VLStepsSubShapeRef, 1)),
+
+                    new XElement("s2MinVerLengthRef", tmp.getInt(PatternElement.properties_i.MinVLRef, 2)),
+                    new XElement("s2MinVerLengthSubShapeRef", tmp.getInt(PatternElement.properties_i.MinVLSubShapeRef, 2)),
+                    new XElement("s2VerLengthRefFinal", tmp.getInt(PatternElement.properties_i.VLRefFinal, 2)),
+                    new XElement("s2VerLengthIncRef", tmp.getInt(PatternElement.properties_i.VLIncRef, 2)),
+                    new XElement("s2VerLengthIncSubShapeRef", tmp.getInt(PatternElement.properties_i.VLIncSubShapeRef, 2)),
+                    new XElement("s2VerLengthStepsRef", tmp.getInt(PatternElement.properties_i.VLStepsRef, 2)),
+                    new XElement("s2VerLengthStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.VLStepsSubShapeRef, 2)),
+
+                    new XElement("s0MinHorOffsetRef", tmp.getInt(PatternElement.properties_i.MinHORef, 0)),
+                    new XElement("s0MinHorOffsetSubShapeRef", tmp.getInt(PatternElement.properties_i.MinHOSubShapeRef, 0)),
+                    new XElement("s0HorOffsetRefFinal", tmp.getInt(PatternElement.properties_i.HORefFinal, 0)),
+                    new XElement("s0HorOffsetIncRef", tmp.getInt(PatternElement.properties_i.HOIncRef, 0)),
+                    new XElement("s0HorOffsetIncSubShapeRef", tmp.getInt(PatternElement.properties_i.HOIncSubShapeRef, 0)),
+                    new XElement("s0HorOffsetStepsRef", tmp.getInt(PatternElement.properties_i.HOStepsRef, 0)),
+                    new XElement("s0HorOffsetStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.HOStepsSubShapeRef, 0)),
+
+                    new XElement("s1MinHorOffsetRef", tmp.getInt(PatternElement.properties_i.MinHORef, 1)),
+                    new XElement("s1MinHorOffsetSubShapeRef", tmp.getInt(PatternElement.properties_i.MinHOSubShapeRef, 1)),
+                    new XElement("s1HorOffsetRefFinal", tmp.getInt(PatternElement.properties_i.HORefFinal, 1)),
+                    new XElement("s1HorOffsetIncRef", tmp.getInt(PatternElement.properties_i.HOIncRef, 1)),
+                    new XElement("s1HorOffsetIncSubShapeRef", tmp.getInt(PatternElement.properties_i.HOIncSubShapeRef, 1)),
+                    new XElement("s1HorOffsetStepsRef", tmp.getInt(PatternElement.properties_i.HOStepsRef, 1)),
+                    new XElement("s1HorOffsetStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.HOStepsSubShapeRef, 1)),
+
+                    new XElement("s2MinHorOffsetRef", tmp.getInt(PatternElement.properties_i.MinHORef, 2)),
+                    new XElement("s2MinHorOffsetSubShapeRef", tmp.getInt(PatternElement.properties_i.MinHOSubShapeRef, 2)),
+                    new XElement("s2HorOffsetRefFinal", tmp.getInt(PatternElement.properties_i.HORefFinal, 2)),
+                    new XElement("s2HorOffsetIncRef", tmp.getInt(PatternElement.properties_i.HOIncRef, 2)),
+                    new XElement("s2HorOffsetIncSubShapeRef", tmp.getInt(PatternElement.properties_i.HOIncSubShapeRef, 2)),
+                    new XElement("s2HorOffsetStepsRef", tmp.getInt(PatternElement.properties_i.HOStepsRef, 2)),
+                    new XElement("s2HorOffsetStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.HOStepsSubShapeRef, 2)),
+
+                    new XElement("s0MinVerOffsetRef", tmp.getInt(PatternElement.properties_i.MinVORef, 0)),
+                    new XElement("s0MinVerOffsetSubShapeRef", tmp.getInt(PatternElement.properties_i.MinVOSubShapeRef, 0)),
+                    new XElement("s0VerOffsetRefFinal", tmp.getInt(PatternElement.properties_i.VORefFinal, 0)),
+                    new XElement("s0VerOffsetIncRef", tmp.getInt(PatternElement.properties_i.VOIncRef, 0)),
+                    new XElement("s0VerOffsetIncSubShapeRef", tmp.getInt(PatternElement.properties_i.VOIncSubShapeRef, 0)),
+                    new XElement("s0VerOffsetStepsRef", tmp.getInt(PatternElement.properties_i.VOStepsRef, 0)),
+                    new XElement("s0VerOffsetStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.VOStepsSubShapeRef, 0)),
+
+                    new XElement("s1MinVerOffsetRef", tmp.getInt(PatternElement.properties_i.MinVORef, 1)),
+                    new XElement("s1MinVerOffsetSubShapeRef", tmp.getInt(PatternElement.properties_i.MinVOSubShapeRef, 1)),
+                    new XElement("s1VerOffsetRefFinal", tmp.getInt(PatternElement.properties_i.VORefFinal, 1)),
+                    new XElement("s1VerOffsetIncRef", tmp.getInt(PatternElement.properties_i.VOIncRef, 1)),
+                    new XElement("s1VerOffsetIncSubShapeRef", tmp.getInt(PatternElement.properties_i.VOIncSubShapeRef, 1)),
+                    new XElement("s1VerOffsetStepsRef", tmp.getInt(PatternElement.properties_i.VOStepsRef, 1)),
+                    new XElement("s1VerOffsetStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.VOStepsSubShapeRef, 1)),
+
+                    new XElement("s2MinVerOffsetRef", tmp.getInt(PatternElement.properties_i.MinVORef, 2)),
+                    new XElement("s2MinVerOffsetSubShapeRef", tmp.getInt(PatternElement.properties_i.MinVOSubShapeRef, 2)),
+                    new XElement("s2VerOffsetRefFinal", tmp.getInt(PatternElement.properties_i.VORefFinal, 2)),
+                    new XElement("s2VerOffsetIncRef", tmp.getInt(PatternElement.properties_i.VOIncRef, 2)),
+                    new XElement("s2VerOffsetIncSubShapeRef", tmp.getInt(PatternElement.properties_i.VOIncSubShapeRef, 2)),
+                    new XElement("s2VerOffsetStepsRef", tmp.getInt(PatternElement.properties_i.VOStepsRef, 2)),
+                    new XElement("s2VerOffsetStepsSubShapeRef", tmp.getInt(PatternElement.properties_i.VOStepsSubShapeRef, 2)),
+                    
                     new XElement("boundingLeft", tmp.getDecimal(PatternElement.properties_decimal.boundingLeft)),
                     new XElement("boundingLeftInc", tmp.getDecimal(PatternElement.properties_decimal.boundingLeftInc)),
                     new XElement("boundingLeftSteps", tmp.getInt(PatternElement.properties_i.boundingLeftSteps)),
@@ -275,6 +385,11 @@ namespace Quilt
                     new XElement("nonOrthoGeo", stringFromFileData(tmp.nonOrthoGeometry))
                     );
                 doc.Root.Add(xelement);
+
+                if (i + 1 % progressInterval == 0)
+                {
+                    updateUIProgress?.Invoke(i + 1, maxProgress);
+                }
             }
 
             doc.Root.Add(new XElement("quilt",
@@ -282,7 +397,7 @@ namespace Quilt
                 new XElement("showDrawn", quilt.getShowInput())
             ));
 
-            camParameters = viewportSave?.Invoke();
+            double[] camParameters = viewportSave?.Invoke();
             doc.Root.Add(new XElement("viewport",
                 new XElement("displayZoomFactor", (camParameters != null) ? camParameters[2] : 1),
                 new XElement("viewportX", (camParameters != null) ? camParameters[0] : 0),
@@ -304,339 +419,482 @@ namespace Quilt
 
         public string loadQuilt(string filename, ref Stitcher quilt, QuiltContext quiltContext)
         {
-            return pLoadQuiltSettings(filename, ref quilt, quiltContext:quiltContext);
+            return pLoadQuiltSettings(filename, quiltContext:quiltContext);
         }
 
-        void pLoadSubShapeSettings(ref PatternElement readSettings, ref XElement simulationFromFile, string layerref, QuiltContext quiltContext)
+        void pLoadSubShapeReferenceDimensionSettings(ref PatternElement readSettings, ref XElement simulationFromFile, string layerref)
         {
-            readSettings.defaultInt(PatternElement.properties_i.shape0Tip);
-            readSettings.defaultInt(PatternElement.properties_i.shape1Tip);
-            readSettings.defaultInt(PatternElement.properties_i.shape2Tip);
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinHLRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"MinHorLengthRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinHLRef, i);
+                }
 
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0MinHorLength, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0MinHorLength").First().Value));
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinHLSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"MinHorLengthSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinHLSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HLRefFinal,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"HorLengthRefFinal")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HLRefFinal, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HLIncRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"HorLengthIncRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HLIncRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HLIncSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"HorLengthIncSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HLIncSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HLStepsRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"HorLengthStepsRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HLStepsRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HLStepsSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"HorLengthStepsSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HLStepsSubShapeRef, i);
+                }
+                
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinVLRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"MinVerLengthRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinVLRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinVLSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"MinVerLengthSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinVLSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VLRefFinal,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"VerLengthRefFinal")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VLRefFinal, i);
+                }
+
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VLIncRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"VerLengthIncRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VLIncRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VLIncSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"VerLengthIncSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VLIncSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VLStepsRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"VerLengthStepsRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VLStepsRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VLStepsSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"VerLengthStepsSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VLStepsSubShapeRef, i);
+                }
             }
-            catch (Exception)
+        }
+
+        void pLoadSubShapeReferenceOffsetSettings(ref PatternElement readSettings,
+            ref XElement simulationFromFile, string layerref)
+        {
+            for (int i = 0; i < 3; i++)
             {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0MinHorLength);
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinHORef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"MinHorOffsetRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinHORef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinHOSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"MinHorOffsetSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinHOSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HORefFinal,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"HorOffsetRefFinal")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HORefFinal, i);
+                }
+                
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HOIncRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"HorOffsetIncRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HOIncRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HOIncSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"HorOffsetIncSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HOIncSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HOStepsRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"HorOffsetStepsRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HOStepsRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.HOStepsSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"HorOffsetStepsSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.HOStepsSubShapeRef, i);
+                }
+                
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinVORef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"MinVerOffsetRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinVORef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.MinVOSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"MinVerOffsetSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.MinVOSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VORefFinal,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"VerOffsetRefFinal")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VORefFinal, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VOIncRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"VerOffsetIncRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VOIncRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VOIncSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"VerOffsetIncSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VOIncSubShapeRef, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VOStepsRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s"+i+"VerOffsetStepsRef")
+                            .First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VOStepsRef);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.VOStepsSubShapeRef,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref)
+                            .Descendants("s"+i+"VerOffsetStepsSubShapeRef").First().Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.VOStepsSubShapeRef, i);
+                }
+
+            }
+        }
+        
+        void pLoadSubShapeDimensionSettings(ref PatternElement readSettings, ref XElement simulationFromFile,
+            string layerref)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.minHorLength,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "MinHorLength").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.minHorLength, i);
+                }
+
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.horLengthInc,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "HorLengthInc").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.horLengthInc, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.horLengthSteps,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s" + i + "HorLengthSteps").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.horLengthSteps, i);
+                }
+
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.minVerLength,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "MinVerLength").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.minVerLength, i);
+                }
+
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.verLengthInc,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "VerLengthInc").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.verLengthInc, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.verLengthSteps,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s" + i + "VerLengthSteps").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.verLengthSteps, i);
+                }
+            }
+        }
+
+        void pLoadSubShapeOffsetSettings(ref PatternElement readSettings, ref XElement simulationFromFile,
+            string layerref)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.minHorOffset,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "MinHorOffset").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.minHorOffset, i);
+                }
+
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.horOffsetInc,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "HorOffsetInc").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.horOffsetInc, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.horOffsetSteps,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s" + i + "HorOffsetSteps").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.horOffsetSteps, i);
+                }
+
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.minVerOffset,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "MinVerOffset").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.minVerOffset, i);
+                }
+
+                try
+                {
+                    readSettings.setDecimal(PatternElement.properties_decimal.verOffsetInc,
+                        Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s" + i + "VerOffsetInc").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultDecimal(PatternElement.properties_decimal.verOffsetInc, i);
+                }
+
+                try
+                {
+                    readSettings.setInt(PatternElement.properties_i.verOffsetSteps,
+                        Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s" + i + "VerOffsetSteps").First()
+                            .Value), i);
+                }
+                catch (Exception)
+                {
+                    readSettings.defaultInt(PatternElement.properties_i.verOffsetSteps, i);
+                }
             }
 
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0HorLengthInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0HorLengthInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0HorLengthInc);
-            }
+        }
 
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s0HorLengthSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s0HorLengthSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s0HorLengthSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0MinHorOffset, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0MinHorOffset").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0MinHorOffset);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0HorOffsetInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0HorOffsetInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0HorOffsetInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s0HorOffsetSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s0HorOffsetSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s0HorOffsetSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0MinVerLength, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0MinVerLength").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0MinVerLength);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0VerLengthInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0VerLengthInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0VerLengthInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s0VerLengthSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s0VerLengthSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s0VerLengthSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0MinVerOffset, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0MinVerOffset").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0MinVerOffset);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s0VerOffsetInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s0VerOffsetInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s0VerOffsetInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s0VerOffsetSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s0VerOffsetSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s0VerOffsetSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1MinHorLength, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1MinHorLength").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1MinHorLength);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1HorLengthInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1HorLengthInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1HorLengthInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s1HorLengthSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s1HorLengthSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s1HorLengthSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1MinHorOffset, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1MinHorOffset").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1MinHorOffset);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1HorOffsetInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1HorOffsetInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1HorOffsetInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s1HorOffsetSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s1HorOffsetSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s1HorOffsetSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1MinVerLength, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1MinVerLength").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1MinVerLength);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1VerLengthInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1VerLengthInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1VerLengthInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s1VerLengthSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s1VerLengthSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s1VerLengthSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1MinVerOffset, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1MinVerOffset").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1MinVerOffset);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s1VerOffsetInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s1VerOffsetInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s1VerOffsetInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s1VerOffsetSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s1VerOffsetSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s1VerOffsetSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2MinHorLength, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2MinHorLength").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2MinHorLength);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2HorLengthInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2HorLengthInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2HorLengthInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s2HorLengthSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s2HorLengthSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s2HorLengthSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2MinHorOffset, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2MinHorOffset").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2MinHorOffset);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2HorOffsetInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2HorOffsetInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2HorOffsetInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s2HorOffsetSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s2HorOffsetSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s2HorOffsetSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2MinVerLength, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2MinVerLength").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2MinVerLength);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2VerLengthInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2VerLengthInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2VerLengthInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s2VerLengthSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s2VerLengthSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s2VerLengthSteps);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2MinVerOffset, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2MinVerOffset").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2MinVerOffset);
-            }
-
-            try
-            {
-                readSettings.setDecimal(PatternElement.properties_decimal.s2VerOffsetInc, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("s2VerOffsetInc").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultDecimal(PatternElement.properties_decimal.s2VerOffsetInc);
-            }
-
-            try
-            {
-                readSettings.setInt(PatternElement.properties_i.s2VerOffsetSteps, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("s2VerOffsetSteps").First().Value));
-            }
-            catch (Exception)
-            {
-                readSettings.defaultInt(PatternElement.properties_i.s2VerOffsetSteps);
-            }
-
+        void pLoadBoundingBoxSettings(ref PatternElement readSettings, ref XElement simulationFromFile,
+            string layerref)
+        {
             try
             {
                 readSettings.setDecimal(PatternElement.properties_decimal.boundingLeft, Convert.ToDecimal(simulationFromFile.Descendants(layerref).Descendants("boundingLeft").First().Value));
@@ -744,7 +1002,22 @@ namespace Quilt
             {
                 readSettings.defaultInt(PatternElement.properties_i.boundingBottomSteps);
             }
+        }
+        
+        void pLoadSubShapeSettings(ref PatternElement readSettings, ref XElement simulationFromFile, string layerref, QuiltContext quiltContext)
+        {
+            readSettings.defaultInt(PatternElement.properties_i.shape0Tip);
+            readSettings.defaultInt(PatternElement.properties_i.shape1Tip);
+            readSettings.defaultInt(PatternElement.properties_i.shape2Tip);
 
+            pLoadSubShapeDimensionSettings(ref readSettings, ref simulationFromFile, layerref);
+            pLoadSubShapeOffsetSettings(ref readSettings, ref simulationFromFile, layerref);
+
+            pLoadSubShapeReferenceDimensionSettings(ref readSettings, ref simulationFromFile, layerref);
+            pLoadSubShapeReferenceOffsetSettings(ref readSettings, ref simulationFromFile, layerref);
+            
+            pLoadBoundingBoxSettings(ref readSettings, ref simulationFromFile, layerref);
+            
             try
             {
                 readSettings.setInt(PatternElement.properties_i.linkedElementIndex, Convert.ToInt32(simulationFromFile.Descendants(layerref).Descendants("linkedElementIndex").First().Value));
@@ -775,7 +1048,8 @@ namespace Quilt
             try
             {
                 // Get geometry back from string in XML, then process only the first polygon (should only have one polygon anyway). This is not text, so mark as false.
-                readSettings.parsePoints(fileDataFromString(simulationFromFile.Descendants(layerref).Descendants("nonOrthoGeo").First().Value)[0], layer: readSettings.getInt(PatternElement.properties_i.layoutLayer), datatype: readSettings.getInt(PatternElement.properties_i.layoutDataType), isText:false, vertical:quiltContext.verticalRectDecomp);
+                bool abortLoad = false;
+                readSettings.parsePoints(ref abortLoad, fileDataFromString(simulationFromFile.Descendants(layerref).Descendants("nonOrthoGeo").First().Value)[0], layer: readSettings.getInt(PatternElement.properties_i.layoutLayer), datatype: readSettings.getInt(PatternElement.properties_i.layoutDataType), isText:false, vertical:quiltContext.verticalRectDecomp);
             }
             catch (Exception)
             {
@@ -1219,7 +1493,7 @@ namespace Quilt
             }
         }
 
-        string pLoadQuiltSettings(string filename, ref Stitcher quilt, QuiltContext quiltContext)
+        string pLoadQuiltSettings(string filename, QuiltContext quiltContext)
         {
 
             string returnString = "";
@@ -1231,17 +1505,15 @@ namespace Quilt
             }
             catch (Exception ex)
             {
-                return ex.Message.ToString();
+                return ex.Message;
             }
 
             if (simulationFromFile.Name != CentralProperties.productName)
             {
-                error = true;
                 return "This is not a " + CentralProperties.productName + " project file.";
             }
 
             string version = simulationFromFile.Descendants("version").First().Value;
-            string[] tokenVersion = version.Split(new char[] { '.' });
 
             if (version != CentralProperties.version)
             {
@@ -1253,20 +1525,26 @@ namespace Quilt
             int elementCount = Convert.ToInt32(simulationFromFile.Descendants("elementCount").First().Value);
             loadedElements = new PatternElement[elementCount];
 
-            int updateSample = elementCount / 100;
-
-            if (updateSample < 1)
+            int progressInterval = elementCount / 100;
+            int maxProgress = Math.Max(1, elementCount);
+            if (progressInterval < 1)
             {
-                updateSample = 1;
+                progressInterval = 1;
             }
 
+            int progressCounter = 1;
+            
+            updateUIstatus?.Invoke("Loading...");
+            
+#if QUITLTHREADED
             Parallel.For(0, elementCount, (layer, loopstate)  =>
-
-            //for (int layer = 0; layer < elementCount; layer++)
+#else
+            for (int layer = 0; layer < elementCount; layer++)
+#endif
             {
                 PatternElement readSettings = new PatternElement();
 
-                string layerref = "layer" + (layer + 1).ToString();
+                string layerref = "layer" + (layer + 1);
 
                 try
                 {
@@ -1291,8 +1569,20 @@ namespace Quilt
                 pLoadPositionRotationSettings(ref readSettings, ref simulationFromFile, layerref);
 
                 loadedElements[layer] = readSettings;
+#if QUILTTHREADED
+                Interlocked.Increment(ref progressCounter);
+#else
+                progressCounter++;      
+#endif
+                if (progressCounter % progressInterval == 0)
+                {
+                    updateUIProgress?.Invoke(progressCounter, maxProgress);
+                }
 
-            });
+            }
+#if QUITLTHREADED
+            );
+#endif
 
             try
             {
@@ -1326,11 +1616,11 @@ namespace Quilt
                 catch (Exception)
                 {
                 }
-                viewportLoad?.Invoke(new double[] { x, y, zoom });
+                viewportLoad?.Invoke(new[] { x, y, zoom });
             }
             catch (Exception e)
             {
-                ErrorReporter.showMessage_OK("Failed loading: " + e.ToString(), "Error");
+                ErrorReporter.showMessage_OK("Failed loading: " + e, "Error");
                 error = true;
             }
 

@@ -1,5 +1,46 @@
 Changelog for Quilt. A pattern generator.
 
+3.2b3
+
+	- Per user feedback, the scrolling was deemed excessive.
+	 - As a compromise, the dimensions and offsets are now in a tabbed UI configuration.
+	 - Reduces vertical height whilst grouping common properties together.
+	 - The loss is an at-a-glance overview of all values, but the counterpoint is that the prior approach was too dense to review easily.
+
+3.2b2
+
+	- Fixed crash bug for certain reference element usage patterns.
+
+3.2b1
+
+	! Review cascading dimensional references....
+	- Bug fix for CSV on export to layout.
+	- Implemented option to allow dependents to take final dimension from reference in a pattern as their minimum value (length, offset).
+	- Implemented a screening check in the quilt build to resolve invalid subshape references and ensure consistency.
+	 - Invalid subshape references can result from a change of shape type in an element, which can only be efficiently and reliably caught at the build stage.
+
+3.2a2
+
+	- Implemented the ability to cancel layout loading and evaluation.
+	 - Previous approach was not supported any more.
+	 - The cancellation is also now supported in the rectangular decomposition library, making it ~instantaneous to cancel now.
+	! Still pending a subshape-related check for shape type change of elements being referenced.
+	- Reviewed the code for pattern element removal to check that related references are properly handled.
+	- Resolved value retrieval for forward/backward references from changes in a1 code.
+	- Tightened up the code for subshape query / index check / etc.
+
+3.2a1
+
+	! Value retrieval is currently broken.
+	- Various clean-ups related to the new code.
+	- Reworked property set/get methods to also take subshape index values.
+	 - This is a major change and requires a lot of QA.
+	- Refactored the source tree to make the expanded UI source more navigable.
+	- Implemented reference dimension inputs (e.g. tying subshape 1 min length to subshape 2 min length in a different element.)
+	 - Only equivalent dimensions are linkable in this release (horizontal length from horizontal length), but the properties can come from a different subshape in the reference element.
+	 - Required significant rework of the subshape UI to make the layout work. Currently, this brings a lot more vertical scrolling.
+	 ! Lots of testing required - this is quite a lot of new code and behaviors to review and adjust.
+
 3.1
 
 	- Refactoring UI for shape inputs. Makes adjustments easier in future and reduces complexity of code.

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Quilt
 {
-    public class Pattern
+    public partial class Pattern
     {
         public override bool Equals(object obj)
         {
@@ -24,9 +24,9 @@ namespace Quilt
         public override int GetHashCode()
         {
             int code = 0;
-            for (int i = 0; i < patternElements.Count; i++)
+            foreach (PatternElement t in patternElements)
             {
-                code = code ^ patternElements[i].GetHashCode();
+                code = code ^ t.GetHashCode();
             }
 
             return code;
@@ -38,56 +38,11 @@ namespace Quilt
             List<GeoLibPointF> points;
             GeoLibPointF midPoint;
             
-            double _minX = 0, _maxX = 0, _minY = 0, _maxY = 0;
-
-            public double minX
-            {
-                get
-                {
-                    return _minX;
-                }
-                set
-                {
-                    _minX = value;
-                }
-            }
-
-            public double minY
-            {
-                get
-                {
-                    return _minY;
-                }
-                set
-                {
-                    _minY = value;
-                }
-            }
-
-            public double maxX
-            {
-                get
-                {
-                    return _maxX;
-                }
-                set
-                {
-                    _maxX = value;
-                }
-            }
-
-            public double maxY
-            {
-                get
-                {
-                    return _maxY;
-                }
-                set
-                {
-                    _maxY = value;
-                }
-            }
-
+            public double minX { get; private set; }
+            public double maxX { get; private set; }
+            public double minY { get; private set; }
+            public double maxY { get; private set; }
+            
             public BoundingBox(List<PreviewShape> previewShapes)
             {
                 pBoundingBox(previewShapes);
@@ -121,23 +76,23 @@ namespace Quilt
 
                 BoundingBox test;
 
-                if (pPoints[0].Length != 0)
+                if (pPoints[0].Any())
                 {
                     test = new BoundingBox(pPoints[0]);
                 }
                 else
                 {
-                    test = new BoundingBox(new GeoLibPointF[4] { new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0) });
+                    test = new BoundingBox(new[] { new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0) });
                 }
 
                 points = test.points.ToList();
 
-                for (int i = 0; i < previewShapes.Count; i++)
+                foreach (PreviewShape t in previewShapes)
                 {
-                    List<GeoLibPointF[]> polys = previewShapes[i].getPoints();
-                    for (int poly = 0; poly < polys.Count; poly++)
+                    List<GeoLibPointF[]> polys = t.getPoints();
+                    foreach (GeoLibPointF[] t1 in polys)
                     {
-                        test = new BoundingBox(polys[poly]);
+                        test = new BoundingBox(t1);
 
                         minX = test.points.Min(p => p.X);
                         if (minX < points[0].X)
@@ -196,7 +151,7 @@ namespace Quilt
                 return midPoint;
             }
 
-            public BoundingBox(GeoLibPointF[] incomingPoints)
+            private BoundingBox(GeoLibPointF[] incomingPoints)
             {
                 pBoundingBox(incomingPoints);
             }
@@ -240,71 +195,32 @@ namespace Quilt
         public BoundingBox boundingBox()
         {
             BoundingBox bb = new BoundingBox(previewShapes);
-
-            if (bb.getPoints().Count() != 4)
-            {
-                // Just for debug - something went wrong.
-                int xx = 2;
-            }
-
+            
             return bb;
         }
 
-        public bool rotCyclicalCheck(int cYRef)
-        {
-            return pRotCyclicalCheck(cYRef);
-        }
-
-        bool pRotCyclicalCheck(int cYRef)
-        {
-            return pRotCyclicalCheck_int(cYRef) != -1;
-        }
-
-        int pRotCyclicalCheck_int(int cRotRef)
-        {
-            List<int> rotRefs = new List<int>();
-            rotRefs.Add(cRotRef);
-
-            bool rotCyclical = false;
-            int collisionIndex = -1;
-
-            while (cRotRef >= 0 && !rotCyclical)
-            {
-                cRotRef = pGetRef(cRotRef, PatternElement.properties_i.rotationRef);
-                if (rotRefs.IndexOf(cRotRef) == -1)
-                {
-                    rotRefs.Add(cRotRef);
-                }
-                else
-                {
-                    rotCyclical = true;
-                    collisionIndex = cRotRef;
-                }
-            }
-
-            return collisionIndex;
-        }
-
+        
         List<PreviewShape> previewShapes;
 
         public Pattern(ref QuiltContext context, List<PatternElement> p)
         {
             quiltContext = context;
+            pInit(p);
+        }
+
+        void pInit(List<PatternElement> p)
+        {
             patternElements = new List<PatternElement>();
-            for (int i = 0; i < p.Count; i++)
+            foreach (PatternElement t in p)
             {
-                patternElements.Add(new PatternElement(p[i]));
+                patternElements.Add(new PatternElement(t));
             }
         }
 
-        public Pattern(Pattern source)
+        private Pattern(Pattern source)
         {
             quiltContext = source.quiltContext;
-            patternElements = new List<PatternElement>();
-            for (int i = 0; i < source.patternElements.Count; i++)
-            {
-                patternElements.Add(new PatternElement(source.patternElements[i]));
-            }
+            pInit(source.patternElements);
         }
 
         public void setPos(double px, double py)
@@ -327,67 +243,7 @@ namespace Quilt
         {
             return new GeoLibPointF(x, y);
         }
-
-        bool pXCyclicalCheck(int cXRef)
-        {
-            return pXCyclicalCheck_int(cXRef) != -1;
-        }
-
-        int pXCyclicalCheck_int(int cXRef)
-        {
-            List<int> xRefs = new List<int>();
-            xRefs.Add(cXRef);
-
-            bool xCyclical = false;
-            int collisionIndex = -1;
-
-            while ((cXRef >= 0) && !xCyclical)
-            {
-                cXRef = pGetRef(cXRef, PatternElement.properties_i.xPosRef);
-                if (xRefs.IndexOf(cXRef) == -1)
-                {
-                    xRefs.Add(cXRef);
-                }
-                else
-                {
-                    xCyclical = true;
-                    collisionIndex = cXRef;
-                }
-            }
-
-            return collisionIndex;
-        }
-
-        bool pYCyclicalCheck(int cYRef)
-        {
-            return pYCyclicalCheck_int(cYRef) != -1;
-        }
-
-        int pYCyclicalCheck_int(int cYRef)
-        {
-            List<int> yRefs = new List<int>();
-            yRefs.Add(cYRef);
-
-            bool yCyclical = false;
-            int collisionIndex = -1;
-
-            while (cYRef >= 0 && !yCyclical)
-            {
-                cYRef = patternElements[cYRef].getInt(PatternElement.properties_i.yPosRef) - 1;
-                if (yRefs.IndexOf(cYRef) == -1)
-                {
-                    yRefs.Add(cYRef);
-                }
-                else
-                {
-                    yCyclical = true;
-                    collisionIndex = cYRef;
-                }
-            }
-
-            return collisionIndex;
-        }
-
+        
         List<GeoLibPointF> pBBDims(int index)
         {
             PreviewShape pShape1 = new PreviewShape(this, index);
@@ -398,7 +254,7 @@ namespace Quilt
 
         enum bbDims { width, height }
 
-        double bbDimension(bbDims prop, int index)
+        double pBBDimension(bbDims prop, int index)
         {
             double ret = 0;
             List<GeoLibPointF> bb = pBBDims(index);
@@ -415,7 +271,7 @@ namespace Quilt
             return ret;
         }
 
-        decimal doX(int i)
+        decimal pDoX(int i)
         {
             decimal x_ = 0m;
 
@@ -425,25 +281,25 @@ namespace Quilt
             // Note that this could be cascading so we need to walk the stack
             if (xRef >= 0)
             {
-                int sRef = patternElements[i].getInt(PatternElement.properties_i.xPosSubShapeRef);
+                int sRef = pGetPatternElement(i).getInt(PatternElement.properties_i.xPosSubShapeRef);
 
-                int sPosRef = patternElements[i].getInt(PatternElement.properties_i.xPosSubShapeRefPos);
+                int sPosRef = pGetPatternElement(i).getInt(PatternElement.properties_i.xPosSubShapeRefPos);
 
-                bool refFlipped = patternElements[xRef].getInt(PatternElement.properties_i.flipH) == 1;
-                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.xPos);
+                bool refFlipped = pGetPatternElement(xRef).getInt(PatternElement.properties_i.flipH) == 1;
+                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.xPos);
 
                 // In the case of an array shape type for the reference, we may still have subshape relative references. To check this, we need to query for an array. If we don't have an array, we're good.
                 // Then we also need to query whether the subshape reference is a higher value than the number of subshapes in the shape; the 'array' subshape reference is last in the list.
-                bool doX = !patternElements[xRef].isXArray() || (patternElements[xRef].isXArray() && (sRef < patternElements[xRef].getSubShapeCount()));
+                bool doX = !pGetPatternElement(xRef).isXArray() || (pGetPatternElement(xRef).isXArray() && (sRef < pGetPatternElement(xRef).getSubShapeCount()));
 
                 int aXRef = xRef;
                 // Is the array reference a relative array?
-                if (patternElements[xRef].getInt(PatternElement.properties_i.arrayRef) != 0)
+                if (pGetPatternElement(xRef).getInt(PatternElement.properties_i.arrayRef) != 0)
                 {
-                    aXRef = patternElements[xRef].getInt(PatternElement.properties_i.arrayRef) - 1;
+                    aXRef = pGetPatternElement(xRef).getInt(PatternElement.properties_i.arrayRef) - 1;
 
-                    int PSSR = patternElements[i].getInt(PatternElement.properties_i.xPosSubShapeRef);
-                    int PSSC = patternElements[xRef].getSubShapeCount();
+                    int PSSR = pGetPatternElement(i).getInt(PatternElement.properties_i.xPosSubShapeRef);
+                    int PSSC = pGetPatternElement(xRef).getSubShapeCount();
                     if (PSSR == PSSC)
                     {
                         doX = false;
@@ -454,23 +310,23 @@ namespace Quilt
                 {
                     if (sRef == 1)
                     {
-                        x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s0HorOffset);
-                        if (patternElements[xRef].getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.Sshape)
+                        x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horOffset, 0);
+                        if (pGetPatternElement(xRef).getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.Sshape)
                         {
-                            if ((patternElements[xRef].getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.Ushape) && (patternElements[xRef].getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.Xshape))
+                            if ((pGetPatternElement(xRef).getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.Ushape) && (pGetPatternElement(xRef).getInt(PatternElement.properties_i.shapeIndex) != (int)CommonVars.shapeNames.Xshape))
                             {
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s0HorLength);
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horLength, 0);
                             }
                             else
                             {
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s1HorOffset);
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horOffset, 1);
                             }
                         }
                     }
                     if (sRef == 2)
                     {
-                        x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s0HorOffset);
-                        x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s2HorOffset);
+                        x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horOffset, 0);
+                        x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horOffset, 2);
                     }
                 }
 
@@ -482,19 +338,19 @@ namespace Quilt
                         switch (sRef)
                         {
                             case 0:
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s0HorLength);
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horLength, 0);
                                 break;
                             case 1:
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s1HorLength);
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horLength, 1);
                                 break;
                             case 2:
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s2HorLength);
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horLength, 2);
                                 break;
                         }
                     }
                     else
                     {
-                        x_ += Convert.ToDecimal(bbDimension(bbDims.width, aXRef));
+                        x_ += Convert.ToDecimal(pBBDimension(bbDims.width, aXRef));
                     }
                 }
 
@@ -505,31 +361,31 @@ namespace Quilt
                         switch (sRef)
                         {
                             case 0:
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s0HorLength) / 2;
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horLength, 0) / 2;
                                 break;
                             case 1:
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s1HorLength) / 2;
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horLength, 1) / 2;
                                 break;
                             case 2:
-                                x_ += patternElements[xRef].getDecimal(PatternElement.properties_decimal.s2HorLength) / 2;
+                                x_ += pGetPatternElement(xRef).getDecimal(PatternElement.properties_decimal.horLength, 2) / 2;
                                 break;
                         }
                     }
                     else
                     {
-                        x_ += Convert.ToDecimal(bbDimension(bbDims.width, aXRef)) / 2;
+                        x_ += Convert.ToDecimal(pBBDimension(bbDims.width, aXRef)) / 2;
                     }
                 }
 
                 // Is the reference flipped? If so, we need to flip our value to get the correct result
                 if (refFlipped)
                 {
-                    ShapeLibrary t = new ShapeLibrary(patternElements[xRef]);
+                    ShapeLibrary t = new ShapeLibrary(pGetPatternElement(xRef));
                     GeoLibPointF pivot = t.getPivotPoint();
 
-                    bool alignX = patternElements[xRef].getInt(PatternElement.properties_i.alignX) == 1;
-                    bool alignY = patternElements[xRef].getInt(PatternElement.properties_i.alignY) == 1;
-                    x_ = Convert.ToDecimal(GeoWrangler.flip(true, false, alignX, alignY, pivot, new GeoLibPointF[] { new GeoLibPointF(Convert.ToDouble(x_), 0) })[0].X);
+                    bool alignX = pGetPatternElement(xRef).getInt(PatternElement.properties_i.alignX) == 1;
+                    bool alignY = pGetPatternElement(xRef).getInt(PatternElement.properties_i.alignY) == 1;
+                    x_ = Convert.ToDecimal(GeoWrangler.flip(true, false, alignX, alignY, pivot, new[] { new GeoLibPointF(Convert.ToDouble(x_), 0) })[0].X);
                 }
 
                 if (doX)
@@ -537,24 +393,24 @@ namespace Quilt
                     switch (sRef)
                     {
                         case 0:
-                            x_ += patternElements[i].getDecimal(PatternElement.properties_decimal.s0HorOffset);
+                            x_ += pGetPatternElement(i).getDecimal(PatternElement.properties_decimal.horOffset, 0);
                             break;
                         case 1:
-                            x_ += patternElements[i].getDecimal(PatternElement.properties_decimal.s1HorOffset);
+                            x_ += pGetPatternElement(i).getDecimal(PatternElement.properties_decimal.horOffset, 1);
                             break;
                         case 2:
-                            x_ += patternElements[i].getDecimal(PatternElement.properties_decimal.s2HorOffset);
+                            x_ += pGetPatternElement(i).getDecimal(PatternElement.properties_decimal.horOffset, 2);
                             break;
                     }
                 }
 
-                xRef = pGetRef(xRef, PatternElement.properties_i.xPosRef);
+                // xRef = pGetRef(xRef, PatternElement.properties_i.xPosRef);
             }
 
             return x_;
         }
 
-        decimal doY(int i)
+        decimal pDoY(int i)
         {
             decimal y_ = 0m;
 
@@ -565,27 +421,27 @@ namespace Quilt
 
             if (yRef >= 0)
             {
-                int sRef = patternElements[i].getInt(PatternElement.properties_i.yPosSubShapeRef);
+                int sRef = pGetPatternElement(i).getInt(PatternElement.properties_i.yPosSubShapeRef);
 
-                int sPosRef = patternElements[i].getInt(PatternElement.properties_i.yPosSubShapeRefPos);
+                int sPosRef = pGetPatternElement(i).getInt(PatternElement.properties_i.yPosSubShapeRefPos);
 
-                bool refFlipped = patternElements[yRef].getInt(PatternElement.properties_i.flipV) == 1;
+                bool refFlipped = pGetPatternElement(yRef).getInt(PatternElement.properties_i.flipV) == 1;
 
-                y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.yPos);
+                y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.yPos);
 
                 // In the case of an array shape type for the reference, we may still have subshape relative references. To check this, we need to query for an array. If we don't have an array, we're good.
                 // Then we also need to query whether the subshape reference is a higher value than the number of subshapes in the shape; the 'array' subshape reference is last in the list.
-                bool doY = !patternElements[yRef].isYArray() || (patternElements[yRef].isYArray() && (sRef < patternElements[yRef].getSubShapeCount()));
+                bool doY = !pGetPatternElement(yRef).isYArray() || (pGetPatternElement(yRef).isYArray() && (sRef < pGetPatternElement(yRef).getSubShapeCount()));
 
                 int aYRef = yRef;
 
                 // Is the array reference a relative array?
-                if (patternElements[yRef].getInt(PatternElement.properties_i.arrayRef) != 0)
+                if (pGetPatternElement(yRef).getInt(PatternElement.properties_i.arrayRef) != 0)
                 {
-                    aYRef = patternElements[yRef].getInt(PatternElement.properties_i.arrayRef) - 1;
+                    aYRef = pGetPatternElement(yRef).getInt(PatternElement.properties_i.arrayRef) - 1;
 
-                    int PSSR = patternElements[i].getInt(PatternElement.properties_i.yPosSubShapeRef);
-                    int PSSC = patternElements[yRef].getSubShapeCount();
+                    int PSSR = pGetPatternElement(i).getInt(PatternElement.properties_i.yPosSubShapeRef);
+                    int PSSC = pGetPatternElement(yRef).getSubShapeCount();
                     if (PSSR == PSSC)
                     {
                         doY = false;
@@ -594,16 +450,16 @@ namespace Quilt
 
                 if (doY)
                 {
-                    y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s0VerOffset);
+                    y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verOffset, 0);
                     if (sRef == 1)
                     {
-                        y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s1VerOffset);
+                        y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verOffset, 1);
                     }
                     if (sRef == 2)
                     {
-                        y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s0VerLength);
-                        y_ -= patternElements[yRef].getDecimal(PatternElement.properties_decimal.s2VerLength);
-                        y_ -= patternElements[yRef].getDecimal(PatternElement.properties_decimal.s2VerOffset);
+                        y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 0);
+                        y_ -= pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 2);
+                        y_ -= pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verOffset, 2);
                     }
                 }
 
@@ -615,19 +471,19 @@ namespace Quilt
                         switch (sRef)
                         {
                             case 0:
-                                y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s0VerLength);
+                                y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 0);
                                 break;
                             case 1:
-                                y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s1VerLength);
+                                y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 1);
                                 break;
                             case 2:
-                                y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s2VerLength);
+                                y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 2);
                                 break;
                         }
                     }
                     else
                     {
-                        y_ += Convert.ToDecimal(bbDimension(bbDims.height, aYRef));
+                        y_ += Convert.ToDecimal(pBBDimension(bbDims.height, aYRef));
                     }
                 }
 
@@ -638,31 +494,31 @@ namespace Quilt
                         switch (sRef)
                         {
                             case 0:
-                                y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s0VerLength) / 2;
+                                y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 0) / 2;
                                 break;
                             case 1:
-                                y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s1VerLength) / 2;
+                                y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 1) / 2;
                                 break;
                             case 2:
-                                y_ += patternElements[yRef].getDecimal(PatternElement.properties_decimal.s2VerLength) / 2;
+                                y_ += pGetPatternElement(yRef).getDecimal(PatternElement.properties_decimal.verLength, 2) / 2;
                                 break;
                         }
                     }
                     else
                     {
-                        y_ += Convert.ToDecimal(bbDimension(bbDims.height, aYRef)) / 2;
+                        y_ += Convert.ToDecimal(pBBDimension(bbDims.height, aYRef)) / 2;
                     }
                 }
 
                 // Is the reference flipped? If so, we need to flip our value to get the correct result
                 if (refFlipped)
                 {
-                    ShapeLibrary t = new ShapeLibrary(patternElements[yRef]);
+                    ShapeLibrary t = new ShapeLibrary(pGetPatternElement(yRef));
                     GeoLibPointF pivot = t.getPivotPoint();
 
-                    bool alignX = patternElements[yRef].getInt(PatternElement.properties_i.alignX) == 1;
-                    bool alignY = patternElements[yRef].getInt(PatternElement.properties_i.alignY) == 1;
-                    y_ = Convert.ToDecimal(GeoWrangler.flip(false, true, alignX, alignY, pivot, new GeoLibPointF[] { new GeoLibPointF(0, Convert.ToDouble(y_)) })[0].Y);
+                    bool alignX = pGetPatternElement(yRef).getInt(PatternElement.properties_i.alignX) == 1;
+                    bool alignY = pGetPatternElement(yRef).getInt(PatternElement.properties_i.alignY) == 1;
+                    y_ = Convert.ToDecimal(GeoWrangler.flip(false, true, alignX, alignY, pivot, new[] { new GeoLibPointF(0, Convert.ToDouble(y_)) })[0].Y);
                 }
 
                 if (doY)
@@ -670,17 +526,17 @@ namespace Quilt
                     switch (sRef)
                     {
                         case 0:
-                            y_ += patternElements[i].getDecimal(PatternElement.properties_decimal.s0VerOffset);
+                            y_ += pGetPatternElement(i).getDecimal(PatternElement.properties_decimal.verOffset, 0);
                             break;
                         case 1:
-                            y_ += patternElements[i].getDecimal(PatternElement.properties_decimal.s1VerOffset);
+                            y_ += pGetPatternElement(i).getDecimal(PatternElement.properties_decimal.verOffset, 1);
                             break;
                         case 2:
                             break;
                     }
                 }
 
-                yRef = pGetRef(yRef, PatternElement.properties_i.yPosRef);
+                // yRef = pGetRef(yRef, PatternElement.properties_i.yPosRef);
             }
 
             return y_;
@@ -698,8 +554,8 @@ namespace Quilt
             for (int i = 0; i < patternElements.Count; i++)
 #endif
             {
-                decimal x_ = doX(i);
-                decimal y_ = doY(i);
+                decimal x_ = pDoX(i);
+                decimal y_ = pDoY(i);
 
                 positions[i, 0] = x_;
                 positions[i, 1] = y_;
@@ -715,12 +571,12 @@ namespace Quilt
             for (int i = 0; i < patternElements.Count; i++)
 #endif
             {
-                decimal x1_ = patternElements[i].getDecimal(PatternElement.properties_decimal.xPos) + positions[i, 0];
+                decimal x1_ = pGetPatternElement(i).getDecimal(PatternElement.properties_decimal.xPos) + positions[i, 0];
                 int xRef = pGetRef(i, PatternElement.properties_i.xPosRef);
 
                 if (xRef >= 0)
                 {
-                    bool xCyclical = pXCyclicalCheck(xRef);
+                    bool xCyclical = pCyclicalCheck(xRef, PatternElement.properties_i.xPosRef);
 
                     if (!xCyclical)
                     {
@@ -732,12 +588,12 @@ namespace Quilt
                     }
                 }
 
-                decimal y1_ = patternElements[i].getDecimal(PatternElement.properties_decimal.yPos) + positions[i, 1];
+                decimal y1_ = pGetPatternElement(i).getDecimal(PatternElement.properties_decimal.yPos) + positions[i, 1];
                 int yRef = pGetRef(i, PatternElement.properties_i.yPosRef);
 
                 if (yRef >= 0)
                 {
-                    bool yCyclical = pYCyclicalCheck(yRef);
+                    bool yCyclical = pCyclicalCheck(yRef, PatternElement.properties_i.yPosRef);
 
                     if (!yCyclical)
                     {
@@ -748,43 +604,14 @@ namespace Quilt
                         }
                     }
                 }
-                patternElements[i].setDecimal(PatternElement.properties_decimal.xPos, x1_);
-                patternElements[i].setDecimal(PatternElement.properties_decimal.yPos, y1_);
+                pGetPatternElement(i).setDecimal(PatternElement.properties_decimal.xPos, x1_);
+                pGetPatternElement(i).setDecimal(PatternElement.properties_decimal.yPos, y1_);
             }
 #if QUILTTHREADED
             );
 #endif
         }
-
-        public int getRef(int layer, PatternElement.properties_i prop)
-        {
-            return pGetRef(layer, prop);
-        }
-
-        int pGetRef(int layer, PatternElement.properties_i prop)
-        {
-            int tmp = patternElements[layer].getInt(prop) - 1;
-            /* Above, tmp == 0 means the world reference. We decrement the value by 1 to compensate.
-
-             However, the active layer isn't in our list of reference layers. This causes trouble now because we need to detect and handle this.
-             Consider the active layer as '1', the list is then (world, 0, 2, 3, 4) as (0th, 1st, 2nd, 3rd, 4th members).
-
-             Decrementing the index means we have :
-             -1 => world
-              0 => 0
-              1 => 2
-              2 => 3
-              3 => 4
-
-             To compensate, if the reduced layer index is equal to, or more than the active index, we should increase the value by 1 to sort the look-up out.
-             */
-            if (tmp >= layer)
-            {
-                tmp++;
-            }
-            return tmp;
-        }
-
+        
         public bool equivalence(Pattern pattern)
         {
             return pEquivalence(pattern);
@@ -802,7 +629,7 @@ namespace Quilt
 
             for (int e = 0; e < patternElements.Count; e++)
             {
-                ret = patternElements[e].equivalence(pattern.getPatternElement(e));
+                ret = pGetPatternElement(e).equivalence(pattern.getPatternElement(e));
 
                 if (!ret)
                 {
@@ -820,6 +647,10 @@ namespace Quilt
 
         PatternElement pGetPatternElement(int index)
         {
+            if (index >= patternElements.Count)
+            {
+                throw new Exception("Exceeded length of array!");
+            }
             return patternElements[index];
         }
 
@@ -878,52 +709,52 @@ namespace Quilt
 
             if (bbEvaluationNeeded)
             {
-                bbEvaluation();
+                pBBEvaluation();
             }
             return previewShapes;
         }
 
-        void bbEvaluation()
+        void pBBEvaluation()
         {
             // Get the BB and shoe-horn it into a shape.
             BoundingBox bb = new BoundingBox(previewShapes);
 
-            for (int i = 0; i < bbShapes.Count; i++)
+            foreach (int t1 in bbShapes)
             {
                 // This is an ugly hack because of the positional reference for the settings.
                 Pattern tPattern = new Pattern(this);
 
                 // Use our bounding box shape as the basis for the temporary pattern element; this ensures we capture rotation, flip, etc. values.
-                PatternElement t = new PatternElement(patternElements[bbShapes[i]]);
+                PatternElement t = new PatternElement(pGetPatternElement(t1));
                 t.setInt(PatternElement.properties_i.shapeIndex, (int)CommonVars.shapeNames.rect);
 
-                decimal leftMargin = patternElements[bbShapes[i]].getDecimal(PatternElement.properties_decimal.boundingLeft);
+                decimal leftMargin = pGetPatternElement(t1).getDecimal(PatternElement.properties_decimal.boundingLeft);
 
-                decimal rightMargin = patternElements[bbShapes[i]].getDecimal(PatternElement.properties_decimal.boundingRight);
+                decimal rightMargin = pGetPatternElement(t1).getDecimal(PatternElement.properties_decimal.boundingRight);
 
-                decimal bottomMargin = patternElements[bbShapes[i]].getDecimal(PatternElement.properties_decimal.boundingBottom);
+                decimal bottomMargin = pGetPatternElement(t1).getDecimal(PatternElement.properties_decimal.boundingBottom);
 
-                decimal topMargin = patternElements[bbShapes[i]].getDecimal(PatternElement.properties_decimal.boundingTop);
+                decimal topMargin = pGetPatternElement(t1).getDecimal(PatternElement.properties_decimal.boundingTop);
 
                 decimal width = (decimal)(bb.maxX - bb.minX) + leftMargin + rightMargin;
 
                 decimal height = (decimal)(bb.maxY - bb.minY) + bottomMargin + topMargin;
 
                 decimal xPos = (decimal)(bb.minX) - leftMargin;
-                decimal xOffset = patternElements[bbShapes[i]].getDecimal(PatternElement.properties_decimal.xPos);
+                decimal xOffset = pGetPatternElement(t1).getDecimal(PatternElement.properties_decimal.xPos);
                 t.setDecimal(PatternElement.properties_decimal.xPos, xPos + xOffset);
 
                 decimal yPos = (decimal)(bb.minY) - bottomMargin;
-                decimal yOffset = patternElements[bbShapes[i]].getDecimal(PatternElement.properties_decimal.yPos);
+                decimal yOffset = pGetPatternElement(t1).getDecimal(PatternElement.properties_decimal.yPos);
                 t.setDecimal(PatternElement.properties_decimal.yPos, yPos + yOffset);
 
-                t.setDecimal(PatternElement.properties_decimal.s0HorLength, width);
+                t.setDecimal(PatternElement.properties_decimal.horLength, width, 0);
 
-                t.setDecimal(PatternElement.properties_decimal.s0VerLength, height);
+                t.setDecimal(PatternElement.properties_decimal.verLength, height, 0);
 
-                tPattern.patternElements[bbShapes[i]] = t;
+                tPattern.patternElements[t1] = t;
 
-                PreviewShape tShape = new PreviewShape(tPattern, bbShapes[i]);
+                PreviewShape tShape = new PreviewShape(tPattern, t1);
                 tShape.setColor(quiltContext.colors.subshape1_Color);
                 previewShapes.Add(tShape);
             }
@@ -936,17 +767,19 @@ namespace Quilt
 
         string pGetDescription()
         {
-            string description = "";
+            string[] element_descriptions = new string[patternElements.Count];
+#if QUILTTHREADED
+            Parallel.For(0, patternElements.Count, (p, loopstate ) =>
+#else
             for (int p = 0; p < patternElements.Count; p++)
+#endif
             {
-                description += p.ToString() + ";" + patternElements[p].getDescription();
-                if (p < patternElements.Count - 1)
-                {
-                    description += ";";
-                }
+                element_descriptions[p] = p + ";" + pGetPatternElement(p).getDescription();
             }
-
-            return description;
+#if QUILTTHREADED
+);
+#endif
+            return string.Join(';', element_descriptions);
         }
     }
 }

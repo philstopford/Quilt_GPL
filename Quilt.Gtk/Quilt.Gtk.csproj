@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Gtk" Version="2.5.10" />
+    <PackageReference Include="Eto.Platform.Gtk" Version="2.6.0-ci-20210616.944520705" />
     <PackageReference Include="Eto.Veldrid.Gtk" Version="0.1.0" />
   </ItemGroup>
 

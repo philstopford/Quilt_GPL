@@ -1,7 +1,5 @@
-﻿using Eto.Forms;
-using Eto.Veldrid;
+﻿using Eto.Veldrid;
 using Eto.Veldrid.Wpf;
-using Quilt;
 using System;
 using System.IO;
 using Veldrid;
@@ -35,8 +33,8 @@ namespace Quilt.WPF
 
                 for (int i = 0; i < args.Length; i++)
                 {
-                    string[] tokens = args[i].Split(new char[] { '.' });
-                    string extension = tokens[tokens.Length - 1];
+                    string[] tokens = args[i].Split(new[] { '.' });
+                    string extension = tokens[^1];
                     if ((extension.ToUpper() == "QUILT") || (extension.ToUpper() == "XML"))
                     {
                         xmlFile = args[i];

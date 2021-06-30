@@ -41,12 +41,12 @@ namespace Quilt
 
         public ComplexShape(List<PatternElement> patternElements, Int32 settingsIndex, ShapeLibrary shape = null)
         {
-            makeEntropyShape(patternElements, settingsIndex, shape);
+            pMakeEntropyShape(patternElements, settingsIndex, shape);
         }
 
-        List<GeoLibPointF> makeShape(bool returnEarly, ShapeLibrary shape)
+        List<GeoLibPointF> pMakeShape(bool returnEarly, ShapeLibrary shape)
         {
-            List<GeoLibPointF> mcPoints = new List<GeoLibPointF>(); // overall points container. We'll use this to populate and send back our Point array later. Ints only...
+            List<GeoLibPointF> mcPoints = new List<GeoLibPointF>(); // overall points container. We'll use this to populate and send back our Point array later.
 
             Vertex = shape.Vertex;
 
@@ -95,7 +95,7 @@ namespace Quilt
                 if (corner % 2 == 0)
                 {
                     // Get our associated vertical edge Y position
-                    double yPoint1 = 0.0;
+                    double yPoint1;
                     double yPoint2 = Vertex[round1[(corner + 1) % (round1.Count() - 1)].horFace].Y;
                     if (corner == 0)
                     {
@@ -120,8 +120,7 @@ namespace Quilt
                 {
                     // Tweak horizontal edge
                     double xPoint1 = Vertex[round1[corner].verFace].X;
-                    double xPoint2 = 0.0;
-                    xPoint2 = Vertex[round1[(corner + 1) % (round1.Count() - 1)].verFace].X;
+                    double xPoint2 = Vertex[round1[(corner + 1) % (round1.Count() - 1)].verFace].X;
 
                     if (xPoint1 < xPoint2)
                     {
@@ -145,7 +144,7 @@ namespace Quilt
             }
 
             List<GeoLibPointF> mcHorEdgePoints = new List<GeoLibPointF>(); // corner coordinates list, used as a temporary container for each iteration
-            List<List<GeoLibPointF>> mcHorEdgePointsList = new List<List<GeoLibPointF>>(); // Hold our lists of doubles for each corner in the shape, in order. We cast these to Ints in the mcPoints list.
+            List<List<GeoLibPointF>> mcHorEdgePointsList = new List<List<GeoLibPointF>>(); // Hold our lists of doubles for each corner in the shape, in order. We cast these to Int in the mcPoints list.
 
             // OK. We need to walk the corner and associated edge for each case.
 
@@ -159,7 +158,7 @@ namespace Quilt
                 double end_y = Vertex[round1[round + 1].index].Y;
 
                 // Test whether we have a vertical edge or not. We only process horizontal edges to avoid doubling up
-                if (start_y == end_y)
+                if (Math.Abs(start_y - end_y) < Double.Epsilon)
                 {
                     mcHorEdgePoints.Add(new GeoLibPointF(start_x, start_y));
 
@@ -178,7 +177,7 @@ namespace Quilt
             for (int edge = 0; edge < mcHorEdgePointsList.Count(); edge++)
             {
                 mcPoints.AddRange(mcHorEdgePointsList[edge]);
-                double y = 0;
+                double y;
                 if (edge < mcHorEdgePointsList.Count - 1)
                 {
                     y = mcHorEdgePointsList[edge][2].Y + ((mcHorEdgePointsList[edge + 1][0].Y - mcHorEdgePointsList[edge][2].Y) / 2);
@@ -196,9 +195,8 @@ namespace Quilt
             return mcPoints;
         }
 
-        void makeEntropyShape(List<PatternElement> patternElements, Int32 settingsIndex, ShapeLibrary shape = null)
+        void pMakeEntropyShape(List<PatternElement> patternElements, Int32 settingsIndex, ShapeLibrary shape = null)
         {
-            bool returnEarly = false;
 
             xOverlayVal = 0.0f;
             yOverlayVal = 0.0f;
@@ -209,7 +207,10 @@ namespace Quilt
                 shape.setShape(patternElements[settingsIndex].getInt(PatternElement.properties_i.shapeIndex));
             }
 
-            List<GeoLibPointF> mcPoints = makeShape(returnEarly, shape);
+            bool returnEarly = false; //debug
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            List<GeoLibPointF> mcPoints = pMakeShape(returnEarly, shape);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (returnEarly)
             {
                 points = mcPoints.ToArray();
@@ -218,8 +219,8 @@ namespace Quilt
 
             // Get offset value.
 
-            double xOffset = Convert.ToDouble(patternElements[settingsIndex].getDecimal(PatternElement.properties_decimal.s0HorOffset));
-            double yOffset = Convert.ToDouble(patternElements[settingsIndex].getDecimal(PatternElement.properties_decimal.s0VerOffset));
+            double xOffset = Convert.ToDouble(patternElements[settingsIndex].getDecimal(PatternElement.properties_decimal.horOffset, 0));
+            double yOffset = Convert.ToDouble(patternElements[settingsIndex].getDecimal(PatternElement.properties_decimal.verOffset, 0));
 
             // Sort out our overlay values.
 
@@ -229,14 +230,14 @@ namespace Quilt
             mcPoints = GeoWrangler.move(mcPoints, xOverlayVal + xOffset, yOverlayVal + yOffset);
 
             // Error handling (failSafe) for no points or no subshape  - safety measure.
-            if (mcPoints.Count() == 0)
+            if (!mcPoints.Any())
             {
                 mcPoints.Add(new GeoLibPointF(0.0f, 0.0f));
             }
 
             points = mcPoints.ToArray();
 
-            if ((points[0].X != points[points.Count() - 1].X) || (points[0].Y != points[points.Count() - 1].Y))
+            if ((Math.Abs(points[0].X - points[points.Count() - 1].X) > Double.Epsilon) || (Math.Abs(points[0].Y - points[points.Count() - 1].Y) > Double.Epsilon))
             {
                 ErrorReporter.showMessage_OK("Start and end not the same - entropyShape", "Oops");
             }

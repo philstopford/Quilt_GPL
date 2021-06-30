@@ -4,11 +4,15 @@ using VeldridEto;
 
 namespace Quilt
 {
-    public partial class MainForm : Form
+    public partial class MainForm
     {
         int listBox_entries_Width = 200;
+        int listBox_entries_Height = 300;
         int viewportSize = 752;
-
+        int label_Height = 8;
+        int num_Height = 8;
+        int numWidth = 55;
+        
         ListBox listBox_entries;
         TextBox text_patternElement;
         Panel settings;
@@ -19,6 +23,50 @@ namespace Quilt
         Button btn_layout;
 
         DropDown comboBox_patternElementShape, comboBox_layout_structures;
+
+        DropDown comboBox_s0_minhl_ref, comboBox_s0_minhl_subShapeRef,
+            comboBox_s1_minhl_ref, comboBox_s1_minhl_subShapeRef,
+            comboBox_s2_minhl_ref, comboBox_s2_minhl_subShapeRef,
+            comboBox_s0_minvl_ref, comboBox_s0_minvl_subShapeRef,
+            comboBox_s1_minvl_ref, comboBox_s1_minvl_subShapeRef,
+            comboBox_s2_minvl_ref, comboBox_s2_minvl_subShapeRef,
+            comboBox_s0_minho_ref, comboBox_s0_minho_subShapeRef,
+            comboBox_s1_minho_ref, comboBox_s1_minho_subShapeRef,
+            comboBox_s2_minho_ref, comboBox_s2_minho_subShapeRef,
+            comboBox_s0_minvo_ref, comboBox_s0_minvo_subShapeRef,
+            comboBox_s1_minvo_ref, comboBox_s1_minvo_subShapeRef,
+            comboBox_s2_minvo_ref, comboBox_s2_minvo_subShapeRef;
+        
+        CheckBox cb_s0_hl_final, cb_s1_hl_final, cb_s2_hl_final,
+        cb_s0_vl_final, cb_s1_vl_final, cb_s2_vl_final,
+        cb_s0_ho_final, cb_s1_ho_final, cb_s2_ho_final,
+        cb_s0_vo_final, cb_s1_vo_final, cb_s2_vo_final;
+
+        DropDown comboBox_s0_minhlinc_ref, comboBox_s0_minhlinc_subShapeRef,
+            comboBox_s1_minhlinc_ref, comboBox_s1_minhlinc_subShapeRef,
+            comboBox_s2_minhlinc_ref, comboBox_s2_minhlinc_subShapeRef,
+            comboBox_s0_minvlinc_ref, comboBox_s0_minvlinc_subShapeRef,
+            comboBox_s1_minvlinc_ref, comboBox_s1_minvlinc_subShapeRef,
+            comboBox_s2_minvlinc_ref, comboBox_s2_minvlinc_subShapeRef,
+            comboBox_s0_minhoinc_ref, comboBox_s0_minhoinc_subShapeRef,
+            comboBox_s1_minhoinc_ref, comboBox_s1_minhoinc_subShapeRef,
+            comboBox_s2_minhoinc_ref, comboBox_s2_minhoinc_subShapeRef,
+            comboBox_s0_minvoinc_ref, comboBox_s0_minvoinc_subShapeRef,
+            comboBox_s1_minvoinc_ref, comboBox_s1_minvoinc_subShapeRef,
+            comboBox_s2_minvoinc_ref, comboBox_s2_minvoinc_subShapeRef;
+
+        DropDown comboBox_s0_minhlsteps_ref, comboBox_s0_minhlsteps_subShapeRef,
+            comboBox_s1_minhlsteps_ref, comboBox_s1_minhlsteps_subShapeRef,
+            comboBox_s2_minhlsteps_ref, comboBox_s2_minhlsteps_subShapeRef,
+            comboBox_s0_minvlsteps_ref, comboBox_s0_minvlsteps_subShapeRef,
+            comboBox_s1_minvlsteps_ref, comboBox_s1_minvlsteps_subShapeRef,
+            comboBox_s2_minvlsteps_ref, comboBox_s2_minvlsteps_subShapeRef,
+            comboBox_s0_minhosteps_ref, comboBox_s0_minhosteps_subShapeRef,
+            comboBox_s1_minhosteps_ref, comboBox_s1_minhosteps_subShapeRef,
+            comboBox_s2_minhosteps_ref, comboBox_s2_minhosteps_subShapeRef,
+            comboBox_s0_minvosteps_ref, comboBox_s0_minvosteps_subShapeRef,
+            comboBox_s1_minvosteps_ref, comboBox_s1_minvosteps_subShapeRef,
+            comboBox_s2_minvosteps_ref, comboBox_s2_minvosteps_subShapeRef;
 
         NumericStepper num_layer_subshape_minhl, num_layer_subshape2_minhl, num_layer_subshape3_minhl,
                         num_layer_subshape_minho, num_layer_subshape2_minho, num_layer_subshape3_minho,
@@ -39,10 +87,6 @@ namespace Quilt
                         num_layer_minbbr, num_layer_bbrinc, num_layer_bbrsteps,
                         num_layer_minbbb, num_layer_bbbinc, num_layer_bbbsteps,
                         num_layer_minbbt, num_layer_bbtinc, num_layer_bbtsteps;
-
-        Label lbl_layer_subshape_hl, lbl_layer_subshape_ho, lbl_layer_subshape_vl, lbl_layer_subshape_vo,
-                lbl_layer_subshape_stepsHL, lbl_layer_subshape_stepsHO, lbl_layer_subshape_stepsVL, lbl_layer_subshape_stepsVO,
-                lbl_layer_subshape_incHL, lbl_layer_subshape_incHO, lbl_layer_subshape_incVL, lbl_layer_subshape_incVO;
 
         DropDown comboBox_subShapeRef, comboBox_posSubShape, comboBox_xPos_subShapeRefPos, comboBox_yPos_subShapeRefPos, comboBox_rotRef, comboBox_arrayRotRef, comboBox_arrayRef, comboBox_merge;
         Label lbl_subShapeRef, lbl_posSubShape;
@@ -107,8 +151,12 @@ namespace Quilt
         ContextMenu listbox_menu;
         ButtonMenuItem lb_copy, lb_paste;
 
+        Button btn_Cancel;
+        
         int patternIndex; // used to avoid moving the view if the pattern number loses focus, but the value hasn't changed.
 
         bool openGLErrorReported;
+
+        TableLayout settings_tl, progress_tl;
     }
 }

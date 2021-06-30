@@ -1,4 +1,4 @@
-﻿using ClipperLib; // tiled layout handling, Layout biasing/CDU.
+﻿// tiled layout handling, Layout biasing/CDU.
 using color;
 using Error;
 using geoLib;
@@ -14,7 +14,8 @@ namespace Quilt
     {
         public int elementIndex; // originating element.
         public int linkedElementIndex; // for tracking decomposed entries to allow for recombination later.
-        public int layoutLayer, layoutDatatype; // coming from layout originated elements, to export back to same layer/datatype.
+        private int layoutLayer; // coming from layout originated elements, to export back to same layer/datatype.
+        private int layoutDatatype; // coming from layout originated elements, to export back to same layer/datatype.
 
         // Class for our preview shapes.
         List<GeoLibPointF[]> previewPoints; // list of polygons defining the shape(s) that will be drawn. In the complex case, we populate this from complexPoints.
@@ -52,10 +53,10 @@ namespace Quilt
 
         public void move(double x, double y, int startPolyIndex = -1, int endPolyIndex = Int32.MaxValue, int startPtIndex = -1, int endPtIndex = Int32.MaxValue)
         {
-            pMove(x, y, startPolyIndex, endPolyIndex, startPtIndex, endPtIndex);
+            pMove(x, y, startPolyIndex, endPolyIndex, startPtIndex);
         }
 
-        void pMove(double x, double y, int startPolyIndex, int endPolyIndex, int startPtIndex, int endPtIndex)
+        void pMove(double x, double y, int startPolyIndex, int endPolyIndex, int startPtIndex)
         {
             int polyStart = Math.Max(startPolyIndex, 0);
             int polyEnd = Math.Min(endPolyIndex, previewPoints.Count);
@@ -196,7 +197,7 @@ namespace Quilt
         double xOffset;
         double yOffset;
 
-        void rectangle_offset(PatternElement patternElement)
+        void pRectangle_offset(PatternElement patternElement)
         {
             string posInSubShapeString = ((CommonVars.subShapeLocations)patternElement.getInt(PatternElement.properties_i.posIndex)).ToString();
             double tmp_xOffset = 0;
@@ -210,7 +211,7 @@ namespace Quilt
                 (posInSubShapeString == "C"))
             {
                 // Vertical offset needed to put reference corner at world center
-                tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
 
                 // Half the value for a vertical centering requirement
                 if ((posInSubShapeString == "RS") ||
@@ -229,7 +230,7 @@ namespace Quilt
                 (posInSubShapeString == "BS") ||
                 (posInSubShapeString == "C"))
             {
-                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
 
                 // Half the value for horizontal centering conditions
                 if ((posInSubShapeString == "TS") ||
@@ -242,7 +243,7 @@ namespace Quilt
             xOffset += tmp_xOffset;
         }
 
-        void lShape_offset(PatternElement patternElement)
+        void pLShape_offset(PatternElement patternElement)
         {
             string posInSubShapeString = ((CommonVars.subShapeLocations)patternElement.getInt(PatternElement.properties_i.posIndex)).ToString();
             double tmp_xOffset = 0;
@@ -258,11 +259,11 @@ namespace Quilt
                 // Vertical offset needed to put reference corner at world center
                 if (patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 0)
                 {
-                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
                 }
                 else
                 {
-                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength));
+                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1));
                 }
 
                 // Half the value for a vertical centering requirement
@@ -277,7 +278,7 @@ namespace Quilt
 
             if ((patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 1) && ((posInSubShapeString == "LS") || (posInSubShapeString == "BL") || (posInSubShapeString == "TL")))
             {
-                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength)); // essentially the same in X as the RS for subshape 1.
+                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0)); // essentially the same in X as the RS for subshape 1.
             }
             else
             {
@@ -290,12 +291,12 @@ namespace Quilt
                 {
                     if (patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 0)
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
                     }
                     else
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1));
                     }
 
                     // Half the value for horizontal centering conditions
@@ -309,7 +310,7 @@ namespace Quilt
                         }
                         else
                         {
-                            tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+                            tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
                         }
                     }
                 }
@@ -318,7 +319,7 @@ namespace Quilt
             xOffset += tmp_xOffset;
         }
 
-        void tShape_offset(PatternElement patternElement)
+        void pTShape_offset(PatternElement patternElement)
         {
             string posInSubShapeString = ((CommonVars.subShapeLocations)patternElement.getInt(PatternElement.properties_i.posIndex)).ToString();
             double tmp_xOffset = 0;
@@ -326,7 +327,7 @@ namespace Quilt
 
             if ((patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 1) && ((posInSubShapeString == "BR") || (posInSubShapeString == "BL") || (posInSubShapeString == "BS")))
             {
-                tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+                tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
             }
             else
             {
@@ -339,7 +340,7 @@ namespace Quilt
                 {
                     if (patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 0)
                     {
-                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
                         // Half the value for a vertical centering requirement
                         if ((posInSubShapeString == "RS") ||
                             (posInSubShapeString == "LS") ||
@@ -350,7 +351,7 @@ namespace Quilt
                     }
                     else
                     {
-                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength));
+                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1));
                         // Half the value for a vertical centering requirement
                         if ((posInSubShapeString == "RS") ||
                             (posInSubShapeString == "LS") ||
@@ -358,7 +359,7 @@ namespace Quilt
                         {
                             tmp_yOffset = Convert.ToDouble(tmp_yOffset / 2);
                         }
-                        tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+                        tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
                     }
 
                 }
@@ -367,7 +368,7 @@ namespace Quilt
 
             if ((patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 1) && ((posInSubShapeString == "LS") || (posInSubShapeString == "BL") || (posInSubShapeString == "TL")))
             {
-                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength)); // essentially the same in X as the RS for subshape 1.
+                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0)); // essentially the same in X as the RS for subshape 1.
             }
             else
             {
@@ -380,12 +381,12 @@ namespace Quilt
                 {
                     if (patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 0)
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
                     }
                     else
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1));
                     }
 
                     // Half the value for horizontal centering conditions
@@ -399,7 +400,7 @@ namespace Quilt
                         }
                         else
                         {
-                            tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+                            tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
                         }
                     }
                 }
@@ -408,7 +409,7 @@ namespace Quilt
             xOffset += tmp_xOffset;
         }
 
-        void xShape_offset(PatternElement patternElement)
+        void pXShape_offset(PatternElement patternElement)
         {
             string posInSubShapeString = ((CommonVars.subShapeLocations)patternElement.getInt(PatternElement.properties_i.posIndex)).ToString();
             double tmp_xOffset = 0;
@@ -416,7 +417,7 @@ namespace Quilt
 
             if ((patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 1) && ((posInSubShapeString == "BR") || (posInSubShapeString == "BL") || (posInSubShapeString == "BS")))
             {
-                tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+                tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
             }
             else
             {
@@ -430,7 +431,7 @@ namespace Quilt
                     // Vertical offset needed to put reference corner at world center
                     if (patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 0)
                     {
-                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
                         // Half the value for a vertical centering requirement
                         if ((posInSubShapeString == "RS") ||
                             (posInSubShapeString == "LS") ||
@@ -441,7 +442,7 @@ namespace Quilt
                     }
                     else
                     {
-                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength));
+                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1));
                         // Half the value for a vertical centering requirement
                         if ((posInSubShapeString == "RS") ||
                             (posInSubShapeString == "LS") ||
@@ -449,7 +450,7 @@ namespace Quilt
                         {
                             tmp_yOffset = Convert.ToDouble(tmp_yOffset / 2);
                         }
-                        tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+                        tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
                     }
 
                 }
@@ -458,7 +459,7 @@ namespace Quilt
 
             if ((patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 1) && ((posInSubShapeString == "LS") || (posInSubShapeString == "BL") || (posInSubShapeString == "TL")))
             {
-                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorOffset));
+                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horOffset, 1));
             }
             else
             {
@@ -471,11 +472,11 @@ namespace Quilt
                 {
                     if (patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 0)
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
                     }
                     else
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1));
                     }
 
                     // Half the value for horizontal centering conditions
@@ -489,13 +490,13 @@ namespace Quilt
                         }
                         else
                         {
-                            tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+                            tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
                         }
                     }
 
                     if (patternElement.getInt(PatternElement.properties_i.subShapeIndex) == 1)
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorOffset));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horOffset, 1));
                     }
                 }
             }
@@ -503,7 +504,7 @@ namespace Quilt
             xOffset += tmp_xOffset;
         }
 
-        void uShape_offset(PatternElement patternElement)
+        void pUShape_offset(PatternElement patternElement)
         {
             string posInSubShapeString = ((CommonVars.subShapeLocations)patternElement.getInt(PatternElement.properties_i.posIndex)).ToString();
             double tmp_xOffset = 0;
@@ -518,7 +519,7 @@ namespace Quilt
                     (posInSubShapeString == "LS") ||
                     (posInSubShapeString == "C"))
                 {
-                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
 
                     // Half the value for a vertical centering requirement
                     if ((posInSubShapeString == "RS") ||
@@ -537,7 +538,7 @@ namespace Quilt
                     (posInSubShapeString == "BS") ||
                     (posInSubShapeString == "C"))
                 {
-                    tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+                    tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
 
                     // Half the value for horizontal centering conditions
                     if ((posInSubShapeString == "TS") ||
@@ -561,14 +562,14 @@ namespace Quilt
                     (posInSubShapeString == "BS") ||
                     (posInSubShapeString == "C"))
                 {
-                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                    tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
 
                     // Half the value for a vertical centering requirement
                     if ((posInSubShapeString == "RS") ||
                         (posInSubShapeString == "LS") ||
                         (posInSubShapeString == "C"))
                     {
-                        tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength) / 2);
+                        tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1) / 2);
                     }
 
                     // Subtract the value for a subshape 2 bottom edge requirement
@@ -576,32 +577,32 @@ namespace Quilt
                         (posInSubShapeString == "BR") ||
                         (posInSubShapeString == "BS"))
                     {
-                        tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength));
+                        tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1));
                     }
                 }
                 yOffset -= tmp_yOffset;
 
                 // Subshape 2 is always H-centered in U. Makes it easy.
-                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength) / 2);
+                tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0) / 2);
 
                 if ((posInSubShapeString == "TR") ||
                     (posInSubShapeString == "BR") ||
                     (posInSubShapeString == "RS"))
                 {
-                    tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+                    tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
                 }
 
                 if ((posInSubShapeString == "TL") ||
                     (posInSubShapeString == "BL") ||
                     (posInSubShapeString == "LS"))
                 {
-                    tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength) / 2);
+                    tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1) / 2);
                 }
             }
             xOffset += tmp_xOffset;
         }
 
-        void sShape_offset(PatternElement patternElement)
+        void pSShape_offset(PatternElement patternElement)
         {
             string posInSubShapeString = ((CommonVars.subShapeLocations)patternElement.getInt(PatternElement.properties_i.posIndex)).ToString();
             double tmp_xOffset = 0;
@@ -617,7 +618,7 @@ namespace Quilt
                         (posInSubShapeString == "LS") ||
                         (posInSubShapeString == "C"))
                     {
-                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                        tmp_yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
 
                         // Half the value for a vertical centering requirement
                         if ((posInSubShapeString == "RS") ||
@@ -635,7 +636,7 @@ namespace Quilt
                         (posInSubShapeString == "BS") ||
                         (posInSubShapeString == "C"))
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
 
                         // Half the value for horizontal centering conditions
                         if ((posInSubShapeString == "TS") ||
@@ -659,14 +660,14 @@ namespace Quilt
                         (posInSubShapeString == "BS") ||
                         (posInSubShapeString == "C"))
                     {
-                        tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset));
+                        tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1));
 
                         // Half the value for a vertical centering requirement
                         if ((posInSubShapeString == "RS") ||
                             (posInSubShapeString == "LS") ||
                             (posInSubShapeString == "C"))
                         {
-                            tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength) / 2);
+                            tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1) / 2);
                         }
 
                         // Subtract the value for a subshape 2 bottom edge requirement
@@ -674,7 +675,7 @@ namespace Quilt
                             (posInSubShapeString == "TR") ||
                             (posInSubShapeString == "TS"))
                         {
-                            tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength));
+                            tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1));
                         }
                     }
 
@@ -687,7 +688,7 @@ namespace Quilt
                         (posInSubShapeString == "BS") ||
                         (posInSubShapeString == "C"))
                     {
-                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength));
+                        tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1));
                         if ((posInSubShapeString == "TS") ||
                             (posInSubShapeString == "C") ||
                             (posInSubShapeString == "BS"))
@@ -699,7 +700,7 @@ namespace Quilt
                     break;
 
                 case 2:
-                    tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength));
+                    tmp_yOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0));
                     // Subshape 3 is always offset relative to top edge of subshape 1 in S.
                     if ((posInSubShapeString == "TL") ||
                         (posInSubShapeString == "TR") ||
@@ -711,14 +712,14 @@ namespace Quilt
                         (posInSubShapeString == "BS") ||
                         (posInSubShapeString == "C"))
                     {
-                        tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2VerOffset));
+                        tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 2));
 
                         // Half the value for a vertical centering requirement
                         if ((posInSubShapeString == "RS") ||
                             (posInSubShapeString == "LS") ||
                             (posInSubShapeString == "C"))
                         {
-                            tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength) / 2);
+                            tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 2) / 2);
                         }
 
                         // Subtract the value for a subshape 2 bottom edge requirement
@@ -726,25 +727,25 @@ namespace Quilt
                             (posInSubShapeString == "BR") ||
                             (posInSubShapeString == "BS"))
                         {
-                            tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength));
+                            tmp_yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 2));
                         }
                     }
 
                     // Subshape 3 is always pinned to right edge in S. Makes it easy.
-                    tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength));
+                    tmp_xOffset -= Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0));
 
                     if ((posInSubShapeString == "TL") ||
                         (posInSubShapeString == "BL") ||
                         (posInSubShapeString == "LS"))
                     {
-                        tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength));
+                        tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 2));
                     }
 
                     if ((posInSubShapeString == "TS") ||
                         (posInSubShapeString == "BS") ||
                         (posInSubShapeString == "C"))
                     {
-                        tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength) / 2);
+                        tmp_xOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horLength, 2) / 2);
                     }
                     break;
             }
@@ -753,7 +754,7 @@ namespace Quilt
             xOffset += tmp_xOffset;
         }
 
-        void doOffsets(PatternElement patternElement)
+        void pDoOffsets(PatternElement patternElement)
         {
             // Use our shape-specific offset calculation methods :
             xOffset = 0;
@@ -764,24 +765,22 @@ namespace Quilt
                 case (Int32)CentralProperties.typeShapes.rectangle:
                 case (Int32)CentralProperties.typeShapes.text:
                 case (Int32)CentralProperties.typeShapes.bounding:
-                    rectangle_offset(patternElement);
+                    pRectangle_offset(patternElement);
                     break;
                 case (Int32)CentralProperties.typeShapes.L:
-                    lShape_offset(patternElement);
+                    pLShape_offset(patternElement);
                     break;
                 case (Int32)CentralProperties.typeShapes.T:
-                    tShape_offset(patternElement);
+                    pTShape_offset(patternElement);
                     break;
                 case (Int32)CentralProperties.typeShapes.X:
-                    xShape_offset(patternElement);
+                    pXShape_offset(patternElement);
                     break;
                 case (Int32)CentralProperties.typeShapes.U:
-                    uShape_offset(patternElement);
+                    pUShape_offset(patternElement);
                     break;
                 case (Int32)CentralProperties.typeShapes.S:
-                    sShape_offset(patternElement);
-                    break;
-                default:
+                    pSShape_offset(patternElement);
                     break;
             }
 
@@ -792,10 +791,10 @@ namespace Quilt
 
         public PreviewShape()
         {
-            init();
+            pInit();
         }
 
-        void init()
+        void pInit()
         {
             // Stub to enable direct drive of preview data, primarily for the implant system.
             previewPoints = new List<GeoLibPointF[]>();
@@ -810,10 +809,10 @@ namespace Quilt
 
         public PreviewShape(PreviewShape source)
         {
-            init(source);
+            pInit(source);
         }
 
-        void init(PreviewShape source)
+        void pInit(PreviewShape source)
         {
             previewPoints = source.previewPoints.ToList();
             sourceIndices = source.sourceIndices.ToList();
@@ -830,7 +829,7 @@ namespace Quilt
         {
             xOffset = 0;
             yOffset = 0;
-            init(pattern, settingsIndex);
+            pInit(pattern, settingsIndex);
         }
 
         GeoLibPointF[] pGetPointArray(Pattern pattern, int index, bool doRotation= true)
@@ -841,8 +840,8 @@ namespace Quilt
 
             string shapeString = ((CentralProperties.typeShapes)patternElement.getInt(PatternElement.properties_i.shapeIndex)).ToString();
 
-            double x = 0;
-            double y = 0;
+            double x;
+            double y;
 
             switch (shapeString)
             {
@@ -890,13 +889,13 @@ namespace Quilt
                     decimal bottom_leftX_1 = 0;
                     decimal bottom_leftY_1 = 0;
                     decimal top_leftX_1 = 0;
-                    decimal top_leftY_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength);
-                    decimal top_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength);
-                    decimal top_rightY_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength);
-                    decimal bottom_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.s0HorLength);
+                    decimal top_leftY_1 = patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0);
+                    decimal top_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0);
+                    decimal top_rightY_1 = patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0);
+                    decimal bottom_rightX_1 = patternElement.getDecimal(PatternElement.properties_decimal.horLength, 0);
                     decimal bottom_rightY_1 = 0;
-                    double _xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0HorOffset));
-                    double _yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerOffset));
+                    double _xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horOffset, 0));
+                    double _yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 0));
 
                     xOffset = _xOffset;
                     yOffset = _yOffset;
@@ -924,13 +923,13 @@ namespace Quilt
                     decimal bottom_leftX_2 = 0;
                     decimal bottom_leftY_2 = 0;
                     decimal top_leftX_2 = 0;
-                    decimal top_leftY_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength);
-                    decimal top_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength);
-                    decimal top_rightY_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1VerLength);
-                    decimal bottom_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.s1HorLength);
+                    decimal top_leftY_2 = patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1);
+                    decimal top_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1);
+                    decimal top_rightY_2 = patternElement.getDecimal(PatternElement.properties_decimal.verLength, 1);
+                    decimal bottom_rightX_2 = patternElement.getDecimal(PatternElement.properties_decimal.horLength, 1);
                     decimal bottom_rightY_2 = 0;
-                    xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1HorOffset)) + _xOffset;
-                    yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s1VerOffset)) + _yOffset;
+                    xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horOffset, 1)) + _xOffset;
+                    yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) + _yOffset;
 
                     // Populate array.
                     tempArray[5 + 0] = new GeoLibPointF((double)bottom_leftX_2, (double)bottom_leftY_2);
@@ -955,16 +954,16 @@ namespace Quilt
                     decimal bottom_leftX_3 = 0;
                     decimal bottom_leftY_3 = 0;
                     decimal top_leftX_3 = 0;
-                    decimal top_leftY_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength);
-                    decimal top_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength);
-                    decimal top_rightY_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength);
-                    decimal bottom_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.s2HorLength);
+                    decimal top_leftY_3 = patternElement.getDecimal(PatternElement.properties_decimal.verLength, 2);
+                    decimal top_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.horLength, 2);
+                    decimal top_rightY_3 = patternElement.getDecimal(PatternElement.properties_decimal.verLength, 2);
+                    decimal bottom_rightX_3 = patternElement.getDecimal(PatternElement.properties_decimal.horLength, 2);
                     decimal bottom_rightY_3 = 0;
-                    xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2HorOffset)) + _xOffset;
-                    yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s2VerOffset) + patternElement.getDecimal(PatternElement.properties_decimal.s2VerLength)) + _yOffset;
+                    xOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.horOffset, 2)) + _xOffset;
+                    yOffset = -Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 2) + patternElement.getDecimal(PatternElement.properties_decimal.verLength, 2)) + _yOffset;
                     if (shapeString == "S")
                     {
-                        yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.s0VerLength)); // offset our subshape to put it in the correct place in the UI.
+                        yOffset += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verLength, 0)); // offset our subshape to put it in the correct place in the UI.
                     }
 
                     // Populate array.
@@ -1027,15 +1026,11 @@ namespace Quilt
             int rotRefUseArray = patternElement.getInt(PatternElement.properties_i.arrayRotRefUseArray);
 
             // Array flip not provided at this time.
-            bool flipH = false;
-            bool flipV = false;
-            bool alignX = false;
-            bool alignY = false;
             bool refPivot = patternElement.getInt(PatternElement.properties_i.refArrayPivot) == 1;
 
-            for (int i = 0; i < source.Count; i++)
+            foreach (var t in source)
             {
-                transformed.Add(pTransformed(source[i].ToArray(), pattern, index, bb, rotAngle, rotRef, rotRefUseArray, flipH, flipV, alignX, alignY, refPivot, doRotation));
+                transformed.Add(pTransformed(t.ToArray(), pattern, index, bb, rotAngle, rotRef, rotRefUseArray, flipH:false, flipV:false, alignX:false, alignY:false, refPivot, doRotation));
             }
 
             return transformed;
@@ -1070,6 +1065,7 @@ namespace Quilt
         {
             GeoLibPointF[] transformed = tempArray.ToArray();
 
+            // ReSharper disable once ConvertIfStatementToNullCoalescingAssignment
             if (bb == null)
             {
                 bb = GeoWrangler.midPoint(tempArray);
@@ -1089,7 +1085,7 @@ namespace Quilt
 
             if (rotRef >= 0)
             {
-                bool rCyclical = pattern.rotCyclicalCheck(rotRef);
+                bool rCyclical = pattern.cyclicalCheck(rotRef, PatternElement.properties_i.rotationRef);
 
                 if (!rCyclical)
                 {
@@ -1115,7 +1111,6 @@ namespace Quilt
                                 if (refPivot)
                                 {
                                     // We need to actually figure out our reference array midpoint now in order to use it.
-                                    GeoLibPointF[] sbounds = ShapeLibrary.getBoundingBox(pattern.getPatternElement(rotRef));
                                     double[] bounds = pShapeBounds(pattern, rotRef, doRotation: boundsAfterRotation);
                                     double width = bounds[2] - bounds[0];
                                     double height = bounds[3] - bounds[1];
@@ -1191,10 +1186,10 @@ namespace Quilt
             double minY = inputPoints.Min(p => p.Y);
             double maxY = inputPoints.Max(p => p.Y);
 
-            return new double[] { minX, minY, maxX, maxY };
+            return new [] { minX, minY, maxX, maxY };
         }
 
-        void init(Pattern pattern, Int32 settingsIndex)
+        void pInit(Pattern pattern, Int32 settingsIndex)
         {
             try
             {
@@ -1213,11 +1208,11 @@ namespace Quilt
                 bool textShape = shapeType == (int)CommonVars.shapeNames.text;
                 bool layoutShape = shapeType == (int)CommonVars.shapeNames.complex;
 
-                GeoLibPointF[] inputPoints, outputPoints;
+                GeoLibPointF[] outputPoints;
 
                 ComplexShape complexPoints;
 
-                inputPoints = pGetPointArray(pattern, settingsIndex);
+                GeoLibPointF[] inputPoints = pGetPointArray(pattern, settingsIndex);
 
                 if (!layoutShape)
                 {
@@ -1258,7 +1253,7 @@ namespace Quilt
                 double[] bounds;
 
                 // The bounds evaluation has transforms applied (e.g. rotation) if the below is true. This can be a problem.
-                bool boundsAfterRotation = false;
+                bool boundsAfterRotation;
 
                 if (arrayRef >= 0)
                 {
@@ -1268,9 +1263,10 @@ namespace Quilt
                 else
                 {
                     boundsAfterRotation = patternElement.getInt(PatternElement.properties_i.refBoundsAfterRotation) == 1;
+                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (!boundsAfterRotation)
                     {
-                        bounds = pShapeBounds(pGetPointArray(pattern, settingsIndex, doRotation: boundsAfterRotation));
+                        bounds = pShapeBounds(pGetPointArray(pattern, settingsIndex, doRotation: false));
                     }
                     else
                     {
@@ -1319,32 +1315,31 @@ namespace Quilt
                 drawnPoly = new List<bool>(oDP);
 
                 // Get our offsets configured.
-                doOffsets(patternElement);
-
-                GeoLibPointF drawnOffset = complexPoints.getOffset();
-
+                pDoOffsets(patternElement);
+                
                 sourceIndices.Clear();
                 for (Int32 poly = 0; poly < previewPoints.Count(); poly++)
                 {
                     textEntity.Add(textShape); // To track for output to layout.
                     sourceIndices.Add(settingsIndex);
                     int pCount = previewPoints[poly].Count();
+                    int poly1 = poly;
 #if QUILTTHREADED
                     Parallel.For(0, pCount, (point) =>
 #else
                     for (Int32 point = 0; point < pCount; point++)
 #endif
                     {
-                        double px = previewPoints[poly][point].X + xOffset;
-                        double py = previewPoints[poly][point].Y - yOffset;
+                        double px = previewPoints[poly1][point].X + xOffset;
+                        double py = previewPoints[poly1][point].Y - yOffset;
 
-                        previewPoints[poly][point] = new GeoLibPointF(px, py);
+                        previewPoints[poly1][point] = new GeoLibPointF(px, py);
                     }
 #if QUILTTHREADED
                     );
 #endif
-                    if ((previewPoints[poly][0].X != previewPoints[poly][previewPoints[poly].Count() - 1].X) ||
-                        (previewPoints[poly][0].Y != previewPoints[poly][previewPoints[poly].Count() - 1].Y))
+                    if ((Math.Abs(previewPoints[poly][0].X - previewPoints[poly][previewPoints[poly].Count() - 1].X) > Double.Epsilon) ||
+                        (Math.Abs(previewPoints[poly][0].Y - previewPoints[poly][previewPoints[poly].Count() - 1].Y) > Double.Epsilon))
                     {
                         ErrorReporter.showMessage_OK("Start and end not the same - previewShape", "Oops");
                     }

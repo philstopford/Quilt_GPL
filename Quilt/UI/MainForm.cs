@@ -30,6 +30,45 @@ namespace Quilt
             public ObservableCollection<string> patternElementNames_filtered_array { get; set; }
             public ObservableCollection<string> xPosRefSubShapeList { get; set; }
             public ObservableCollection<string> yPosRefSubShapeList { get; set; }
+
+            public ObservableCollection<string> minHLRefSubShapeList { get; set; }
+            public ObservableCollection<string> minHLRefSubShape2List { get; set; }
+            public ObservableCollection<string> minHLRefSubShape3List { get; set; }
+            public ObservableCollection<string> minVLRefSubShapeList { get; set; }
+            public ObservableCollection<string> minVLRefSubShape2List { get; set; }
+            public ObservableCollection<string> minVLRefSubShape3List { get; set; }
+            public ObservableCollection<string> minHORefSubShapeList { get; set; }
+            public ObservableCollection<string> minHORefSubShape2List { get; set; }
+            public ObservableCollection<string> minHORefSubShape3List { get; set; }
+            public ObservableCollection<string> minVORefSubShapeList { get; set; }
+            public ObservableCollection<string> minVORefSubShape2List { get; set; }
+            public ObservableCollection<string> minVORefSubShape3List { get; set; }
+
+            public ObservableCollection<string> minHLStepsRefSubShapeList { get; set; }
+            public ObservableCollection<string> minHLStepsRefSubShape2List { get; set; }
+            public ObservableCollection<string> minHLStepsRefSubShape3List { get; set; }
+            public ObservableCollection<string> minVLStepsRefSubShapeList { get; set; }
+            public ObservableCollection<string> minVLStepsRefSubShape2List { get; set; }
+            public ObservableCollection<string> minVLStepsRefSubShape3List { get; set; }
+            public ObservableCollection<string> minHOStepsRefSubShapeList { get; set; }
+            public ObservableCollection<string> minHOStepsRefSubShape2List { get; set; }
+            public ObservableCollection<string> minHOStepsRefSubShape3List { get; set; }
+            public ObservableCollection<string> minVOStepsRefSubShapeList { get; set; }
+            public ObservableCollection<string> minVOStepsRefSubShape2List { get; set; }
+            public ObservableCollection<string> minVOStepsRefSubShape3List { get; set; }
+            public ObservableCollection<string> minHLIncRefSubShapeList { get; set; }
+            public ObservableCollection<string> minHLIncRefSubShape2List { get; set; }
+            public ObservableCollection<string> minHLIncRefSubShape3List { get; set; }
+            public ObservableCollection<string> minVLIncRefSubShapeList { get; set; }
+            public ObservableCollection<string> minVLIncRefSubShape2List { get; set; }
+            public ObservableCollection<string> minVLIncRefSubShape3List { get; set; }
+            public ObservableCollection<string> minHOIncRefSubShapeList { get; set; }
+            public ObservableCollection<string> minHOIncRefSubShape2List { get; set; }
+            public ObservableCollection<string> minHOIncRefSubShape3List { get; set; }
+            public ObservableCollection<string> minVOIncRefSubShapeList { get; set; }
+            public ObservableCollection<string> minVOIncRefSubShape2List { get; set; }
+            public ObservableCollection<string> minVOIncRefSubShape3List { get; set; }
+
             public List<string> shapes { get; set; }
             public List<string> subShapePos { get; set; }
             public List<string> subShapeHorPos { get; set; }
@@ -41,9 +80,7 @@ namespace Quilt
             public List<string> openGLMode { get; set; }
         }
 
-        int label_Height = 8;
-        int num_Height = 8;
-        int numWidth = 55;
+
 
         string helpPath;
         bool helpAvailable;
@@ -62,7 +99,7 @@ namespace Quilt
 
         CommonVars commonVars;
 
-        void setupUIDataContext()
+        void pSetupUIDataContext()
         {
             DataContext = new UIStringLists
             {
@@ -73,6 +110,42 @@ namespace Quilt
                 patternElementNames_filtered_array = commonVars.stitcher.patternElementNames_filtered_array,
                 xPosRefSubShapeList = commonVars.xPosRefSubShapeList,
                 yPosRefSubShapeList = commonVars.yPosRefSubShapeList,
+                minHLRefSubShapeList = commonVars.minHLRefSubShapeList,
+                minHLRefSubShape2List = commonVars.minHLRefSubShape2List,
+                minHLRefSubShape3List = commonVars.minHLRefSubShape3List,
+                minVLRefSubShapeList = commonVars.minVLRefSubShapeList,
+                minVLRefSubShape2List = commonVars.minVLRefSubShape2List,
+                minVLRefSubShape3List = commonVars.minVLRefSubShape3List,
+                minHORefSubShapeList = commonVars.minHORefSubShapeList,
+                minHORefSubShape2List = commonVars.minHORefSubShape2List,
+                minHORefSubShape3List = commonVars.minHORefSubShape3List,
+                minVORefSubShapeList = commonVars.minVORefSubShapeList,
+                minVORefSubShape2List = commonVars.minVORefSubShape2List,
+                minVORefSubShape3List = commonVars.minVORefSubShape3List,
+                minHLIncRefSubShapeList = commonVars.minHLIncRefSubShapeList,
+                minHLIncRefSubShape2List = commonVars.minHLIncRefSubShape2List,
+                minHLIncRefSubShape3List = commonVars.minHLIncRefSubShape3List,
+                minVLIncRefSubShapeList = commonVars.minVLIncRefSubShapeList,
+                minVLIncRefSubShape2List = commonVars.minVLIncRefSubShape2List,
+                minVLIncRefSubShape3List = commonVars.minVLIncRefSubShape3List,
+                minHOIncRefSubShapeList = commonVars.minHOIncRefSubShapeList,
+                minHOIncRefSubShape2List = commonVars.minHOIncRefSubShape2List,
+                minHOIncRefSubShape3List = commonVars.minHOIncRefSubShape3List,
+                minVOIncRefSubShapeList = commonVars.minVOIncRefSubShapeList,
+                minVOIncRefSubShape2List = commonVars.minVOIncRefSubShape2List,
+                minVOIncRefSubShape3List = commonVars.minVOIncRefSubShape3List,
+                minHLStepsRefSubShapeList = commonVars.minHLStepsRefSubShapeList,
+                minHLStepsRefSubShape2List = commonVars.minHLStepsRefSubShape2List,
+                minHLStepsRefSubShape3List = commonVars.minHLStepsRefSubShape3List,
+                minVLStepsRefSubShapeList = commonVars.minVLStepsRefSubShapeList,
+                minVLStepsRefSubShape2List = commonVars.minVLStepsRefSubShape2List,
+                minVLStepsRefSubShape3List = commonVars.minVLStepsRefSubShape3List,
+                minHOStepsRefSubShapeList = commonVars.minHOStepsRefSubShapeList,
+                minHOStepsRefSubShape2List = commonVars.minHOStepsRefSubShape2List,
+                minHOStepsRefSubShape3List = commonVars.minHOStepsRefSubShape3List,
+                minVOStepsRefSubShapeList = commonVars.minVOStepsRefSubShapeList,
+                minVOStepsRefSubShape2List = commonVars.minVOStepsRefSubShape2List,
+                minVOStepsRefSubShape3List = commonVars.minVOStepsRefSubShape3List,
                 subShapePos = commonVars.getAvailableShapePositions(),
                 subShapeHorPos = commonVars.getAvailableHorShapePositions(),
                 subShapeVerPos = commonVars.getAvailableVerShapePositions(),
@@ -82,11 +155,11 @@ namespace Quilt
             };
         }
 
-        void loadPrefs()
+        void pLoadPrefs()
         {
             // We have to do this by hand, reading and parsing an XML file. Yay.
             string filename = EtoEnvironment.GetFolderPath(EtoSpecialFolder.ApplicationSettings);
-            filename += System.IO.Path.DirectorySeparatorChar + "quilt_prefs.xml";
+            filename += Path.DirectorySeparatorChar + "quilt_prefs.xml";
 
             XElement prefs;
             try
@@ -95,7 +168,7 @@ namespace Quilt
             }
             catch (Exception)
             {
-                if (System.IO.File.Exists(filename))
+                if (File.Exists(filename))
                 {
                     ErrorReporter.showMessage_OK("Prefs file exists, but can't be read. Using defaults.", "Preferences Error");
                 }
@@ -288,15 +361,16 @@ namespace Quilt
             quiltContext.colors.rebuildLists();
         }
 
-        void savePrefs()
+        void pSavePrefs()
         {
             string filename = EtoEnvironment.GetFolderPath(EtoSpecialFolder.ApplicationSettings);
-            filename += System.IO.Path.DirectorySeparatorChar + "quilt_prefs.xml";
+            filename += Path.DirectorySeparatorChar + "quilt_prefs.xml";
 
             try
             {
                 XDocument prefsXML = new XDocument(
                     new XElement("root"));
+                // ReSharper disable once PossibleNullReferenceException
                 prefsXML.Root.Add(new XElement("version", CentralProperties.version));
 
                 XElement openGLPrefs = new XElement("openGL",
@@ -386,70 +460,62 @@ namespace Quilt
             }
         }
 
-        void setUI(bool status)
+        void pSetUI(bool status)
         {
             fileMenu.Enabled = status;
             editMenu.Enabled = status;
 
-            tabControl.Enabled = status;
-
-            main_tl.Enabled = status;
+            //settings_tl.Enabled = status;
+            left_tl.Enabled = status;
             right_tl.Enabled = status;
 
             if (status)
             {
-                updatePatternElementUI(false);
+                pUpdatePatternElementUI(false);
             }
-
-            return;
         }
 
-        public MainForm(ref bool doPrompts, QuiltContext _quiltContext)
+        public MainForm(QuiltContext _quiltContext)
         {
-            pMainForm(ref doPrompts, _quiltContext);
+            pMainForm(_quiltContext);
         }
 
-        void pMainForm(ref bool doPrompts, QuiltContext _quiltContext)
+        void pMainForm(QuiltContext _quiltContext)
         {
-            doPrompts = true;
-
             // string basePath = AppContext.BaseDirectory; // Disabled this as release builds do not seem to populate this field. Use the above complex approach instead.
             helpPath = Path.Combine(EtoEnvironment.GetFolderPath(EtoSpecialFolder.ApplicationResources), "Documentation", "index.html");
             helpAvailable = File.Exists(helpPath);
 
-            UI(_quiltContext);
+            pUI(_quiltContext);
         }
 
-        void q()
-        {
-            Application.Instance.Quit();
-        }
+        private bool _veldridReady;
 
-        private bool _veldridReady = false;
-        public bool VeldridReady
+        private bool VeldridReady
         {
-            get { return _veldridReady; }
-            private set
+            get => _veldridReady;
+            set
             {
                 _veldridReady = value;
 
-                SetUpVeldrid();
+                pSetUpVeldrid();
             }
         }
 
-        private bool _formReady = false;
-        public bool FormReady
+        private bool _formReady;
+
+        private bool FormReady
         {
-            get { return _formReady; }
+            get => _formReady;
             set
             {
                 _formReady = value;
 
-                SetUpVeldrid();
+                pSetUpVeldrid();
             }
         }
 
-        private void SetUpVeldrid()
+        void pSetUpVeldrid()
         {
             if (!(FormReady && VeldridReady))
             {
@@ -461,10 +527,10 @@ namespace Quilt
             // Title = $"Veldrid backend: {vSurface.Backend.ToString()}";
 
             viewPort.Clock.Start();
-            createVPContextMenu();
+            pCreateVPContextMenu();
         }
 
-        void createLBContextMenu()
+        void pCreateLBContextMenu()
         {
             listbox_menu = new ContextMenu();
             int itemIndex = 0;
@@ -472,30 +538,30 @@ namespace Quilt
             listbox_menu.Items.Add(lb_copy);
             listbox_menu.Items[itemIndex].Click += delegate
             {
-                copy();
+                pCopy();
             };
             itemIndex++;
             lb_paste = new ButtonMenuItem() { Text = "Paste" };
             listbox_menu.Items.Add(lb_paste);
             listbox_menu.Items[itemIndex].Click += delegate
             {
-                paste();
+                pPaste();
             };
             itemIndex++;
             listbox_menu.Items.Add(new ButtonMenuItem() { Text = "Remove" });
             listbox_menu.Items[itemIndex].Click += delegate
             {
-                removePatternElement();
+                pRemovePatternElement();
             };
             itemIndex++;
             listbox_menu.Items.Add(new ButtonMenuItem() { Text = "Duplicate" });
             listbox_menu.Items[itemIndex].Click += delegate
             {
-                duplicatePatternElement();
+                pDuplicatePatternElement();
             };
         }
 
-        void updateLBContextMenu()
+        void pUpdateLBContextMenu()
         {
             try
             {
@@ -507,7 +573,7 @@ namespace Quilt
             }
         }
 
-        void UI(QuiltContext _quiltContext)
+        void pUI(QuiltContext _quiltContext)
         {
             if (_quiltContext == null) // safety net.
             {
@@ -521,15 +587,15 @@ namespace Quilt
 
             Shown += (sender, e) => FormReady = true;
 
-            loadPrefs();
+            pLoadPrefs();
 
             commonVars = new CommonVars(ref quiltContext);
 
-            createLBContextMenu();
+            pCreateLBContextMenu();
 
-            delegates();
+            pDelegates();
 
-            setupUIDataContext();
+            pSetupUIDataContext();
 
             drawingLock = new object();
 
@@ -542,10 +608,10 @@ namespace Quilt
 
             Title = commonVars.titleText;
 
-            commandsUI();
+            pCommandsUI();
 
             // Compensate for menu.
-            MinimumSize = new Size(750, 400 + (label_Height * 7));
+            MinimumSize = new Size(750, 450);
 
             Panel vp = new Panel();
 
@@ -555,41 +621,40 @@ namespace Quilt
 
             vp_tl.Rows.Add(new TableRow());
 
-            patternSettingsUI();
-            Scrollable settings_sc = new Scrollable();
-            settings_sc.Content = settings;
+            pPatternSettingsUI();
+            Scrollable settings_sc = new Scrollable {Content = settings};
 
-            quiltUISplitter = new Panel();
-            quiltUISplitter.Content = new Splitter
+            quiltUISplitter = new Panel
             {
-                Orientation = Orientation.Horizontal,
-                FixedPanel = SplitterFixedPanel.Panel1,
-                Panel1 = settings_sc,
-                Panel2 = vp,
-                // Panel1MinimumSize = settings.Size.Width,
+                Content = new Splitter
+                {
+                    Orientation = Orientation.Horizontal,
+                    FixedPanel = SplitterFixedPanel.Panel1,
+                    Panel1 = settings_sc,
+                    Panel2 = vp,
+                    // Panel1MinimumSize = settings.Size.Width,
+                }
             };
 
             tabControl = new TabControl();
-            quiltPage = new TabPage();
+            quiltPage = new TabPage {Text = "Quilt"};
             tabControl.Pages.Add(quiltPage);
-            quiltPage.Text = "Quilt";
-            quiltUISetup();
+            pQuiltUISetup();
             quiltPage.Content = quiltUISplitter;
 
-            prefsPage = new TabPage();
+            prefsPage = new TabPage {Text = "Preferences"};
             tabControl.Pages.Add(prefsPage);
-            prefsPage.Text = "Preferences";
-            prefsUI();
+            pPrefsUI();
             prefsPage.Content = prefsPanel;
-            tabControl.SelectedIndexChanged += interfaceUpdate;
+            tabControl.SelectedIndexChanged += pInterfaceUpdate;
 
             Content = tabControl;
 
-            doPatternElementUI(0, updateUI: true);
-            drawPreviewPanelHandler();
+            pDoPatternElementUI(0, updateUI: true);
+            pDrawPreviewPanelHandler();
 
-            updateProgressLabel("Hello");
-            updateUIColors();
+            pUpdateProgressLabel("Hello");
+            pUpdateUIColors();
 
             GraphicsDeviceOptions options = new GraphicsDeviceOptions(
                                     false,
@@ -602,8 +667,8 @@ namespace Quilt
             vSurface.VeldridInitialized += (sender, e) => VeldridReady = true;
 
 
-            string exeDirectory = "";
-            string shaders = "";
+            string exeDirectory;
+            string shaders;
             if (Platform.IsMac)
             {
                 // AppContext.BaseDirectory is too simple for the case of the Mac
@@ -613,6 +678,7 @@ namespace Quilt
                 // app bundle that instead bundles Mono by way of mkbundle, on the
                 // other hand, it returns the directory containing the .app.
 
+                // ReSharper disable once PossibleNullReferenceException
                 exeDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 				shaders = Path.Combine("..", "Resources", "shaders");
             }
@@ -631,13 +697,13 @@ namespace Quilt
             };
 
             vSurface.Size = new Size(viewportSize, viewportSize);
-            viewPort.updateHostFunc = viewportUpdateHost;
-            viewPort.updateHostSelectionFunc = viewportSelectionFunc;
+            viewPort.updateHostFunc = pViewportUpdateHost;
+            viewPort.updateHostSelectionFunc = pViewportSelectionFunc;
 
             string viewportToolTipText = "(w/a/s/d) to navigate\r\n(r) to reset\r\n(n/m) to zoom\r\n(f) to freeze/thaw\r\n(x) to zoom extents\r\n(z) to zoom selected";
             vp.ToolTip = viewportToolTipText;
 
-            commonVars.titleText += " " + vSurface.Backend.ToString();
+            commonVars.titleText += " " + vSurface.Backend;
 
             Title = commonVars.titleText;
 
@@ -645,30 +711,30 @@ namespace Quilt
 
             if (quiltContext.xmlFileArg != "")
             {
-                doLoad(quiltContext.xmlFileArg);
+                pDoLoad(quiltContext.xmlFileArg);
             }
 
-            tabControl.DragEnter += dragEvent;
-            tabControl.DragOver += dragEvent;
+            tabControl.DragEnter += pDragEvent;
+            tabControl.DragOver += pDragEvent;
 
-            tabControl.DragDrop += dragAndDrop;
+            tabControl.DragDrop += pDragAndDrop;
         }
 
-        void interfaceUpdate(object sender, EventArgs e)
+        void pInterfaceUpdate(object sender, EventArgs e)
         {
             if (tabControl.SelectedIndex == 1) // utils
             {
                 utilsUIFrozen = true;
-                updatePrefsUI();
+                pUpdatePrefsUI();
                 utilsUIFrozen = false;
             }
             else
             {
-                doPatternElementUI(sender, e);
+                pDoPatternElementUI(sender, e);
             }
         }
 
-        void prefsUI()
+        void pPrefsUI()
         {
             prefsPanel = new Panel();
             TableLayout prefsPanel_table = new TableLayout();
@@ -678,32 +744,32 @@ namespace Quilt
 
             TableCell opengl_tc = new TableCell();
 
-            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(opengl_tc);
+            prefsPanel_table.Rows[^1].Cells.Add(opengl_tc);
 
-            openGL_settings_utilsUISetup(opengl_tc);
+            pOpenGL_settings_utilsUISetup(opengl_tc);
 
             TableCell padding = new TableCell();
-            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(padding);
+            prefsPanel_table.Rows[^1].Cells.Add(padding);
 
             prefsPanel_table.Rows.Add(new TableRow());
 
             TableCell misc_tc = new TableCell();
 
-            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(misc_tc);
+            prefsPanel_table.Rows[^1].Cells.Add(misc_tc);
 
             TableCell padding2 = new TableCell();
-            prefsPanel_table.Rows[prefsPanel_table.Rows.Count - 1].Cells.Add(padding2);
+            prefsPanel_table.Rows[^1].Cells.Add(padding2);
 
             prefsPanel_table.Rows.Add(new TableRow()); // padding
 
-            misc_settings_utilsUISetup(misc_tc);
+            pMisc_settings_utilsUISetup(misc_tc);
 
 
 
-            addPrefsHandlers();
+            pAddPrefsHandlers();
         }
 
-        void misc_settings_utilsUISetup(TableCell tc)
+        void pMisc_settings_utilsUISetup(TableCell tc)
         {
             GroupBox groupBox_misc = new GroupBox();
             tc.Control = groupBox_misc;
@@ -713,7 +779,7 @@ namespace Quilt
 
             groupBox_misc_table.Rows.Add(new TableRow());
             TableCell row0 = new TableCell();
-            groupBox_misc_table.Rows[groupBox_misc_table.Rows.Count - 1].Cells.Add(row0);
+            groupBox_misc_table.Rows[^1].Cells.Add(row0);
 
             Panel angTol_pnl = new Panel();
             TableLayout angTol_table = new TableLayout();
@@ -722,56 +788,63 @@ namespace Quilt
 
             angTol_table.Rows.Add(new TableRow());
 
-            lbl_angularTolerance = new Label();
-            lbl_angularTolerance.Text = "Angular Tolerance";
-            lbl_angularTolerance.ToolTip = "This value is used as the 'error' accepted when removing colinear vertices from imported layout.";
-            angTol_table.Rows[angTol_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_angularTolerance });
+            lbl_angularTolerance = new Label
+            {
+                Text = "Angular Tolerance",
+                ToolTip =
+                    "This value is used as the 'error' accepted when removing co-linear vertices from imported layout."
+            };
+            angTol_table.Rows[^1].Cells.Add(new TableCell() { Control = lbl_angularTolerance });
 
-            num_angularTolerance = new NumericStepper();
-            num_angularTolerance.ToolTip = "This value is used as the 'error' accepted when removing colinear vertices from imported layout.";
-            num_angularTolerance.MinValue = 0.01f;
-            num_angularTolerance.Increment = 0.01f;
-            num_angularTolerance.DecimalPlaces = 2;
-            setSize(num_angularTolerance, 50, num_Height);
-            angTol_table.Rows[angTol_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_angularTolerance });
+            num_angularTolerance = new NumericStepper
+            {
+                ToolTip =
+                    "This value is used as the 'error' accepted when removing co-linear vertices from imported layout.",
+                MinValue = 0.01f,
+                Increment = 0.01f,
+                DecimalPlaces = 2
+            };
+            pSetSize(num_angularTolerance, 50, num_Height);
+            angTol_table.Rows[^1].Cells.Add(new TableCell() { Control = num_angularTolerance });
 
-            checkBox_verticalRectDecomp = new CheckBox();
-            checkBox_verticalRectDecomp.ToolTip = "Decompose layout to vertically-oriented rectangles when set.\r\nUse horizontally-oriented rectangles, if cleared.";
-            checkBox_verticalRectDecomp.Text = "Vertical Decomp";
-            groupBox_misc_table.Rows[groupBox_misc_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_verticalRectDecomp });
+            checkBox_verticalRectDecomp = new CheckBox
+            {
+                ToolTip =
+                    "Decompose layout to vertically-oriented rectangles when set.\r\nUse horizontally-oriented rectangles, if cleared.",
+                Text = "Vertical Decomp"
+            };
+            groupBox_misc_table.Rows[^1].Cells.Add(new TableCell() { Control = checkBox_verticalRectDecomp });
         }
 
-        void openGL_settings_utilsUISetup(TableCell tc)
+        void pOpenGL_settings_utilsUISetup(TableCell tc)
         {
-            GroupBox groupBox_openGL = new GroupBox();
-            tc.Control = groupBox_openGL;
             TableLayout groupBox_openGL_table = new TableLayout();
-            groupBox_openGL.Text = "OpenGL";
-            groupBox_openGL.Content = groupBox_openGL_table;
+            GroupBox groupBox_openGL = new GroupBox {Text = "OpenGL", Content = groupBox_openGL_table};
+            tc.Control = groupBox_openGL;
 
             groupBox_openGL_table.Rows.Add(new TableRow());
             TableCell row0 = new TableCell();
-            groupBox_openGL_table.Rows[groupBox_openGL_table.Rows.Count - 1].Cells.Add(row0);
-            openGLRow0(row0);
+            groupBox_openGL_table.Rows[^1].Cells.Add(row0);
+            pOpenGLRow0(row0);
             TableCell row0padding = new TableCell();
-            groupBox_openGL_table.Rows[groupBox_openGL_table.Rows.Count - 1].Cells.Add(row0padding);
+            groupBox_openGL_table.Rows[^1].Cells.Add(row0padding);
 
             groupBox_openGL_table.Rows.Add(new TableRow());
             TableCell row1 = new TableCell();
-            groupBox_openGL_table.Rows[groupBox_openGL_table.Rows.Count - 1].Cells.Add(row1);
-            openGLRow1(row1);
+            groupBox_openGL_table.Rows[^1].Cells.Add(row1);
+            pOpenGLRow1(row1);
             TableCell row1padding = new TableCell();
-            groupBox_openGL_table.Rows[groupBox_openGL_table.Rows.Count - 1].Cells.Add(row1padding);
+            groupBox_openGL_table.Rows[^1].Cells.Add(row1padding);
 
             groupBox_openGL_table.Rows.Add(new TableRow());
             TableCell row2 = new TableCell();
-            groupBox_openGL_table.Rows[groupBox_openGL_table.Rows.Count - 1].Cells.Add(row2);
-            openGLRow2(row2);
+            groupBox_openGL_table.Rows[^1].Cells.Add(row2);
+            pOpenGLRow2(row2);
             TableCell row2padding = new TableCell();
-            groupBox_openGL_table.Rows[groupBox_openGL_table.Rows.Count - 1].Cells.Add(row2padding);
+            groupBox_openGL_table.Rows[^1].Cells.Add(row2padding);
         }
 
-        void openGLRow0(TableCell tc)
+        void pOpenGLRow0(TableCell tc)
         {
             Panel p = new Panel();
             tc.Control = p;
@@ -781,10 +854,10 @@ namespace Quilt
             p.Content = tl;
 
             Panel lRow0 = new Panel();
-            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lRow0 });
+            tl.Rows[^1].Cells.Add(new TableCell() { Control = lRow0 });
 
             Panel rRow0 = new Panel();
-            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = rRow0 });
+            tl.Rows[^1].Cells.Add(new TableCell() { Control = rRow0 });
 
             TableLayout lRow0tl = new TableLayout();
             lRow0.Content = lRow0tl;
@@ -797,318 +870,309 @@ namespace Quilt
             Panel zoomPnl = new Panel();
             TableLayout zoomTL = new TableLayout();
             zoomPnl.Content = zoomTL;
-            lRow0tl.Rows[lRow0tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = zoomPnl });
+            lRow0tl.Rows[^1].Cells.Add(new TableCell() { Control = zoomPnl });
 
             zoomTL.Rows.Add(new TableRow());
 
-            lbl_zoomSpeed = new Label();
-            lbl_zoomSpeed.Text = "Zoom Increment";
-            zoomTL.Rows[zoomTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_zoomSpeed });
+            lbl_zoomSpeed = new Label {Text = "Zoom Increment"};
+            zoomTL.Rows[^1].Cells.Add(new TableCell() { Control = lbl_zoomSpeed });
 
-            num_zoomSpeed = new NumericStepper();
-            num_zoomSpeed.MinValue = 1;
-            num_zoomSpeed.Increment = 1;
-            setSize(num_zoomSpeed, 50, num_Height);
-            zoomTL.Rows[zoomTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_zoomSpeed });
+            num_zoomSpeed = new NumericStepper {MinValue = 1, Increment = 1};
+            pSetSize(num_zoomSpeed, 50, num_Height);
+            zoomTL.Rows[^1].Cells.Add(new TableCell() { Control = num_zoomSpeed });
 
-            zoomTL.Rows[zoomTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = null }); // padding
+            zoomTL.Rows[^1].Cells.Add(new TableCell() { Control = null }); // padding
 
-            Panel fgOpPnl = new Panel();
             TableLayout fgOpTL = new TableLayout();
-            fgOpPnl.Content = fgOpTL;
-            rRow0tl.Rows[rRow0tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = fgOpPnl });
+            Panel fgOpPnl = new Panel {Content = fgOpTL};
+            rRow0tl.Rows[^1].Cells.Add(new TableCell() { Control = fgOpPnl });
 
             fgOpTL.Rows.Add(new TableRow());
 
-            lbl_fgOpacity = new Label();
-            lbl_fgOpacity.Text = "FG Opacity";
-            lbl_fgOpacity.ToolTip = "Opacity of selected pattern elements in viewport.";
-            fgOpTL.Rows[fgOpTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_fgOpacity });
+            lbl_fgOpacity = new Label
+            {
+                Text = "FG Opacity", ToolTip = "Opacity of selected pattern elements in viewport."
+            };
+            fgOpTL.Rows[^1].Cells.Add(new TableCell() { Control = lbl_fgOpacity });
 
-            num_fgOpacity = new NumericStepper();
-            num_fgOpacity.ToolTip = "Opacity of selected pattern elements in viewport.";
-            num_fgOpacity.MinValue = 0.01f;
-            num_fgOpacity.Increment = 0.1f;
-            num_fgOpacity.DecimalPlaces = 2;
-            setSize(num_fgOpacity, 50, num_Height);
-            fgOpTL.Rows[fgOpTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_fgOpacity });
+            num_fgOpacity = new NumericStepper
+            {
+                ToolTip = "Opacity of selected pattern elements in viewport.",
+                MinValue = 0.01f,
+                Increment = 0.1f,
+                DecimalPlaces = 2
+            };
+            pSetSize(num_fgOpacity, 50, num_Height);
+            fgOpTL.Rows[^1].Cells.Add(new TableCell() { Control = num_fgOpacity });
 
-            Panel bgOpPnl = new Panel();
             TableLayout bgOpTL = new TableLayout();
-            bgOpPnl.Content = bgOpTL;
-            rRow0tl.Rows[rRow0tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = bgOpPnl });
+            Panel bgOpPnl = new Panel {Content = bgOpTL};
+            rRow0tl.Rows[^1].Cells.Add(new TableCell() { Control = bgOpPnl });
 
             bgOpTL.Rows.Add(new TableRow());
 
-            lbl_bgOpacity = new Label();
-            lbl_bgOpacity.Text = "BG Opacity";
-            lbl_bgOpacity.ToolTip = "Opacity of not-selected pattern elements in viewport.";
-            bgOpTL.Rows[bgOpTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_bgOpacity });
+            lbl_bgOpacity = new Label
+            {
+                Text = "BG Opacity", ToolTip = "Opacity of not-selected pattern elements in viewport."
+            };
+            bgOpTL.Rows[^1].Cells.Add(new TableCell() { Control = lbl_bgOpacity });
 
-            num_bgOpacity = new NumericStepper();
-            num_bgOpacity.ToolTip = "Opacity of not-selected pattern elements in viewport.";
-            num_bgOpacity.MinValue = 0.01f;
-            num_bgOpacity.Increment = 0.1f;
-            num_bgOpacity.DecimalPlaces = 2;
-            setSize(num_bgOpacity, 50, num_Height);
-            bgOpTL.Rows[bgOpTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_bgOpacity });
+            num_bgOpacity = new NumericStepper
+            {
+                ToolTip = "Opacity of not-selected pattern elements in viewport.",
+                MinValue = 0.01f,
+                Increment = 0.1f,
+                DecimalPlaces = 2
+            };
+            pSetSize(num_bgOpacity, 50, num_Height);
+            bgOpTL.Rows[^1].Cells.Add(new TableCell() { Control = num_bgOpacity });
 
-            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null }); // padding
+            tl.Rows[^1].Cells.Add(new TableCell() { Control = null }); // padding
 
             tl.Rows.Add(new TableRow());
 
-            Panel lRow1 = new Panel();
-            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lRow1 });
-
-            Panel rRow1 = new Panel();
-            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = rRow1 });
-
-            tl.Rows[tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null }); // padding
-
             TableLayout lRow1tl = new TableLayout();
-            lRow1.Content = lRow1tl;
-            lRow1tl.Rows.Add(new TableRow());
+            Panel lRow1 = new Panel {Content = lRow1tl};
+            tl.Rows[^1].Cells.Add(new TableCell() { Control = lRow1 });
 
             TableLayout rRow1tl = new TableLayout();
-            rRow1.Content = rRow1tl;
+            Panel rRow1 = new Panel {Content = rRow1tl};
+            tl.Rows[^1].Cells.Add(new TableCell() { Control = rRow1 });
+
+            tl.Rows[^1].Cells.Add(new TableCell() { Control = null }); // padding
+
+            lRow1tl.Rows.Add(new TableRow());
+
             rRow1tl.Rows.Add(new TableRow());
 
-            Panel dispOptsPnl = new Panel();
             TableLayout dispOptsTL = new TableLayout();
-            dispOptsPnl.Content = dispOptsTL;
-            lRow1tl.Rows[lRow1tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = dispOptsPnl });
+            Panel dispOptsPnl = new Panel {Content = dispOptsTL};
+            lRow1tl.Rows[^1].Cells.Add(new TableCell() { Control = dispOptsPnl });
 
             dispOptsTL.Rows.Add(new TableRow());
 
-            checkBox_OGLAA = new CheckBox();
-            checkBox_OGLAA.Text = "Antialiasing";
-            dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_OGLAA });
+            checkBox_OGLAA = new CheckBox {Text = "Antialiasing"};
+            dispOptsTL.Rows[^1].Cells.Add(new TableCell() { Control = checkBox_OGLAA });
 
-            checkBox_OGLFill = new CheckBox();
-            checkBox_OGLFill.Text = "Fill";
-            checkBox_OGLFill.ToolTip = "Draw filled polygons, if set.";
-            dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_OGLFill });
+            checkBox_OGLFill = new CheckBox {Text = "Fill", ToolTip = "Draw filled polygons, if set."};
+            dispOptsTL.Rows[^1].Cells.Add(new TableCell() { Control = checkBox_OGLFill });
 
-            checkBox_OGLPoints = new CheckBox();
-            checkBox_OGLPoints.Text = "Points";
-            checkBox_OGLPoints.ToolTip = "Draw points in viewport, if set.";
-            dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_OGLPoints });
+            checkBox_OGLPoints = new CheckBox {Text = "Points", ToolTip = "Draw points in viewport, if set."};
+            dispOptsTL.Rows[^1].Cells.Add(new TableCell() { Control = checkBox_OGLPoints });
 
-            checkBox_drawExtents = new CheckBox();
-            checkBox_drawExtents.Text = "Extents";
-            checkBox_drawExtents.ToolTip = "Draw pattern extents in viewport, if set.";
-            dispOptsTL.Rows[dispOptsTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_drawExtents });
+            checkBox_drawExtents = new CheckBox
+            {
+                Text = "Extents", ToolTip = "Draw pattern extents in viewport, if set."
+            };
+            dispOptsTL.Rows[^1].Cells.Add(new TableCell() { Control = checkBox_drawExtents });
         }
 
-        void openGLRow1(TableCell tc)
+        void pOpenGLRow1(TableCell tc)
         {
-            Panel p = new Panel();
-            tc.Control = p;
-
             TableLayout swatchesTL = new TableLayout();
-            p.Content = swatchesTL;
+            Panel p = new Panel {Content = swatchesTL};
+            tc.Control = p;
 
             swatchesTL.Rows.Add(new TableRow());
 
             TableRow row0 = new TableRow();
             swatchesTL.Rows.Add(row0);
 
-            opengl_swatchrow0(row0);
+            pOpengl_swatchrow0(row0);
 
             TableRow row1 = new TableRow();
             swatchesTL.Rows.Add(row1);
 
-            opengl_swatchrow1(row1);
+            pOpengl_swatchrow1(row1);
 
             TableRow padding = new TableRow();
             swatchesTL.Rows.Add(padding);
         }
 
-        void opengl_swatchrow0(TableRow tr)
+        void pOpengl_swatchrow0(TableRow tr)
         {
-            Panel c0 = new Panel();
+            TableLayout c0TL = new TableLayout();
+            Panel c0 = new Panel {Content = c0TL};
             tr.Cells.Add(new TableCell() { Control = c0 });
 
-            TableLayout c0TL = new TableLayout();
-            c0.Content = c0TL;
             c0TL.Rows.Add(new TableRow());
 
-            lbl_minorGridColor = new Label();
-            lbl_minorGridColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().minor_Color);
-            setSize(lbl_minorGridColor, label_Height, label_Height);
+            lbl_minorGridColor = new Label
+            {
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().minor_Color)
+            };
+            pSetSize(lbl_minorGridColor, label_Height, label_Height);
             c0TL.Rows[0].Cells.Add(lbl_minorGridColor);
 
-            lbl_minorGridColor_name = new Label();
-            lbl_minorGridColor_name.Text = "Minor Grid";
+            lbl_minorGridColor_name = new Label {Text = "Minor Grid"};
             c0TL.Rows[0].Cells.Add(lbl_minorGridColor_name);
 
-            Panel c1 = new Panel();
+            TableLayout c1TL = new TableLayout();
+            Panel c1 = new Panel {Content = c1TL};
             tr.Cells.Add(new TableCell() { Control = c1 });
 
-            TableLayout c1TL = new TableLayout();
-            c1.Content = c1TL;
             c1TL.Rows.Add(new TableRow());
 
-            lbl_majorGridColor = new Label();
-            lbl_majorGridColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().major_Color);
-            setSize(lbl_majorGridColor, label_Height, label_Height);
+            lbl_majorGridColor = new Label
+            {
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().major_Color)
+            };
+            pSetSize(lbl_majorGridColor, label_Height, label_Height);
             c1TL.Rows[0].Cells.Add(lbl_majorGridColor);
 
-            lbl_majorGridColor_name = new Label();
-            lbl_majorGridColor_name.Text = "Major Grid";
+            lbl_majorGridColor_name = new Label {Text = "Major Grid"};
             c1TL.Rows[0].Cells.Add(lbl_majorGridColor_name);
 
-            Panel c2 = new Panel();
+            TableLayout c2TL = new TableLayout();
+            Panel c2 = new Panel {Content = c2TL};
             tr.Cells.Add(new TableCell() { Control = c2 });
 
-            TableLayout c2TL = new TableLayout();
-            c2.Content = c2TL;
             c2TL.Rows.Add(new TableRow());
 
-            lbl_axisColor = new Label();
-            lbl_axisColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().axis_Color);
-            setSize(lbl_axisColor, label_Height, label_Height);
+            lbl_axisColor = new Label {BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().axis_Color)};
+            pSetSize(lbl_axisColor, label_Height, label_Height);
             c2TL.Rows[0].Cells.Add(lbl_axisColor);
 
-            lbl_axisColor_name = new Label();
-            lbl_axisColor_name.Text = "Axis";
+            lbl_axisColor_name = new Label {Text = "Axis"};
             c2TL.Rows[0].Cells.Add(lbl_axisColor_name);
 
-            Panel c3 = new Panel();
+            TableLayout c3TL = new TableLayout();
+            Panel c3 = new Panel {Content = c3TL};
             tr.Cells.Add(new TableCell() { Control = c3 });
 
-            TableLayout c3TL = new TableLayout();
-            c3.Content = c3TL;
             c3TL.Rows.Add(new TableRow());
 
-            lbl_vpbgColor = new Label();
-            lbl_vpbgColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().background_Color);
-            setSize(lbl_vpbgColor, label_Height, label_Height);
+            lbl_vpbgColor = new Label
+            {
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().background_Color)
+            };
+            pSetSize(lbl_vpbgColor, label_Height, label_Height);
             c3TL.Rows[0].Cells.Add(lbl_vpbgColor);
 
-            lbl_vpbgColor_name = new Label();
-            lbl_vpbgColor_name.Text = "VP Background";
+            lbl_vpbgColor_name = new Label {Text = "VP Background"};
             c3TL.Rows[0].Cells.Add(lbl_vpbgColor_name);
         }
 
-        void opengl_swatchrow1(TableRow tr)
+        void pOpengl_swatchrow1(TableRow tr)
         {
-            Panel c0 = new Panel();
+            TableLayout c0TL = new TableLayout();
+            Panel c0 = new Panel {Content = c0TL};
             tr.Cells.Add(new TableCell() { Control = c0 });
 
-            TableLayout c0TL = new TableLayout();
-            c0.Content = c0TL;
             c0TL.Rows.Add(new TableRow());
 
-            lbl_enabledColor = new Label();
-            lbl_enabledColor.ToolTip = "Color of polygons from selected pattern elements in viewport";
-            lbl_enabledColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().enabled_Color);
-            setSize(lbl_enabledColor, label_Height, label_Height);
+            lbl_enabledColor = new Label
+            {
+                ToolTip = "Color of polygons from selected pattern elements in viewport",
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().enabled_Color)
+            };
+            pSetSize(lbl_enabledColor, label_Height, label_Height);
             c0TL.Rows[0].Cells.Add(lbl_enabledColor);
 
-            lbl_enabledColor_name = new Label();
-            lbl_enabledColor_name.ToolTip = "Color of polygons from selected pattern elements in viewport";
-            lbl_enabledColor_name.Text = "Enabled";
+            lbl_enabledColor_name = new Label
+            {
+                ToolTip = "Color of polygons from selected pattern elements in viewport", Text = "Enabled"
+            };
             c0TL.Rows[0].Cells.Add(lbl_enabledColor_name);
 
-            Panel c0b = new Panel();
+            TableLayout c0bTL = new TableLayout();
+            Panel c0b = new Panel {Content = c0bTL};
             tr.Cells.Add(new TableCell() { Control = c0b });
 
-            TableLayout c0bTL = new TableLayout();
-            c0b.Content = c0bTL;
             c0bTL.Rows.Add(new TableRow());
 
-            lbl_backgroundColor = new Label();
-            lbl_backgroundColor.ToolTip = "Color of polygons from unselected pattern elements in viewport";
-            lbl_backgroundColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().deselected_Color);
-            setSize(lbl_backgroundColor, label_Height, label_Height);
+            lbl_backgroundColor = new Label
+            {
+                ToolTip = "Color of polygons from unselected pattern elements in viewport",
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().deselected_Color)
+            };
+            pSetSize(lbl_backgroundColor, label_Height, label_Height);
             c0bTL.Rows[0].Cells.Add(lbl_backgroundColor);
 
-            lbl_backgroundColor_name = new Label();
-            lbl_backgroundColor_name.ToolTip = "Color of polygons from unselected pattern elements in viewport";
-            lbl_backgroundColor_name.Text = "Background";
+            lbl_backgroundColor_name = new Label
+            {
+                ToolTip = "Color of polygons from unselected pattern elements in viewport", Text = "Background"
+            };
             c0bTL.Rows[0].Cells.Add(lbl_backgroundColor_name);
 
 
-            Panel c1 = new Panel();
+            TableLayout c1TL = new TableLayout();
+            Panel c1 = new Panel {Content = c1TL};
             tr.Cells.Add(new TableCell() { Control = c1 });
 
-            TableLayout c1TL = new TableLayout();
-            c1.Content = c1TL;
             c1TL.Rows.Add(new TableRow());
 
-            lbl_ss1Color = new Label();
-            lbl_ss1Color.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().subshape1_Color);
-            setSize(lbl_ss1Color, label_Height, label_Height);
+            lbl_ss1Color = new Label
+            {
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().subshape1_Color)
+            };
+            pSetSize(lbl_ss1Color, label_Height, label_Height);
             c1TL.Rows[0].Cells.Add(lbl_ss1Color);
 
-            lbl_ss1Color_name = new Label();
-            lbl_ss1Color_name.Text = "Subshape 1";
+            lbl_ss1Color_name = new Label {Text = "Subshape 1"};
             c1TL.Rows[0].Cells.Add(lbl_ss1Color_name);
 
-            Panel c2 = new Panel();
+            TableLayout c2TL = new TableLayout();
+            Panel c2 = new Panel {Content = c2TL};
             tr.Cells.Add(new TableCell() { Control = c2 });
 
-            TableLayout c2TL = new TableLayout();
-            c2.Content = c2TL;
             c2TL.Rows.Add(new TableRow());
 
-            lbl_ss2Color = new Label();
-            lbl_ss2Color.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().subshape2_Color);
-            setSize(lbl_ss2Color, label_Height, label_Height);
+            lbl_ss2Color = new Label
+            {
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().subshape2_Color)
+            };
+            pSetSize(lbl_ss2Color, label_Height, label_Height);
             c2TL.Rows[0].Cells.Add(lbl_ss2Color);
 
-            lbl_ss2Color_name = new Label();
-            lbl_ss2Color_name.Text = "Subshape 2";
+            lbl_ss2Color_name = new Label {Text = "Subshape 2"};
             c2TL.Rows[0].Cells.Add(lbl_ss2Color_name);
 
-            Panel c3 = new Panel();
+            TableLayout c3TL = new TableLayout();
+            Panel c3 = new Panel {Content = c3TL};
             tr.Cells.Add(new TableCell() { Control = c3 });
 
-            TableLayout c3TL = new TableLayout();
-            c3.Content = c3TL;
             c3TL.Rows.Add(new TableRow());
 
-            lbl_ss3Color = new Label();
-            lbl_ss3Color.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().subshape3_Color);
-            setSize(lbl_ss3Color, label_Height, label_Height);
+            lbl_ss3Color = new Label
+            {
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().subshape3_Color)
+            };
+            pSetSize(lbl_ss3Color, label_Height, label_Height);
             c3TL.Rows[0].Cells.Add(lbl_ss3Color);
 
-            lbl_ss3Color_name = new Label();
-            lbl_ss3Color_name.Text = "Subshape 3";
+            lbl_ss3Color_name = new Label {Text = "Subshape 3"};
             c3TL.Rows[0].Cells.Add(lbl_ss3Color_name);
 
-            Panel c4 = new Panel();
+            TableLayout c4TL = new TableLayout();
+            Panel c4 = new Panel {Content = c4TL};
             tr.Cells.Add(new TableCell() { Control = c4 });
 
-            TableLayout c4TL = new TableLayout();
-            c4.Content = c4TL;
             c4TL.Rows.Add(new TableRow());
 
-            lbl_extentsColor = new Label();
-            lbl_extentsColor.ToolTip = "Color of pattern extent box in viewport";
-            lbl_extentsColor.BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().extents_Color);
-            setSize(lbl_extentsColor, label_Height, label_Height);
+            lbl_extentsColor = new Label
+            {
+                ToolTip = "Color of pattern extent box in viewport",
+                BackgroundColor = UIHelper.myColorToColor(commonVars.getColors().extents_Color)
+            };
+            pSetSize(lbl_extentsColor, label_Height, label_Height);
             c4TL.Rows[0].Cells.Add(lbl_extentsColor);
 
-            lbl_extentsColor_name = new Label();
-            lbl_extentsColor_name.ToolTip = "Color of pattern extent box in viewport";
-            lbl_extentsColor_name.Text = "Extents";
+            lbl_extentsColor_name = new Label {ToolTip = "Color of pattern extent box in viewport", Text = "Extents"};
             c4TL.Rows[0].Cells.Add(lbl_extentsColor_name);
         }
 
-        void openGLRow2(TableCell tc)
+        void pOpenGLRow2(TableCell tc)
         {
             Panel p = new Panel();
             tc.Control = p;
 
-            btn_resetColors = new Button();
-            btn_resetColors.Text = "Reset";
-            setSize(btn_resetColors, 60, 21);
+            btn_resetColors = new Button {Text = "Reset"};
+            pSetSize(btn_resetColors, 60, 21);
             tc.Control = TableLayout.AutoSized(btn_resetColors, centered: true);
         }
 
-        void launchHelp(object sender, EventArgs e)
+        void pLaunchHelp(object sender, EventArgs e)
         {
             if (helpAvailable)
             {
@@ -1122,44 +1186,44 @@ namespace Quilt
             }
         }
 
-        void commandsUI()
+        void pCommandsUI()
         {
-            Closed += quitHandler;
+            Closed += pQuitHandler;
 
             quitCommand = new Command { MenuText = "Quit", Shortcut = Application.Instance.CommonModifier | Keys.Q };
-            quitCommand.Executed += quit;
-            Application.Instance.Terminating += quitHandler;
+            quitCommand.Executed += pQuit;
+            Application.Instance.Terminating += pQuitHandler;
 
             aboutCommand = new Command { MenuText = "About..." };
-            aboutCommand.Executed += aboutMe;
+            aboutCommand.Executed += pAboutMe;
 
             helpCommand = new Command { MenuText = "Help...", Shortcut = Keys.F1 };
-            helpCommand.Executed += launchHelp;
+            helpCommand.Executed += pLaunchHelp;
 
             copyLayer = new Command { MenuText = "Copy", ToolBarText = "Copy", Shortcut = Application.Instance.CommonModifier | Keys.C };
-            copyLayer.Executed += copyHandler;
+            copyLayer.Executed += pCopyHandler;
 
             pasteLayer = new Command { MenuText = "Paste", ToolBarText = "Paste", Shortcut = Application.Instance.CommonModifier | Keys.V };
-            pasteLayer.Executed += pasteHandler;
+            pasteLayer.Executed += pPasteHandler;
             pasteLayer.Enabled = commonVars.stitcher.isCopySet();
 
             newSim = new Command { MenuText = "New", ToolBarText = "New", Shortcut = Application.Instance.CommonModifier | Keys.N };
-            newSim.Executed += newHandler;
+            newSim.Executed += pNewHandler;
             openSim = new Command { MenuText = "Open", ToolBarText = "Open", Shortcut = Application.Instance.CommonModifier | Keys.O };
-            openSim.Executed += openHandler;
+            openSim.Executed += pOpenHandler;
 
             fromLayout = new Command { MenuText = "Layout", ToolBarText = "Layout", Shortcut = Application.Instance.CommonModifier | Keys.I };
-            fromLayout.Executed += fromLayoutHandler;
+            fromLayout.Executed += pFromLayoutHandler;
 
             revertSim = new Command { MenuText = "Revert", ToolBarText = "Revert", Shortcut = Application.Instance.CommonModifier | Keys.R };
-            revertSim.Executed += revertHandler;
+            revertSim.Executed += pRevertHandler;
             revertSim.Enabled = false;
 
             saveSim = new Command { MenuText = "Save", ToolBarText = "Save", Shortcut = Application.Instance.CommonModifier | Keys.S };
-            saveSim.Executed += saveHandler;
+            saveSim.Executed += pSaveHandler;
 
             saveAsSim = new Command { MenuText = "Save As", ToolBarText = "Save As", Shortcut = Application.Instance.CommonModifier | Keys.Shift | Keys.S };
-            saveAsSim.Executed += saveAsHandler;
+            saveAsSim.Executed += pSaveAsHandler;
 
             fileMenu = new ButtonMenuItem { Text = "&File", Items = { newSim, openSim, fromLayout, revertSim, saveSim, saveAsSim } };
             editMenu = new ButtonMenuItem { Text = "&Edit", Items = { copyLayer, pasteLayer } };
@@ -1185,67 +1249,60 @@ namespace Quilt
             helpCommand.Enabled = helpAvailable;
         }
 
-        void patternSettingsUI()
+        void pPatternSettingsUI()
         {
-            settings = new Panel();
-            settings.Size = new Size(540, 270);
-            Panel p = new Panel();
-            TableLayout p_tl = new TableLayout();
-            p.Content = p_tl;
+            settings_tl = new TableLayout();
+            Panel p = new Panel {Content = settings_tl};
 
-            settings.Content = p;
-
-            Panel pMain = new Panel();
+            settings = new Panel {Size = new Size(540, 270), Content = p};
+            
             main_tl = new TableLayout();
-            pMain.Content = main_tl;
+            Panel pMain = new Panel {Content = main_tl};
 
             TableRow main_tr = new TableRow();
             main_tl.Rows.Add(main_tr);
             TableCell main_tc0 = new TableCell();
             main_tr.Cells.Add(main_tc0);
-            TableCell main_tc1 = new TableCell();
-            main_tr.Cells.Add(main_tc1);
 
             left_tl = new TableLayout();
             main_tc0.Control = left_tl;
 
-            Scrollable right_s = new Scrollable();
             right_tl = new TableLayout();
-            right_s.Content = right_tl;
-            main_tc1.Control = right_s;
+            Scrollable right_s = new Scrollable {Content = right_tl};
 
-            p_tl.Rows.Add(new TableRow() { ScaleHeight = true });
-            p_tl.Rows[p_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = pMain });
+            TableCell main_tc1 = new TableCell {Control = right_s};
+            main_tr.Cells.Add(main_tc1);
 
+            settings_tl.Rows.Add(new TableRow() { ScaleHeight = true });
+            settings_tl.Rows[^1].Cells.Add(new TableCell() { Control = pMain });
 
-            Panel pLower = new Panel();
-            TableLayout progressTL = new TableLayout();
-            pLower.Content = progressTL;
-            TableRow progressTL_r0 = new TableRow();
-            progressTL.Rows.Add(progressTL_r0);
-            TableCell progressTL_r0_c0 = new TableCell();
-            progressTL_r0.Cells.Add(progressTL_r0_c0);
-            TableCell progressTL_r0_c1 = new TableCell();
-            progressTL_r0.Cells.Add(progressTL_r0_c1);
+            progress_tl = new TableLayout();
+            Panel progressPanel = new Panel {Content = progress_tl};
+            TableRow progress_tr = new TableRow();
+            progress_tl.Rows.Add(progress_tr);
 
             int progressLabelWidth = listBox_entries_Width; // forcing as the UI hasn't calculated at this point.
-            progressLabel = new Label();
-            progressLabel.Text = "";
-            setSize(progressLabel, progressLabelWidth, label_Height * 2);
-            progressTL_r0_c0.Control = progressLabel;
+            progressLabel = new Label {Text = ""};
+            pSetSize(progressLabel, progressLabelWidth, label_Height * 2);
+            TableCell progress_tc0 = new TableCell {Control = progressLabel};
+            progress_tr.Cells.Add(progress_tc0);
 
-            progressBar = new ProgressBar();
-            progressBar.Height = 10;
-            progressTL_r0_c1.Control = progressBar;
-            progressTL_r0_c1.ScaleWidth = true;
+            progressBar = new ProgressBar {Height = 10};
+            TableCell progress_tc1 = new TableCell {Control = progressBar, ScaleWidth = true};
+            progress_tr.Cells.Add(progress_tc1);
 
-            p_tl.Rows.Add(new TableRow());
-            p_tl.Rows[p_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = pLower });
+            btn_Cancel = new Button {Text = "Cancel", Enabled = false};
+            btn_Cancel.Click += pCancelLayoutProcessing;
+            TableCell progress_tc2 = new TableCell {Control = TableLayout.AutoSized(btn_Cancel)};
+            progress_tr.Cells.Add(progress_tc2);
+            
+            settings_tl.Rows.Add(new TableRow());
+            settings_tl.Rows[^1].Cells.Add(new TableCell() { Control = progressPanel });
 
-            patternSettingsUI_2();
+            pPatternSettingsUI_2();
         }
 
-        void patternSettingsUI_2()
+        void pPatternSettingsUI_2()
         {
             TableRow left_layout_tr = new TableRow();
             left_tl.Rows.Add(left_layout_tr);
@@ -1257,41 +1314,33 @@ namespace Quilt
 
             layout_tl.Rows.Add(new TableRow());
 
-            btn_layout = new Button();
-            btn_layout.Text = "From File";
-            btn_layout.ToolTip = "Use layout to define pattern.";
-            btn_layout.Click += fromLayoutHandler;
+            btn_layout = new Button {Text = "From File", ToolTip = "Use layout to define pattern."};
+            btn_layout.Click += pFromLayoutHandler;
 
             comboBox_layout_structures = new DropDown();
             comboBox_layout_structures.BindDataContext(c => c.DataStore, (UIStringLists m) => m.geoCoreStructureList_exp);
-            comboBox_layout_structures.SelectedIndexChanged += processLayout;
+            comboBox_layout_structures.SelectedIndexChanged += pProcessLayout;
 
-            layout_tl.Rows[layout_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(btn_layout) });
+            layout_tl.Rows[^1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(btn_layout) });
 
-            layout_tl.Rows[layout_tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_layout_structures), ScaleWidth = true });
+            layout_tl.Rows[^1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(comboBox_layout_structures), ScaleWidth = true });
 
-            TableRow left_tr0 = new TableRow();
-            left_tr0.ScaleHeight = true;
+            TableRow left_tr0 = new TableRow {ScaleHeight = true};
             left_tl.Rows.Add(left_tr0);
 
-            listBox_entries = new ListBox();
-            listBox_entries.ContextMenu = listbox_menu;
-            int listBox_entries_Width = 200;
-            int listBox_entries_Height = 300;
-            setSize(listBox_entries, listBox_entries_Width, listBox_entries_Height);
+            listBox_entries = new ListBox {ContextMenu = listbox_menu};
+            pSetSize(listBox_entries, listBox_entries_Width, listBox_entries_Height);
             listBox_entries.BindDataContext(c => c.DataStore, (UIStringLists m) => m.patternElementNames);
-            listBox_entries.SelectedIndexChanged += updatePatternElementUI;
+            listBox_entries.SelectedIndexChanged += pUpdatePatternElementUI;
 
             TableCell left_tr0_0 = new TableCell();
             left_tr0.Cells.Add(left_tr0_0);
 
-            Panel listBox_pnl = new Panel();
-            listBox_pnl.Content = listBox_entries;
+            Panel listBox_pnl = new Panel {Content = listBox_entries};
             left_tr0_0.Control = listBox_pnl;
 
-            Panel lowerLeftContainer = new Panel();
             TableLayout settings_table = new TableLayout();
-            lowerLeftContainer.Content = settings_table;
+            Panel lowerLeftContainer = new Panel {Content = settings_table};
 
             TableRow left_tr1 = new TableRow();
             left_tl.Rows.Add(left_tr1);
@@ -1301,16 +1350,14 @@ namespace Quilt
 
             settings_table.Rows.Add(new TableRow());
 
-            text_patternElement = new TextBox();
-            text_patternElement.ToolTip = "Name of pattern element.";
-            settings_table.Rows[settings_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = text_patternElement });
+            text_patternElement = new TextBox {ToolTip = "Name of pattern element."};
+            settings_table.Rows[^1].Cells.Add(new TableCell() { Control = text_patternElement });
 
             settings_table.Rows.Add(new TableRow());
-            Panel bPanel = new Panel();
-            settings_table.Rows[settings_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = bPanel });
-
             TableLayout bTable = new TableLayout();
-            bPanel.Content = bTable;
+            Panel bPanel = new Panel {Content = bTable};
+            settings_table.Rows[^1].Cells.Add(new TableCell() { Control = bPanel });
+
             bTable.Rows.Add(new TableRow());
 
             entry_Add = new Button();
@@ -1318,165 +1365,156 @@ namespace Quilt
             int entry_btnWidth = listBox_entries_Width / 3;
             entry_Add.Text = "Add";
             entry_Add.ToolTip = "Add new pattern entry (duplicates will not be added).";
-            setSize(entry_Add, entry_btnWidth, 21);
-            bTable.Rows[bTable.Rows.Count - 1].Cells.Add(new TableCell() { Control = entry_Add });
+            pSetSize(entry_Add, entry_btnWidth, 21);
+            bTable.Rows[^1].Cells.Add(new TableCell() { Control = entry_Add });
 
-            entry_Rename = new Button();
-            entry_Rename.Text = "Rename";
-            entry_Rename.ToolTip = "Rename selected pattern entry.";
-            setSize(entry_Rename, entry_btnWidth, 21);
-            bTable.Rows[bTable.Rows.Count - 1].Cells.Add(new TableCell() { Control = entry_Rename });
+            entry_Rename = new Button {Text = "Rename", ToolTip = "Rename selected pattern entry."};
+            pSetSize(entry_Rename, entry_btnWidth, 21);
+            bTable.Rows[^1].Cells.Add(new TableCell() { Control = entry_Rename });
 
-            entry_Remove = new Button();
-            entry_Remove.Text = "Remove";
-            entry_Remove.ToolTip = "Remove selected pattern entry.";
-            setSize(entry_Remove, entry_btnWidth, 21);
-            bTable.Rows[bTable.Rows.Count - 1].Cells.Add(new TableCell() { Control = entry_Remove });
+            entry_Remove = new Button {Text = "Remove", ToolTip = "Remove selected pattern entry."};
+            pSetSize(entry_Remove, entry_btnWidth, 21);
+            bTable.Rows[^1].Cells.Add(new TableCell() { Control = entry_Remove });
 
             settings_table.Rows.Add(new TableRow());
-            Panel row2panel = new Panel();
-            settings_table.Rows[settings_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row2panel });
-
             TableLayout row2tl = new TableLayout();
-            row2panel.Content = row2tl;
+            Panel row2panel = new Panel {Content = row2tl};
+            settings_table.Rows[^1].Cells.Add(new TableCell() { Control = row2panel });
+
             row2tl.Rows.Add(new TableRow());
 
-            lbl_viewportZoom = new Label();
-            lbl_viewportZoom.Text = "Zoom";
+            lbl_viewportZoom = new Label {Text = "Zoom"};
 
-            int nX = 45;
             int nW = 55;
-            num_viewportZoom = new NumericStepper();
-            num_viewportZoom.Value = 1.0f;
-            num_viewportZoom.DecimalPlaces = 2;
-            num_viewportZoom.MinValue = 1E-2;
-            setSize(num_viewportZoom, nW, num_Height);
-            num_viewportZoom.LostFocus += zoomChanged;
-
-            Panel row2left = new Panel();
-            row2tl.Rows[row2tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = row2left });
+            num_viewportZoom = new NumericStepper {Value = 1.0f, DecimalPlaces = 2, MinValue = 1E-2};
+            num_viewportZoom.LostFocus += pZoomChanged;
+            pSetSize(num_viewportZoom, nW, num_Height);
 
             TableLayout row2leftTL = new TableLayout();
-            row2left.Content = row2leftTL;
+            Panel row2left = new Panel {Content = row2leftTL};
+            row2tl.Rows[^1].Cells.Add(new TableCell() { Control = row2left });
+
             row2leftTL.Rows.Add(new TableRow());
-            row2leftTL.Rows[row2leftTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_viewportZoom });
+            row2leftTL.Rows[^1].Cells.Add(new TableCell() { Control = lbl_viewportZoom });
 
-            row2leftTL.Rows[row2leftTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_viewportZoom });
+            row2leftTL.Rows[^1].Cells.Add(new TableCell() { Control = num_viewportZoom });
 
-            row2leftTL.Rows[row2leftTL.Rows.Count - 1].Cells.Add(new TableCell() { Control = null, ScaleWidth = true });
+            row2leftTL.Rows[^1].Cells.Add(new TableCell() { Control = null, ScaleWidth = true });
 
-            checkBox_suspendBuild = new CheckBox();
-            checkBox_suspendBuild.Text = "Suspend";
-            checkBox_suspendBuild.ToolTip = "If checked, do not rebuild the quilt with changes.";
+            checkBox_suspendBuild = new CheckBox
+            {
+                Text = "Suspend", ToolTip = "If checked, do not rebuild the quilt with changes."
+            };
 
-            row2tl.Rows[row2tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_suspendBuild });
+            row2tl.Rows[^1].Cells.Add(new TableCell() { Control = checkBox_suspendBuild });
 
-            checkBox_showInput = new CheckBox();
-            checkBox_showInput.Text = "Input";
-            checkBox_showInput.ToolTip = "If checked, show subshapes in viewport, rather than the final shapes.";
-            checkBox_showInput.Checked = true;
+            checkBox_showInput = new CheckBox
+            {
+                Text = "Input",
+                ToolTip = "If checked, show subshapes in viewport, rather than the final shapes.",
+                Checked = true
+            };
 
-            row2tl.Rows[row2tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = checkBox_showInput });
+            row2tl.Rows[^1].Cells.Add(new TableCell() { Control = checkBox_showInput });
 
-            row2tl.Rows[row2tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
+            row2tl.Rows[^1].Cells.Add(new TableCell() { Control = null });
 
             settings_table.Rows.Add(new TableRow());
-            Panel row3panel = new Panel();
-            settings_table.Rows[settings_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row3panel });
-
             TableLayout row3tl = new TableLayout();
-            row3panel.Content = row3tl;
+            Panel row3panel = new Panel {Content = row3tl};
+            settings_table.Rows[^1].Cells.Add(new TableCell() { Control = row3panel });
+
             row3tl.Rows.Add(new TableRow());
 
-            lbl_viewportPos = new Label();
-            lbl_viewportPos.Text = "Position";
+            lbl_viewportPos = new Label {Text = "Position"};
 
-            row3tl.Rows[row3tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_viewportPos });
+            row3tl.Rows[^1].Cells.Add(new TableCell() { Control = lbl_viewportPos });
 
-            num_viewportX = new NumericStepper();
-            num_viewportX.Value = 0.0f;
-            num_viewportX.DecimalPlaces = 2;
-            num_viewportX.ToolTip = "X coordinate at center of viewport.";
-            setSize(num_viewportX, nW, num_Height);
-            num_viewportX.LostFocus += posChanged;
+            num_viewportX = new NumericStepper
+            {
+                Value = 0.0f, DecimalPlaces = 2, ToolTip = "X coordinate at center of viewport."
+            };
+            pSetSize(num_viewportX, nW, num_Height);
+            num_viewportX.LostFocus += pPosChanged;
 
-            row3tl.Rows[row3tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_viewportX });
+            row3tl.Rows[^1].Cells.Add(new TableCell() { Control = num_viewportX });
 
-            num_viewportY = new NumericStepper();
-            num_viewportY.Value = 0.0f;
-            num_viewportY.DecimalPlaces = 2;
-            num_viewportY.ToolTip = "Y coordinate at center of viewport.";
-            setSize(num_viewportY, nW, num_Height);
-            num_viewportY.LostFocus += posChanged;
+            num_viewportY = new NumericStepper
+            {
+                Value = 0.0f, DecimalPlaces = 2, ToolTip = "Y coordinate at center of viewport."
+            };
+            pSetSize(num_viewportY, nW, num_Height);
+            num_viewportY.LostFocus += pPosChanged;
 
-            row3tl.Rows[row3tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_viewportY });
+            row3tl.Rows[^1].Cells.Add(new TableCell() { Control = num_viewportY });
 
-            row3tl.Rows[row3tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
+            row3tl.Rows[^1].Cells.Add(new TableCell() { Control = null });
 
             settings_table.Rows.Add(new TableRow());
-            Panel row4panel = new Panel();
-            settings_table.Rows[settings_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row4panel });
-
             TableLayout row4tl = new TableLayout();
-            row4panel.Content = row4tl;
+            Panel row4panel = new Panel {Content = row4tl};
+            settings_table.Rows[^1].Cells.Add(new TableCell() { Control = row4panel });
+
             row4tl.Rows.Add(new TableRow());
 
-            lbl_padding = new Label();
-            lbl_padding.Text = "Padding";
+            lbl_padding = new Label {Text = "Padding"};
 
-            row4tl.Rows[row4tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_padding });
+            row4tl.Rows[^1].Cells.Add(new TableCell() { Control = lbl_padding });
 
-            num_padding = new NumericStepper();
-            num_padding.MinValue = 0;
-            num_padding.DecimalPlaces = 2;
-            num_padding.Increment = 0.1;
-            num_padding.Value = 0;
-            num_padding.ToolTip = "Padding to apply in both directions between patterns in quilt.";
-            setSize(num_padding, 55, num_Height);
+            num_padding = new NumericStepper
+            {
+                MinValue = 0,
+                DecimalPlaces = 2,
+                Increment = 0.1,
+                Value = 0,
+                ToolTip = "Padding to apply in both directions between patterns in quilt."
+            };
+            pSetSize(num_padding, 55, num_Height);
 
-            row4tl.Rows[row4tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_padding });
+            row4tl.Rows[^1].Cells.Add(new TableCell() { Control = num_padding });
 
-            row4tl.Rows[row4tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
+            row4tl.Rows[^1].Cells.Add(new TableCell() { Control = null });
 
-            lbl_patNum = new Label();
-            lbl_patNum.Text = "#";
+            lbl_patNum = new Label {Text = "#"};
 
-            row4tl.Rows[row4tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = lbl_patNum });
+            row4tl.Rows[^1].Cells.Add(new TableCell() { Control = lbl_patNum });
 
             nW = 75;
-            num_patNum = new NumericStepper();
-            num_patNum.MinValue = 0;
-            num_patNum.Increment = 1;
-            num_patNum.Value = 0;
-            num_patNum.MaxValue = 0;
-            num_patNum.ToolTip = "Go to this pattern in the quilt.";
-            num_patNum.LostFocus += goToPattern;
-            setSize(num_patNum, nW, num_Height);
+            num_patNum = new NumericStepper
+            {
+                MinValue = 0,
+                Increment = 1,
+                Value = 0,
+                MaxValue = 0,
+                ToolTip = "Go to this pattern in the quilt."
+            };
+            num_patNum.LostFocus += pGoToPattern;
+            pSetSize(num_patNum, nW, num_Height);
 
             patternIndex = 0;
 
-            row4tl.Rows[row4tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = num_patNum });
+            row4tl.Rows[^1].Cells.Add(new TableCell() { Control = num_patNum });
 
-            row4tl.Rows[row4tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
+            row4tl.Rows[^1].Cells.Add(new TableCell() { Control = null });
 
             settings_table.Rows.Add(new TableRow());
-            Panel row5panel = new Panel();
-            settings_table.Rows[settings_table.Rows.Count - 1].Cells.Add(new TableCell() { Control = row5panel });
-
             TableLayout row5tl = new TableLayout();
-            row5panel.Content = row5tl;
+            Panel row5panel = new Panel {Content = row5tl};
+            settings_table.Rows[^1].Cells.Add(new TableCell() { Control = row5panel });
+
             row5tl.Rows.Add(new TableRow());
 
-            btn_export = new Button();
-            btn_export.Text = "Export";
-            btn_export.ToolTip = "Export quilt to layout file, rebuilding if suspended.";
-            setSize(btn_export, 200, 21);
-            row5tl.Rows[row5tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(btn_export) });
+            btn_export = new Button
+            {
+                Text = "Export", ToolTip = "Export quilt to layout file, rebuilding if suspended."
+            };
+            pSetSize(btn_export, 200, 21);
+            row5tl.Rows[^1].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(btn_export) });
 
-            row5tl.Rows[row5tl.Rows.Count - 1].Cells.Add(new TableCell() { Control = null });
+            row5tl.Rows[^1].Cells.Add(new TableCell() { Control = null });
         }
 
-        void updatePrefsUI()
+        void pUpdatePrefsUI()
         {
             checkBox_OGLAA.Checked = quiltContext.AA;
             checkBox_OGLFill.Checked = quiltContext.filledPolygons;
@@ -1498,7 +1536,7 @@ namespace Quilt
             lbl_ss2Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape2_Color.toArgb());
             lbl_ss3Color.BackgroundColor = Color.FromArgb(quiltContext.colors.subshape3_Color.toArgb());
 
-            previewUpdate();
+            pPreviewUpdate();
         }
     }
 }

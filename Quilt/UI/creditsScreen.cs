@@ -5,11 +5,9 @@ using System.ComponentModel;
 
 namespace Quilt
 {
-    public class CreditsScreen : Form
+    public sealed class CreditsScreen : Form
     {
-        RichTextArea textBox_credits;
-
-        public CreditsScreen(Form parent, string textToDisplay)
+        public CreditsScreen(string textToDisplay)
         {
             Title = CentralProperties.productName + " " + CentralProperties.version;
             TableLayout content = new TableLayout();
@@ -18,15 +16,14 @@ namespace Quilt
             Size = new Size(600, 430);
 
             Panel imageHolder = new Panel();
-            ImageView image = new ImageView();
-            image.Image = resources.images.quiltImage();
+            ImageView image = new ImageView {Image = resources.images.quiltImage()};
             imageHolder.Size = new Size((int)(image.Image.Width * 0.4f), (int)(image.Image.Height * 0.4f));
             imageHolder.Content = image;
             content.Rows.Add(new TableRow());
             content.Rows[0].Cells.Add(new TableCell() { Control = TableLayout.AutoSized(imageHolder, centered: true) });
 
             content.Rows.Add(new TableRow());
-            textBox_credits = new RichTextArea();
+            RichTextArea textBox_credits = new RichTextArea();
             try
             {
                 textBox_credits.Font = SystemFonts.Default(13 * 0.66f);
@@ -49,13 +46,13 @@ namespace Quilt
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            this.Visible = false;
+            Visible = false;
             e.Cancel = true;
         }
 
         public override void Close()
         {
-            this.Visible = false;
+            Visible = false;
         }
 
         /*

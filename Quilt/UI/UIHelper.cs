@@ -1,7 +1,7 @@
-﻿using color;
+﻿using System.Threading.Tasks;
+using color;
 using Eto.Drawing;
 using geoLib;
-using System.Threading.Tasks;
 
 namespace Quilt
 {
@@ -19,12 +19,12 @@ namespace Quilt
             return new MyColor(sourceColor.R, sourceColor.G, sourceColor.B);
         }
 
-        public static PointF myPointFToPointF(GeoLibPointF sourcePoint)
+        private static PointF myPointFToPointF(GeoLibPointF sourcePoint)
         {
             return new PointF((float)sourcePoint.X, (float)sourcePoint.Y);
         }
 
-        public static GeoLibPointF pointFTomyPointF(PointF sourcePoint)
+        private static GeoLibPointF pointFTomyPointF(PointF sourcePoint)
         {
             return new GeoLibPointF(sourcePoint.X, sourcePoint.Y);
         }

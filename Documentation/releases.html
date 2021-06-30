@@ -201,9 +201,50 @@ box-shadow: 0 1px 3px black;
     <h1 class="western">Quilt Release History</h1>
 
   <ul id=menu>
+    <li><a href="#releases_320">3.2</a>
     <li><a href="#releases_310">3.1</a>
     <li><a href="#releases_300">3.0</a>
   </ul>
+
+    <blockquote>
+      <a name="releases_320"></a>
+      <h2 class="western">New to 3.2 (Jun 30 2021)</h2>
+      <blockquote>
+        <ul>
+          <li>Subshape parameters can be referenced from other elements, and different subshapes, in the pattern. This makes it possible to create new pattern configurations that were previously impossible.</li>
+          <ul>
+            <li>Currently, the parameter being referenced must be of the same type (i.e. horizontal length can only be referenced by horizontal length).</li>
+            <li>Any subshape within the referenced element can be used to drive the parameter of interest.</li>
+            <li>References to dimensions (rather than steps or increments) can be the final value (within the pattern) or the underlying minimum value.</li>
+            <li>Nested references are supported.</li>
+          </ul>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.2_reference_1.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.2_reference_2.png" alt=""/>
+          </td>
+        </tr>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/Quilt320Mac.png" alt=""/>
+          </td>
+          <td = width="33%">
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+      <ul>
+          <li>Loading from layout can be cancelled.</li>
+          <li>User interface updates to accommodate the increased number of controls.</li>
+          <li>Progress bars for loading / saving of projects.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
 
     <blockquote>
       <a name="releases_310"></a>
@@ -214,6 +255,7 @@ box-shadow: 0 1px 3px black;
           <li>Allow element name to define export layer/datatype definition.</li>
           <li>Allow more viewport customization (background, axis colors).</li>
           <li>Target .NET 5 for performance (~10%) and improved platform support.</li>
+        </ul>
       </blockquote>
       <table>
         <tr>

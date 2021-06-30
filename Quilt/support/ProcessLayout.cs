@@ -1,12 +1,10 @@
-﻿using Eto.Forms;
-using geoCoreLib;
+﻿using geoCoreLib;
 using geoLib;
 using geoWrangler;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Quilt
 {
@@ -26,20 +24,21 @@ namespace Quilt
             pattElements = new List<PatternElement>();
         }
 
-        void addPatternElement(string name)
+        void pAddPatternElement(string name)
         {
             pattElements.Add(new PatternElement());
-            pattElements[pattElements.Count - 1].setString(PatternElement.properties_s.name, name);
+            pattElements[^1].setString(PatternElement.properties_s.name, name);
         }
 
-        void dumpToDisk(List<GeoLibPointF[]> geoData)
+        // ReSharper disable once UnusedMember.Local
+        void pDumpToDisk(List<GeoLibPointF[]> geoData)
         {
             for (int poly = 0; poly < geoData.Count; poly++)
             {
                 List<string> lines = new List<string>();
                 for (int pt = 0; pt < geoData[poly].Length; pt++)
                 {
-                    string line = "new GeoLibPoint(" + geoData[poly][pt].X.ToString() + ", " + geoData[poly][pt].Y.ToString() + ")";
+                    string line = "new GeoLibPoint(" + geoData[poly][pt].X + ", " + geoData[poly][pt].Y + ")";
                     if (pt > 0)
                     {
                         line += ",";
@@ -50,14 +49,23 @@ namespace Quilt
             }
         }
 
-        public bool processLayout(double tolerance, bool vertical)
+        public bool processLayout(ref bool abortLoad, double tolerance, bool vertical)
         {
-            bool ret = false;
+            return pProcessLayout(ref abortLoad, tolerance, vertical);
+        }
+
+        bool pProcessLayout(ref bool abortLoad, double tolerance, bool vertical)
+        {
             // Iterate our string list to extract geometry for each layer.
             double scaling = getGeoCore.Invoke().scaling;
 
             for (int i = 0; i < structureLDs.Count; i++)
             {
+                if (abortLoad)
+                {
+                    pattElements.Clear();
+                    return false;
+                }
                 // Update geoCore with the active layer-datatype for our active structure.
                 getGeoCore?.Invoke().updateGeometry(getGeoCore().activeStructure, i);
 
@@ -74,14 +82,14 @@ namespace Quilt
                 List<bool> isText = getGeoCore.Invoke().isText().ToList();
                 List<string> names = getGeoCore.Invoke().names().ToList();
 
-                // Let GeoWrangler clean it up - unions, keyholing if needed, clockwise orientatiton and re-order.
+                // Let GeoWrangler clean it up - unions, keyholing if needed, clockwise orientation and re-order.
                 polydata = GeoWrangler.clockwiseAndReorder(polydata);
 
                 // Does the LD combination have a name we should use?
                 int mergeIndex = pattElements.Count;
                 string layerName = structureLDs[i];
 
-                // We need the layer and datatype numeric values here so that the pattern elements can have their target layer/dataype values set.
+                // We need the layer and datatype numeric values here so that the pattern elements can have their target layer/datatype values set.
                 string ldString = structureLDNames.FirstOrDefault(x => x.Value == layerName).Key;
                 string[] ldTokens = ldString.Split('L')[1].Split('D');
                 int layoutLayer = Convert.ToInt32(ldTokens[0]);
@@ -91,7 +99,7 @@ namespace Quilt
                 {
                     layerName = structureLDNames[layerName];
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // Look-up failed, stick with what we have as a base.
                 }
@@ -107,24 +115,21 @@ namespace Quilt
                 }
                 for (int p = 0; p < polydata.Count; p++)
                 {
+                    if (abortLoad)
+                    {
+                        pattElements.Clear();
+                        return false;
+                    }
                     int elementIndex = pattElements.Count;
 
                     bool text = isText[p];
                     bool breakOut = false;
-                    string name = "";
-                    if (text)
-                    {
-                        // Take the text as the layer name.
-                        name = names[p];
-                    }
-                    else
-                    {
-                        name = layerName;
-                    }
-                    addPatternElement(name);
+                    // Take the text as the layer name.
+                    string name = text ? names[p] : layerName;
+                    pAddPatternElement(name);
 
                     // So this is where it gets tricky. We need to analyze our point data. We may be able to map it into a primitive type already known to us. Defer to the pattern element to sort it out.
-                    pattElements[elementIndex].parsePoints(polydata[p], layoutLayer, layoutDatatype, isText:text, vertical: vertical);
+                    pattElements[elementIndex].parsePoints(ref abortLoad, polydata[p], layoutLayer, layoutDatatype, isText:text, vertical: vertical);
                     try
                     {
                         if ((arrayParms != null) && (arrayParms[p] != null))
@@ -142,18 +147,21 @@ namespace Quilt
                     }
                     catch (Exception)
                     {
-                        // debug
-                        int debug___ = 1;
                     }
                     // Check for decomposed entities needing to be handled.
                     int offset = 0;
                     try
                     {
-                        while (pattElements[elementIndex].decomposedPolys.Count() > 0)
+                        while (pattElements[elementIndex].decomposedPolys.Any())
                         {
-                            addPatternElement(name);
+                            if (abortLoad)
+                            {
+                                pattElements.Clear();
+                                return false;
+                            }
+                            pAddPatternElement(name);
                             offset++;
-                            pattElements[elementIndex + offset].parsePoints(pattElements[elementIndex].decomposedPolys[0], layer:layoutLayer, datatype: layoutDatatype, isText:text, vertical:vertical);
+                            pattElements[elementIndex + offset].parsePoints(ref abortLoad, pattElements[elementIndex].decomposedPolys[0], layer:layoutLayer, datatype: layoutDatatype, isText:text, vertical:vertical);
                             if (offset > 1)
                             {
                                 // Set relative rotation pivot flag here.
@@ -164,20 +172,25 @@ namespace Quilt
                             pattElements[elementIndex + offset].setInt(PatternElement.properties_i.linkedElementIndex, mergeIndex);
                         }
 
-                        // In the case of multi-islands, we need to ensure the merge flag is set correctly on the anchoe for the additional islands, to allow them to be merged back.
+                        // In the case of multi-islands, we need to ensure the merge flag is set correctly on the anchor for the additional islands, to allow them to be merged back.
                         // The two conditions are reflected below - is there decomp involved (is offset non-zero), and is there more than one island (p index greater than 0).
                         if ((offset > 0) && (p > 0))
                         {
-                            // Need to adjust the reference for the initally added element so that we see the chain the multiple islands back together.
+                            // Need to adjust the reference for the initially added element so that we see the chain the multiple islands back together.
                             pattElements[elementIndex].setInt(PatternElement.properties_i.linkedElementIndex, mergeIndex);
                         }
 
                         // Any non-ortho cases? The 1 looks weird here, but is necessary to avoid capturing the non-orthogonal case twice.
                         while (pattElements[elementIndex].nonOrthoGeometry.Count > 1)
                         {
-                            addPatternElement(name);
+                            if (abortLoad)
+                            {
+                                pattElements.Clear();
+                                return false;
+                            }
+                            pAddPatternElement(name);
                             offset++;
-                            pattElements[elementIndex + offset].parsePoints(pattElements[elementIndex].nonOrthoGeometry[0], layer:layoutLayer, datatype: layoutDatatype, isText:false, vertical:vertical);
+                            pattElements[elementIndex + offset].parsePoints(ref abortLoad, pattElements[elementIndex].nonOrthoGeometry[0], layer:layoutLayer, datatype: layoutDatatype, isText:false, vertical:vertical);
                             if (offset > 1)
                             {
                                 // Set relative rotation pivot flag here.
@@ -191,6 +204,11 @@ namespace Quilt
                         // Reverse direction due to the order of dependency
                         for (int offsetFromReference = offset; offsetFromReference > 0; offsetFromReference--)
                         {
+                            if (abortLoad)
+                            {
+                                pattElements.Clear();
+                                return false;
+                            }
                             int elementReferenceIndex = offsetFromReference + elementIndex;
                             // Is previous element a rectangle? If not, don't try and make a relative position.
                             if (pattElements[elementReferenceIndex - 1].getInt(PatternElement.properties_i.shapeIndex) != (int)CentralProperties.typeShapes.rectangle)
@@ -201,8 +219,8 @@ namespace Quilt
                             // Reference position and width
                             decimal rX = pattElements[elementReferenceIndex - 1].getDecimal(PatternElement.properties_decimal.minXPos);
                             decimal rY = pattElements[elementReferenceIndex - 1].getDecimal(PatternElement.properties_decimal.minYPos);
-                            decimal rW = pattElements[elementReferenceIndex - 1].getDecimal(PatternElement.properties_decimal.s0MinHorLength);
-                            decimal rH = pattElements[elementReferenceIndex - 1].getDecimal(PatternElement.properties_decimal.s0MinVerLength);
+                            decimal rW = pattElements[elementReferenceIndex - 1].getDecimal(PatternElement.properties_decimal.minHorLength, 0);
+                            decimal rH = pattElements[elementReferenceIndex - 1].getDecimal(PatternElement.properties_decimal.minVerLength, 0);
 
                             // Calculate new position values.
                             decimal eX = pattElements[elementReferenceIndex].getDecimal(PatternElement.properties_decimal.minXPos);
@@ -235,9 +253,9 @@ namespace Quilt
                             pattElements[elementReferenceIndex].setDecimal(PatternElement.properties_decimal.minYPos, eY);
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-
+                        // Harmless, so catch and move on.
                     }
                     elementIndex += offset;
                     elementIndex++;
@@ -248,10 +266,8 @@ namespace Quilt
                     }
                 }
             }
-
-            ret = true;
-
-            return ret;
+            
+            return true;
         }
     }
 }

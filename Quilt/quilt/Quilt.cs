@@ -8,13 +8,11 @@ namespace Quilt
 {
     public class QuiltApplication : Application
     {
-        bool doPrompts;
-
         QuiltContext quiltContext;
         public QuiltApplication(Platform platform, QuiltContext pContext) : base(platform)
         {
             /*
-            if (DateTime.Now > new DateTime(2021, 02, 28))
+            if (DateTime.Now > new DateTime(2021, 05, 28))
             {
                 ErrorReporter.showMessage_OK("Contact phil.stopford@gmail.com", "Build expired!");
                 Quit();
@@ -25,7 +23,7 @@ namespace Quilt
 
         protected override void OnInitialized(EventArgs e)
         {
-            MainForm = new MainForm(ref doPrompts, quiltContext);
+            MainForm = new MainForm(quiltContext);
             base.OnInitialized(e);
             MainForm.Show();
         }
@@ -34,12 +32,9 @@ namespace Quilt
         {
             base.OnTerminating(e);
 
-            if (doPrompts)
-            {
-                var result = MessageBox.Show(MainForm, "Are you sure you want to quit?", MessageBoxButtons.YesNo, MessageBoxType.Question);
-                if (result == DialogResult.No)
-                    e.Cancel = true;
-            }
+            var result = MessageBox.Show(MainForm, "Are you sure you want to quit?", MessageBoxButtons.YesNo, MessageBoxType.Question);
+            if (result == DialogResult.No)
+                e.Cancel = true;
         }
     }
 }

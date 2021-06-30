@@ -209,8 +209,6 @@ img {
   <p class="western" style=" line-height: 100%">In both cases, the quilt will be exported as a hierarchical design. Each pattern will be placed, using a cell reference, in the root cell. Cell placements are matched to the preview.</p>
   <p class="western" style=" line-height: 100%">Absent complications of merge settings or an explicit layer name (LxxDxx) to force an output layer/dataype, layer numbers will be based on the position of the pattern element in the list (i.e. the first element in the list will be present as layer 1, datatype 0; the second will be 2/0). Merge directives will change this, and merge rules will override explicitly named elements (e.g. a layer named L1D2 would export to layer 1, dataype 2 unless it is being merged into a different element's output layer). If writing to an Oasis file, the layer names will be set according to the pattern element name in the list.</p>
 
-  <p class="western" style=" line-height: 100%">Quilt will also export a CSV file that can be used with Variance 3.5.1 (or later) to auto-configure the DOE grid in that tool. This CSV file also contains an overview of the patterns within the exported grid. To allow for review, each pattern entry in this summary is comma-separated. Within the pattern information, the elements are separated by ';'. Within each pattern element, the fields are separated by '|'. For the subshape settings, ':' separates label and value.</p>
-
       <table>
         <tr>
           <td = width="50%">
@@ -230,10 +228,13 @@ img {
         </tr>
       </table>
 
-  <p class="western" style=" line-height: 100%">Quilt CSV export example:</p>
-  <p class="westernWrap" style=" line-height: 100%">Quilt 1.0.0<br>
-0,-39,49,59,149,150<br>
-0;rect|ss0HL:30|ss0VL:30|ss0OL:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:0|Y:0;1;rect|ss0HL:5|ss0VL:5|ss0OL:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:0|Y:0,0;rect|ss0HL:30|ss0VL:30|ss0OL:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:0|Y:0;1;rect|ss0HL:5|ss0VL:5|ss0OL:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:5|Y:0, ...</p>
+  <p class="western" style=" line-height: 100%">Quilt will also export a CSV file that can be used with Variance 3.5.1 (or later) to auto-configure the DOE grid in that tool. This CSV file also contains an overview of the patterns within the exported grid. To allow for review, each pattern entry in this summary is comma-separated. The first line indicates the originating version. The second line provides left, lower, right, upper pattern extents information. The number of rows and columns follow, and then the padding value is recorded. After this comes a line for each pattern, recording the element configurations for that pattern. The elements are separated by ';'. Within each pattern element, the fields are separated by '|'. For the subshape settings, ':' separates label and value.</p>
+
+  <p class="westernWrap" style=" line-height: 100%">Quilt 3.2<br>
+0,-39,49,59,150,150,10<br>
+0;rect|ss0HL:30|ss0VL:30|ss0HO:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:0|xPosSubShapeRef:0|xPosSubShapeRefPos:0|Y:0|yPosSubShapeRef:0|yPosSubShapeRefPos:0|refBoundsAfterRotation:0|refArrayBoundsAfterRotation:0|R:0;1;rect|ss0HL:5|ss0VL:5|ss0HO:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:0|xPosSubShapeRef:0|xPosSubShapeRefPos:0|Y:0|yPosSubShapeRef:0|yPosSubShapeRefPos:0|refBoundsAfterRotation:0|refArrayBoundsAfterRotation:0|R:0<br>
+0;rect|ss0HL:30|ss0VL:30|ss0HO:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:0|xPosSubShapeRef:0|xPosSubShapeRefPos:0|Y:0|yPosSubShapeRef:0|yPosSubShapeRefPos:0|refBoundsAfterRotation:0|refArrayBoundsAfterRotation:0|R:0;1;rect|ss0HL:5|ss0VL:5|ss0HO:0|ss0VO:0|ss1HL:0|ss1VL:0|ss1HO:0|ss1VO:0|ss2HL:N/A|ss2VL:N/A|ss2HO:N/A|ss2VO:N/A|X:5|xPosSubShapeRef:0|xPosSubShapeRefPos:0|Y:0|yPosSubShapeRef:0|yPosSubShapeRefPos:0|refBoundsAfterRotation:0|refArrayBoundsAfterRotation:0|R:0<br>
+ ... </p>
 
 </body>
 </html>

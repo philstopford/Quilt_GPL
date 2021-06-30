@@ -1,7 +1,5 @@
 ﻿using color;
 using System;
-using System.IO;
-using System.Reflection;
 using Veldrid;
 
 namespace Quilt
@@ -11,7 +9,6 @@ namespace Quilt
         // This is intended to hold application context settings to allow for cleaner handling of
         // commandline options related to headless mode, XML file loading from the command line, viewport switches
 
-        public object previewLock;
         public string xmlFileArg;
         public Int32 openGLZoomFactor;
         public double FGOpacity;
@@ -35,7 +32,6 @@ namespace Quilt
 
         void makeContext(string xmlFileArg_, GraphicsBackend _backend)
         {
-            previewLock = new object();
             xmlFileArg = xmlFileArg_;
             openGLZoomFactor = 1;
             filledPolygons = false;
@@ -48,7 +44,7 @@ namespace Quilt
             angularTolerance = 0.2;
             colors = new Colors();
             backend = _backend;
-            licenceName = "GPLv3";
+            licenceName = "internal";
         }
     }
 }

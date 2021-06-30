@@ -191,6 +191,8 @@ img {
 
   <p class="western" style=" line-height: 100%">For geometry that is orthogonal, and axis-aligned(*), but which cannot be described in primitive terms, rectangular decomposition is used. This will turn the complex geometry into a series of rectangular primitives. These will be ordered based on the bottom left corner of each rectangle, starting with the lower-left and working towards upper right in the layout. Each rectangle will have its position and rotation defined relative to the prior rectangle, in order to ease pattern variation set-up; it may be that you need to adjust these default relationships, however. Considerable effort is made to create a minimal representation, in the chosen orientation.</p>
 
+  <p class="western" style=" line-height: 100%">NOTE: Decomposition runs multi-threaded, but complex cases may take time to compute; in case of need, the 'Cancel' button next to the progress bar can be used to abort the processing. Cancelling will return the tool to a 'new' state.</p>
+
   <table>
   	<tr>
   		<td width="50%"><img src="images/layout_in.png" size="80%" alt=""/>
@@ -212,7 +214,7 @@ img {
   	</tr>
   </table>
 
-  <p class="western" style=" line-height: 100%">By default, the decomposition will produce vertically oriented rectangles. If desired, horizontal orientation can be chosen by deselecting the 'vertical decomp' option in the preferences tab. Changing this option will not cause a re-evaluation of existing decomposition; re-create the pattern from the layout file to see the change.</p>
+  <p class="western" style=" line-height: 100%">By default, the decomposition will produce vertically oriented rectangles. If desired, horizontal orientation can be chosen by deselecting the 'vertical decomp' option in the preferences tab. This tends to produce a simpler representation, and runs more quickly than vertical decomposition. Changing this option will not cause a re-evaluation of existing decomposition; re-create the pattern from the layout file to see the change.</p>
 
   <table>
   	<tr>
