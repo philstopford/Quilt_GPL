@@ -4,7 +4,7 @@ Quilt is a pattern generator. It outputs hierarchical layout (GDSII or Oasis) fr
 Linux:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/Quilt220Gtk_patt.png)
 Mac:
-![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/Quilt320Mac_patt.png)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/Quilt320Mac.png)
 
 Pattern from layout, including non-orthogonal shape:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/non_ortho_and_orth__samelayer.png)
