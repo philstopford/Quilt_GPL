@@ -14,8 +14,8 @@ Pattern from layout, involving decomposition:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/non_ortho_decomp_samelayer.png)
 
 Dependent parameters:
-![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/reference_parameter_final_2)
-![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/reference_parameter_nofinal)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/reference_parameter_final_2.png)
+![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/reference_parameter_nofinal.png)
 
 Relative transforms:
 ![](https://github.com/philstopford/Quilt_GPL/blob/master/Documentation/images/relative_rotation_pivot_4.png)
