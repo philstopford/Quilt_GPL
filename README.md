@@ -13,6 +13,10 @@ Pattern from layout, involving decomposition:
 ![](https://github.com/philstopford/Quilt3_dev/blob/master/Documentation/images/versions/3.0_decomp.png)
 ![](https://github.com/philstopford/Quilt3_dev/blob/master/Documentation/images/non_ortho_decomp_samelayer.png)
 
+Dependent parameters:
+![](https://github.com/philstopford/Quilt3_dev/blob/master/Documentation/images/reference_parameter_final_2)
+![](https://github.com/philstopford/Quilt3_dev/blob/master/Documentation/images/reference_parameter_nofinal)
+
 Relative transforms:
 ![](https://github.com/philstopford/Quilt3_dev/blob/master/Documentation/images/relative_rotation_pivot_4.png)
 
