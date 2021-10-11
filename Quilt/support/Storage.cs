@@ -3,6 +3,7 @@ using geoLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Threading;
 using System.Xml.Linq;
 
@@ -1536,7 +1537,7 @@ namespace Quilt
             
             updateUIstatus?.Invoke("Loading...");
             
-#if QUITLTHREADED
+#if QUILTTHREADED
             Parallel.For(0, elementCount, (layer, loopstate)  =>
 #else
             for (int layer = 0; layer < elementCount; layer++)
@@ -1580,7 +1581,7 @@ namespace Quilt
                 }
 
             }
-#if QUITLTHREADED
+#if QUILTTHREADED
             );
 #endif
 

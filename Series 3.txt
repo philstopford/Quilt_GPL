@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+3.2
+
+	- Typo fixed that was preventing multithreading during project loading.
+
 3.2b3
 
 	- Per user feedback, the scrolling was deemed excessive.
