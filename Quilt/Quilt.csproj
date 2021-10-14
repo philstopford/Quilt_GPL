@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eto.Forms" Version="2.6.0-ci-20210616.944520705" />
+    <PackageReference Include="Eto.Forms" Version="2.6.0-ci-20211006.1311218691" />
     <PackageReference Include="System.Management" Version="5.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="5.0.1" />

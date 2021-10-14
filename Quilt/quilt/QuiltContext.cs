@@ -44,7 +44,7 @@ namespace Quilt
             angularTolerance = 0.2;
             colors = new Colors();
             backend = _backend;
-            licenceName = "internal";
+            licenceName = "GPLv3";
         }
     }
 }
