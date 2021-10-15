@@ -606,7 +606,7 @@ namespace Quilt
             patternElements.RemoveAt(index);
 
             // We need to adjust any other elements in the pattern that have references to the element being removed.
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, patternElements.Count, (i) =>
 #else
             for (int i = 0; i < patternElements.Count; i++)
@@ -676,7 +676,7 @@ namespace Quilt
                     patternElements[i].setMidPoint(null);
                 }
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
             pUpdateQuilt();
@@ -1086,7 +1086,7 @@ namespace Quilt
                 // This code works, but UI control is missing right now and needs thought about how to implement.
                 // Here, we walk the dependencies of the elements in each pattern.
                 // The dependent dimensions are computed (e.g. linked width, height, etc.)
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 Parallel.For(0, patternCount, po, (pattern, loopState) =>
 #else
                 for (int pattern = 0; pattern < patternCount; pattern++)
@@ -1094,7 +1094,7 @@ namespace Quilt
                 {
                     patterns[pattern].computeDimensions(true);
                 }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 );
 #endif
 
@@ -1665,7 +1665,7 @@ namespace Quilt
             sw.WriteLine(out_);
 
             string[] descriptions = new string[patterns.Count];
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, descriptions.Length, po, (p, loopstate) =>
 #else
             for (int p = 0; p < patterns.Count; p++)
@@ -1673,7 +1673,7 @@ namespace Quilt
             {
                 descriptions[p] = patterns[p].getDescription();
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
             foreach (string t in descriptions)

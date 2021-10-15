@@ -67,7 +67,7 @@ namespace Quilt
             round1 = shape.round1;
 
             // Iterate the corners to apply the bias from the edges.
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, round1.Count(), (corner) =>
 #else
             for (Int32 corner = 0; corner < round1.Count(); corner++)
@@ -76,7 +76,7 @@ namespace Quilt
                 Vertex[round1[corner].index].X = Vertex[round1[corner].verFace].X;
                 Vertex[round1[corner].index].Y = Vertex[round1[corner].horFace].Y;
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
             Vertex[Vertex.Count() - 1] = Vertex[0]; // close the shape.

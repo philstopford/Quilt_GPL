@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;SHAPELIBTHREADED;QUILTTHREADED</DefineConstants>
+    <DefineConstants>TRACE;DOUBLE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>

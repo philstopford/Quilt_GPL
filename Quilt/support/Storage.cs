@@ -1537,7 +1537,7 @@ namespace Quilt
             
             updateUIstatus?.Invoke("Loading...");
             
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, elementCount, (layer, loopstate)  =>
 #else
             for (int layer = 0; layer < elementCount; layer++)
@@ -1570,7 +1570,7 @@ namespace Quilt
                 pLoadPositionRotationSettings(ref readSettings, ref simulationFromFile, layerref);
 
                 loadedElements[layer] = readSettings;
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 Interlocked.Increment(ref progressCounter);
 #else
                 progressCounter++;      
@@ -1581,7 +1581,7 @@ namespace Quilt
                 }
 
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
 

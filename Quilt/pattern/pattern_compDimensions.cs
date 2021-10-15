@@ -7,7 +7,7 @@ namespace Quilt
         
         public void computeDimensions(bool takeValues)
         {
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, patternElements.Count, (i) =>
 #else
             for (int i = 0; i < patternElements.Count; i++)
@@ -18,7 +18,7 @@ namespace Quilt
                 pComputeDimensions_HO(i, takeValues);
                 pComputeDimensions_VO(i, takeValues);
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
         }

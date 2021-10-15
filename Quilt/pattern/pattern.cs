@@ -548,7 +548,7 @@ namespace Quilt
             // We need to apply the relative transforms.
             // We need to keep these separate until we're done, to avoid trouble.
             decimal[,] positions = new decimal[patternElements.Count, 2];
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, patternElements.Count, (i) =>
 #else
             for (int i = 0; i < patternElements.Count; i++)
@@ -560,12 +560,12 @@ namespace Quilt
                 positions[i, 0] = x_;
                 positions[i, 1] = y_;
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
 
             // Set our positions
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, patternElements.Count, (i) =>
 #else
             for (int i = 0; i < patternElements.Count; i++)
@@ -607,7 +607,7 @@ namespace Quilt
                 pGetPatternElement(i).setDecimal(PatternElement.properties_decimal.xPos, x1_);
                 pGetPatternElement(i).setDecimal(PatternElement.properties_decimal.yPos, y1_);
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
         }
@@ -768,7 +768,7 @@ namespace Quilt
         string pGetDescription()
         {
             string[] element_descriptions = new string[patternElements.Count];
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(0, patternElements.Count, (p, loopstate ) =>
 #else
             for (int p = 0; p < patternElements.Count; p++)
@@ -776,7 +776,7 @@ namespace Quilt
             {
                 element_descriptions[p] = p + ";" + pGetPatternElement(p).getDescription();
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
 );
 #endif
             return string.Join(';', element_descriptions);

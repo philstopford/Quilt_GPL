@@ -63,7 +63,7 @@ namespace Quilt
 
             int ptStart = Math.Max(startPtIndex, 0);
 
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             Parallel.For(polyStart, polyEnd, (poly) =>
 #else
             for (int poly = polyStart; poly < polyEnd; poly++)
@@ -71,7 +71,7 @@ namespace Quilt
             {
                 int ptEnd = Math.Max(startPtIndex, previewPoints[poly].Count());
 
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 Parallel.For(ptStart, ptEnd, (pt) =>
 #else
                 for (int pt = ptStart; pt < ptEnd; pt++)
@@ -80,11 +80,11 @@ namespace Quilt
                     previewPoints[poly][pt].X += x;
                     previewPoints[poly][pt].Y += y;
                 }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 );
 #endif
             }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
             );
 #endif
         }
@@ -869,7 +869,7 @@ namespace Quilt
                     tempArray[2] = new GeoLibPointF((double)right, (double)top);
                     tempArray[3] = new GeoLibPointF((double)right, (double)bottom);
 
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 Parallel.For(0, tempArray.Length, (i) =>
 #else
                     for (int i = 4; i < tempArray.Length; i++)
@@ -877,7 +877,7 @@ namespace Quilt
                     {
                         tempArray[i] = new GeoLibPointF(tempArray[0]);
                     }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 );
 #endif
                     break;
@@ -908,7 +908,7 @@ namespace Quilt
                     tempArray[4] = new GeoLibPointF(tempArray[0]);
 
                     // Apply our deltas
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 Parallel.For(0, 5, (i) =>
 #else
                     for (Int32 i = 0; i < 5; i++)
@@ -917,7 +917,7 @@ namespace Quilt
                         tempArray[i].X += xOffset + x;
                         tempArray[i].Y += yOffset + y;
                     }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 );
 #endif
                     decimal bottom_leftX_2 = 0;
@@ -939,7 +939,7 @@ namespace Quilt
                     tempArray[5 + 4] = new GeoLibPointF(tempArray[5 + 0]);
 
                     // Apply our deltas
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 Parallel.For(0, 5, (i) =>
 #else
                     for (Int32 i = 0; i < 5; i++)
@@ -948,7 +948,7 @@ namespace Quilt
                         tempArray[5 + i].X += xOffset + x;
                         tempArray[5 + i].Y += yOffset + y;
                     }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 );
 #endif
                     decimal bottom_leftX_3 = 0;
@@ -974,7 +974,7 @@ namespace Quilt
                     tempArray[10 + 4] = new GeoLibPointF(tempArray[10 + 0]);
 
                     // Apply our deltas
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 Parallel.For(0, 5, (i) =>
 #else
                     for (Int32 i = 0; i < 5; i++)
@@ -983,7 +983,7 @@ namespace Quilt
                         tempArray[10 + i].X += xOffset + x;
                         tempArray[10 + i].Y += yOffset + y;
                     }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                 );
 #endif
                     break;
@@ -1324,7 +1324,7 @@ namespace Quilt
                     sourceIndices.Add(settingsIndex);
                     int pCount = previewPoints[poly].Count();
                     int poly1 = poly;
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                     Parallel.For(0, pCount, (point) =>
 #else
                     for (Int32 point = 0; point < pCount; point++)
@@ -1335,7 +1335,7 @@ namespace Quilt
 
                         previewPoints[poly1][point] = new GeoLibPointF(px, py);
                     }
-#if QUILTTHREADED
+#if !QUILTSINGLETHREADED
                     );
 #endif
                     if ((Math.Abs(previewPoints[poly][0].X - previewPoints[poly][previewPoints[poly].Count() - 1].X) > Double.Epsilon) ||
