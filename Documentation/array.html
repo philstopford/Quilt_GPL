@@ -185,7 +185,7 @@ img {
 
 <a name="array"></a>
 <h1 class="western">Array</h1>
-<p class="western" style=" line-height: 100%">An array can be constructed within a pattern element, with a defined instance count and pitch in each of X and Y. The array is constructed using the shape defined within the element itself.</p>
+<p class="western" style=" line-height: 100%">An array can be constructed within a pattern element, with a defined instance count and pitch in each of X and Y. The array is constructed using the shape defined within the element itself, and thus also respects the element rotation settings (self, reference, world origin).</p>
     <table>
       <tr>
         <td = width="50%">
@@ -193,6 +193,13 @@ img {
         </td>
         <td>
     <img src="images/array_2.png" size="100%" alt="Array before rotation"/>
+        </td>
+      </tr>
+      <tr>
+        <td = width="50%">
+    <img src="images/array_2_world_origin.png" size="100%" alt="Array of element rotated about world origin"/>
+        </td>
+        <td>
         </td>
       </tr>
     </table>
@@ -207,13 +214,14 @@ img {
         </td>
       </tr>
     </table>
-<p class="western" style=" line-height: 100%">The array itself can be rotated around its centerpoint (the center of the array's bounding box). In each of X and Y, counts and spacing can be defined. This rotation can be relative to other pattern elements and also take into account array rotation from other elements.</p>
+<p class="western" style=" line-height: 100%">The array itself can be rotated around its centerpoint (the center of the array's bounding box). In each of X and Y, counts and spacing can be defined. This rotation can be relative to other pattern elements and also take into account array rotation from other elements, and rotation relative to the world origin is also available.</p>
     <table>
       <tr>
         <td = width="50%">
     <img src="images/array_3.png" size="100%" alt="Box"/>
         </td>
         <td>
+    <img src="images/array_3_world_origin.png" size="100%" alt="Box"/>
         </td>
       </tr>
       <tr>

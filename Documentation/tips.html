@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+pre
+{
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US  
+}
+p.western {
+	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+p.westernWrap {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  overflow-wrap: break-word;
+  so-language: en-US
+}
+p.cjk {
+	font-family: "Calibri";
+	font-size: 10pt;
+	so-language: en-US
+}
+p.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h1 {
+	direction: ltr;
+	color: #365f91;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h1.western {
+	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.cjk {
+	font-family: "宋体";
+	font-size: 13pt;
+	so-language: en-US
+}
+h1.ctl {
+font-family:;
+	font-size: 13pt;
+	so-language: ar-SA
+}
+h2 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h2.western {
+	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.cjk {
+	font-family: "宋体";
+	font-size: 12pt;
+	so-language: en-US
+}
+h2.ctl {
+font-family:;
+	font-size: 12pt;
+	so-language: ar-SA
+}
+h3 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h3.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US
+}
+h3.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA
+}
+h4 {
+	direction: ltr;
+	color: #4f81bd;
+	line-height: 100%;
+	text-align: justify;
+	page-break-inside: avoid;
+	orphans: 2;
+	widows: 2
+}
+h4.western {
+	font-family: "Cambria", serif;
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.cjk {
+	font-family: "宋体";
+	font-size: 10pt;
+	so-language: en-US;
+	font-style: italic
+}
+h4.ctl {
+font-family:;
+	font-size: 10pt;
+	so-language: ar-SA;
+	font-style: italic
+}
+a:link {
+	color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {	font-family: "Cambria", serif;
+	font-size: 13pt;
+	so-language: en-US
+}
+p.western1 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+	so-language: en-US
+}
+h2.western1 {	font-family: "Cambria", serif;
+	font-size: 12pt;
+	so-language: en-US
+}
+p.western2 {	font-family: "Calibri", serif;
+	font-size: 10pt;
+  color: #aaaaaa;
+	so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100% ;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="tips"></a>
+<h1 class="western">Tips</h1>
+<p class="western" style=" line-height: 100%">Tips are modelled after the feature in Variance.</p>
+
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/tip_1.png" size="100%" alt="Base dimension"/>
+        </td>
+        <td>
+    <img src="images/tip_2.png" size="100%" alt="Tip configuration"/>
+        </td>
+      </tr>
+    </table>
+
+<p class="western" style=" line-height: 100%">In input mode, the subshapes are shown with the tip definition applied; when output is computed, the shared edges between subshapes will be subject to the underlying rules (e.g. for an L, the right edge of subshape 1 defines the shared edge placement).</p>
+
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/tip_L_1.png" size="100%" alt="Input with shape biasing"/>
+        </td>
+        <td>
+    <img src="images/tip_L_2.png" size="100%" alt="Final shape"/>
+        </td>
+      </tr>
+    </table>
+
+<p class="western" style=" line-height: 100%">Numerical properties can be varied, with increments and steps, for both horizontal and vertical tips. Biases apply to all appropriate tips across all subshapes, to ensure that the fundamental nature of the shape remains consistent. The tip definitions (left/right/top/bottom) are not available as variables.</p>
+
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/tip_variations_1.png" size="100%" alt="Input with variations in tips"/>
+        </td>
+        <td>
+    <img src="images/tip_variations_2.png" size="100%" alt="Final shape with variations in tips"/>
+        </td>
+      </tr>
+    </table>
+
+<p class="western" style=" line-height: 100%">Tip properties can be referenced across pattern elements, as usual. References for the tip edges, and bias values can all be set as shown below.</p>
+
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/tip_ref_all_1.png" size="100%" alt="Base dimension"/>
+        </td>
+        <td>
+    <img src="images/tip_ref_all_2.png" size="100%" alt="Reference tip and bias"/>
+        </td>
+      </tr>
+      <tr>
+        <td = width="50%">
+    <img src="images/tip_ref_all_3.png" size="100%" alt="Reference full tip properties`"/>
+        </td>
+        <td>
+        </td>
+      </tr>
+    </table>
+
+<p class="western" style=" line-height: 100%">Tips suffer some limitations, due to the flexibility that they offer. The user must be aware that tips can infringe on some underlying shape rules when pushed to the extremes.</p>
+
+    <table>
+      <tr>
+        <td = width="50%">
+    <img src="images/tips_limitation_1.png" size="100%" alt="Tip limitation"/>
+        </td>
+        <td>
+        </td>
+      </tr>
+    </table>
+
+</body>
+</html>

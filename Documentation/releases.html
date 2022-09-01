@@ -199,218 +199,45 @@ box-shadow: 0 1px 3px black;
     <h1 class="western">Quilt Release History</h1>
 
   <ul id=menu>
-    <li><a href="#releases_321">3.2.1</a>
-    <li><a href="#releases_320">3.2</a>
-    <li><a href="#releases_310">3.1</a>
-    <li><a href="#releases_300">3.0</a>
+    <li><a href="#releases_400">4.0</a>
   </ul>
 
     <blockquote>
-      <a name="releases_321"></a>
-      <h2 class="western">New to 3.2.1 (Oct 14 2021)</h2>
+      <a name="releases_400"></a>
+      <h2 class="western">New to 4.0 (Aug 27 2022)</h2>
       <blockquote>
         <ul>
-          <li>Fixed inoperative multi-threaded project loading.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_320"></a>
-      <h2 class="western">New to 3.2 (Jun 30 2021)</h2>
-      <blockquote>
-        <ul>
-          <li>Subshape parameters can be referenced from other elements, and different subshapes, in the pattern. This makes it possible to create new pattern configurations that were previously impossible.</li>
+          <li>Tip definitions now supported.</li>
           <ul>
-            <li>Currently, the parameter being referenced must be of the same type (i.e. horizontal length can only be referenced by horizontal length).</li>
-            <li>Any subshape within the referenced element can be used to drive the parameter of interest.</li>
-            <li>References to dimensions (rather than steps or increments) can be the final value (within the pattern) or the underlying minimum value.</li>
-            <li>Nested references are supported.</li>
+            <li>References are supported for tip definition and numeric values.</li>
+            <li>Tip numeric properties can be varied (minimum length, increment, steps).</li>
+          </ul>
+          <li>Relative rotation transform enhancements.</li>
+          <ul>
+            <li>Option to rotate around local pivot, reference pivot or world origin.</li>
+          </ul>
+          <li>Decomposition updates.</li>
+          <li>Shape engine updates, and unification with Variance.</li>
+          <li>Layout handling enhancements.</li>
+          <ul>
+            <li>Resolved compatibility with certain flavors of OASIS (e.g. strict).</li>
+            <li>Revised layout to tool handling, to make scaling behavior less opaque.</li>
+            <li>Fixed a defect in the OASIS file writer that yielded missing or broken geometry in some cases.</li>
+          </ul>
+          <li>Adopted Clipper 2 library.</li>
+          <ul>
+            <li>Next-generation polygon clipping library, bringing major performance and behavioral improvements.</li>
+            <li>Layout decomposition runs in less than a half of the time compared to the last 3.x release.</li>
+            <li>NOTE: Patterns requiring keyhole injection during layout decomposition may be different in 4.0 compared to 3.2.2 and earlier, due to internal methodology changes in the clipping library.</li>
+          </ul>
+          <li>UI work.</li>
+          <ul>
+            <li>Use expander container to prevent non-orthogonal shapes causing UI to become too busy.</li>
+            <li>Button and context menu entries for selecting references used by the current element, in list and viewport.</li>
           </ul>
         </ul>
       </blockquote>
-      <table>
-        <tr>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.2_reference_1.png" alt=""/>
-          </td>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.2_reference_2.png" alt=""/>
-          </td>
-        </tr>
-        <tr>
-          <td = width="33%">
-            <img class="c" src="images/Quilt320Mac.png" alt=""/>
-          </td>
-          <td = width="33%">
-          </td>
-        </tr>
-      </table>
-      <blockquote>
-      <ul>
-          <li>Loading from layout can be cancelled.</li>
-          <li>User interface updates to accommodate the increased number of controls.</li>
-          <li>Progress bars for loading / saving of projects.</li>
-        </ul>
-      </blockquote>
     </blockquote>
-
-    <blockquote>
-      <a name="releases_310"></a>
-      <h2 class="western">New to 3.1 (Feb 28 2021)</h2>
-      <blockquote>
-        <ul>
-          <li>Export of layout-defined patterns will respect original layer/datatype, subject to merge rules.</li>
-          <li>Allow element name to define export layer/datatype definition.</li>
-          <li>Allow more viewport customization (background, axis colors).</li>
-          <li>Target .NET 5 for performance (~10%) and improved platform support.</li>
-        </ul>
-      </blockquote>
-      <table>
-        <tr>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_layout_decomp_large.png" alt=""/>
-          </td>
-          <td = width="33%">
-          </td>
-        </tr>
-      </table>
-      <blockquote>
-        <ul>
-          <li>Allow any pattern elements to be merged (union) with other elements during export using the new Merge parameter.</li>
-          <li>Bug fix for layout handling.</li>
-          <li>Added a keyholing pass to the decomposition pipeline to permit handling of loops.</li>
-        </ul>
-      </blockquote>
-      <table>
-        <tr>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_loop_decomp.png" alt=""/>
-          </td>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_loop_decomp_2.png" alt=""/>
-          </td>
-        </tr>
-      </table>
-      <blockquote>
-        <ul>
-          <li>Refined the rectangular decomposition methodology to handle multi-decomp better. Each set of decomposed geometry in the same design layer has its own relative transforms.</li>
-        </ul>
-      </blockquote>
-      <table>
-        <tr>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_layout_decomp_samelayer_reltransform.png" alt=""/>
-          </td>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_layout_decomp_samelayer_reltransform_2.png" alt=""/>
-          </td>
-        </tr>
-      </table>
-      <blockquote>
-        <ul>
-          <li>Refined the rectangular decomposition methodology to reduce incidence of surplus rectangles (new on left, old on right).</li>
-        </ul>
-      </blockquote>
-      <table>
-        <tr>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_3.1decomp.png" alt=""/>
-          </td>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_3.0decomp.png" alt=""/>
-          </td>
-        </tr>
-      </table>
-      <blockquote>
-        <ul>
-          <li>Allow variable array count and spacing.</li>
-        </ul>
-      </blockquote>
-      <table>
-        <tr>
-          <td = width="33%">
-            <img class="c" src="images/versions/3.1_variable_array.png" alt=""/>
-          </td>
-          <td = width="33%">
-          </td>
-        </tr>
-      </table>
-    </blockquote>
-
-    <blockquote>
-      <a name="releases_300"></a>
-      <h2 class="western">New to 3.0 (Oct 30 2020)</h2>
-      <table>
-        <tr>
-          <td = width="100%">
-            <table>
-              <tr>
-                <td = width="33%">
-                  <img class="c" src="images/versions/3.0_decomp-pre.png" alt=""/>
-                </td>
-                <td = width="33%">
-                  <img class="c" src="images/versions/3.0_decomp.png" alt=""/>
-                </td>
-                <td = width="33%">
-                  <img class="c" src="images/versions/3.0_decomp-post.png" alt=""/>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td width="100%">
-            <table>
-              <tr>
-                <td = width="33%">
-                  <img class="c" src="images/versions/3.0_decomp_2-pre.png" alt=""/>
-                </td>
-                <td = width="33%">
-                  <img class="c" src="images/versions/3.0_decomp_2.png" alt=""/>
-                </td>
-                <td = width="33%">
-                  <img class="c" src="images/versions/3.0_decomp_2-post.png" alt=""/>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-      <blockquote>
-        <ul>
-          <li>Support output of GZIP-compressed layout files for input and output.</li>
-          <li>Geometry can be selected with a middle (or Ctrl-Left) click in the viewport.</li>
-          <li>Geometry can be colored differently for selected/unselected elements.</li>
-          <li>Viewport can now zoom to the selected element in the requested pattern.</li>
-          <li>Hotkeys in context menu.</li>
-          <li>Element list now has a context menu, making it easier to copy, paste, remove and duplicate elements.</li>
-          <li>Quilt now loads patterns involving many elements (typically from layout decomposition) much faster, due to use of multithreading.</li>
-          <li>Added extents drawing to the tool. This allows the user to see the pattern extent used for placement in the quilt, making it easier to understand how placement is behaving (backported to 2.x line).</li>
-          <li>Pattern definition using layout files (GDSII, Oasis; including GZIP-compressed files) for any cell.</li>
-          <ul>
-            <li>Geometry will be mapped to internal primitives whenever possible.</li>
-            <li>Arrays will be constructed, where possible, from arrayed cell references.</li>
-            <ul>
-              <li>Complex cell hierarchies will be fully resolved to map into the Quilt system.</li>
-            </ul>
-            <li>Complex orthogonal geometry will be subjected to rectangular decomposition.</li>
-            <ul>
-              <li>Rectangular primitives will be added, ordered in increasing X,Y sequence based on the bottom left corner.</li>
-              <li>Decomposition primitives can be oriented vertically (default) or horizontally (as a user setting).</li>
-              <li>Relative positioning will be defined, using the series order of the decomposed rectangles.</li>
-              <li>Decomposed polygons will be unioned on export, to reconstitute polygons to a minimal case.</li>
-            </ul>
-            <li>Non-orthogonal geometry will be used as a complex primitive, displayed as an edge list.</li>
-          </ul>
-          <li>Pattern elements can be renamed now.</li>
-          <li>Allow negative X/Y position coordinates.</li>
-          <li>Reworked some internals to make the transformation pipeline simpler and much more robust.</li>
-          <li>Transformation system has been overhauled, allowing for deep relative transform hierarchies without any significant computational overhead.</li>
-        </ul>
-      </blockquote>
-    </blockquote>
-
 
 </blockquote>
 

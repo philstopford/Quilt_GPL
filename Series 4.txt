@@ -1,0 +1,63 @@
+Changelog for Quilt. A pattern generator.
+
+4.0b1
+
+	- Closed a loop-hole that would lead to duplicate patterns if the variations were configured, but 'None' remained as a tip setting on the subshape(s).
+	- Disabled corner rounding code. Feature will not ship this round and the performance overhead is high.
+
+4.0a5
+
+	- Refactoring of save/load code to simplify it
+	- Tip implementation.
+	 - In 'input' mode, the subshape has all tips drawn; the 'output' mode shows the effects. Shared edges are subject to the internal shape rules.
+	 - Allows for references of all parameters across pattern elements.
+	 - Currently, this supports variations of horizontal and vertical values, with per-subshape tip definition.
+	 ! Tip definitions are not a pattern definition.
+	 ! Biases cannot be independently varied by subshape.
+
+4.0a4
+
+	- Major refactoring of various systems to allow code re-use. No user impact expected.
+	 - ShapeEngine provides a common, extensible, base geometry reference.
+	  - ShapeSettings is extended by Quilt with additional properties.
+	  - Various components then work together to output and modify shapes.
+	- Extended the relative rotation options.
+	 - Previous releases presented 'World Origin' in the reference drop-down, but this was actually wrong; it was 'Self'. Renamed to avoid confusion.
+	 - Added pivot options : Self, Reference, 'World Origin'.
+	  - Reference will take the pivot point from the reference element.
+	  - World origin will rotate about the 0,0 position.
+	  - Self will rotate about the shape's midpoint.
+	 - Complex relationships are now possible, including relative rotation to a reference, which is rotating about the world origin.
+	- Clipper2 changes and decomposition pipeline refinements.
+
+4.0a3
+
+	- Stage 1 of viewport rework.
+	 - Move the data preparation into multithreaded sequences.
+	- Current performance comparison for large pattern decomposition of multiple islands:
+	   3.2.1 205 seconds.
+	   4.0a3  40 seconds.
+
+4.0a2
+
+	- Refactorings of code (no user impact expected).
+	 - Reducing copies, etc. based on code review.
+	- UI fixes for Gtk/Linux.
+	 - Refresh of the viewport and user interface improved for actions just as project loading and 'input' toggling.
+	- Refactorings of code (no user impact expected).
+	- Keyholer updates (reverse walk) from Variance work have benefitted the results in the layout decomposition.
+	- Certain OASIS files were causing trouble before. Now fixed.
+	- Revisions to internal handling of GeoCore data.
+	- Clipper2 update from upstream.
+	- Revised some labels for clarity and added some expanders in the UI sections to reduce scrolling, if desired.
+	- Use expander container to prevent non-orthogonal shapes causing UI to become too busy.
+	- Adding more functionality to the context menus (listing and viewport).
+	 - Ability to select linked element (effectively the overall parent of the selected element)
+	 - Ability to select the reference element for X position, Y position, rotation, etc.
+
+4.0a1
+
+	- Adopt ClipperLib2, which allowed for some code simplification and brings performance gains.
+	 - Decomposition runs in less than half the time compared to 3.2.
+	- Fixed escape in decomposition pipeline for non-orthogonal geometry, exposed by new clipper library.
+	 - Backported to 3.2.2 for minor performance gain and correctness.

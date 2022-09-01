@@ -183,14 +183,14 @@ li span {
 </style>
 </head>
 <body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
-<p style=" border-top: none; border-bottom: 1.00pt solid #4f81bd; border-left: none; border-right: none; padding-top: 0in; padding-bottom: 0.06in; padding-left: 0in; padding-right: 0in; letter-spacing: 0.3pt; line-height: 100%"> <font color="#ffffff" face="Cambria, serif"><font size="6" style="font-size: 20pt">Quilt </font><font size="6" style="font-size: 12pt">(3.2)</font></font></p>
+<p style=" border-top: none; border-bottom: 1.00pt solid #4f81bd; border-left: none; border-right: none; padding-top: 0in; padding-bottom: 0.06in; padding-left: 0in; padding-right: 0in; letter-spacing: 0.3pt; line-height: 100%"> <font color="#ffffff" face="Cambria, serif"><font size="6" style="font-size: 20pt">Quilt </font><font size="6" style="font-size: 12pt">(4.0)</font></font></p>
 <blockquote>
   <p style=" border-top: none; border-bottom: none; border-left: none; border-right: none; padding-top: 0in; padding-bottom: 0.06in; padding-left: 0in; padding-right: 0in; letter-spacing: 0.3pt; line-height: 100%"> <font color="#aaaaaa" face="Cambria, serif"><font color="#aaaaaa" size="6" style="font-size: 20pt"><font size="3" style="font-size: 12pt"><span style="letter-spacing: 0.8pt"><i>Phil Stopford</i></span></font></font></font></p>
 </blockquote>
 <a name="introduction"></a>
 <h1 class="western">Introduction</h1>
 <blockquote>
-  <p class="western" style=" line-height: 100%">Quilt is a production-proven, high performance pattern generator that writes to hierarchical GDSII and Oasis files. The tool also works with the DOE system in Variance (3.5.1 or later). It is available on Windows, macOS and Linux, running on top of .NET 5.0</p>
+  <p class="western" style=" line-height: 100%">Quilt is a production-proven, high performance pattern generator that writes to hierarchical GDSII and OASIS files. The tool also works with the DOE system in Variance (3.5.1 or later). It is available on Windows, macOS and Linux, running on top of .NET 6.0</p>
 </blockquote>
 <a name="features"></a>
 <h1 class="western">Features</h1>
@@ -205,14 +205,22 @@ li span {
       	<li>Array counts can be independently varied.</li>
       	<li>Array spacings can be independently varied.</li>
       </ul>
-    	<li><span>NEW:</span> Interlayer subshape-referenced dimensions.</li>
+      <li>Interlayer subshape-referenced dimensions.</li>
+      <li><span>NEW:</span> Tip definitions.</li>
+      <ul>
+      	<li>Horizontal and vertical tips can be defined.</li>
+      	<li>Tip extensions are pattern properties, allow variations to be assessed.</li>
+      	<li>Tip properties can be referenced across elements.</li>
+      </ul>
     </ul>
-    <li>Patterns can now be defined using any cell in a layout file (GDSII or Oasis, including GZIP-compressed).</li>    
+    <li>><span>IMPROVED:</span> Patterns can now be defined using any cell in a layout file (GDSII or OASIS, including GZIP-compressed and strict OASIS).</li>    
     <ul>
-    	<li><span>IMPROVED:</span> This can now be cancelled in case the decomposition is taking longer than desired.</li>
+      <li><span>IMPROVED:</span> Rectangular decomposition now runs 5x faster due to library improvements.</li>
+	  <li>This can now be cancelled in case the decomposition is taking longer than desired.</li>
       <li>Mapping to internal primitives (box, L, T, U, X, S) with transforms is attempted.</li>
       <li>Complex orthogonal geometry will be decomposed to rectangles, with hierarchical, relative transformations applied to ease variation set-up.</li>
       <ul>
+      	<li><span>IMPROVED:</span> Greatly improved performance due to new Boolean library.</li>
       	<li>Decomposed geometry will be reconstituted during export, to provide minimal output.</li>
       	<li>Orientation of decomposition rectangles is configurable.</li>
       	<li>Decomposition reduces to a minimum number of rectangles.</li>
@@ -220,6 +228,9 @@ li span {
       	<li>Decomposition of multi-islands and reconstitution on-export.</li>
       </ul>
       <li>Complex primitive type used for cases that cannot be mapped to the primitives or decomposed.</li>
+      <ul>
+        <li><span>IMPROVED:</span> User interface now contains the coordinate list in a collapsed expander section, to avoid making the user interface unwieldy.</li>
+      </ul>
     </ul>
     <li>Pattern elements can be copied, pasted, removed and duplicated from a context menu.</li>
     <li>Pattern elements can be renamed.</li>
@@ -227,32 +238,41 @@ li span {
     <li>Pattern elements can be merged if desired during export.</li>
     <li>Full range of variations for pattern generator: shape characteristics and positioning.</li>
     <ul>
-    	<li><span>NEW:</span> Interlayer subshape-referenced dimensional variations.</li>
+      <li>Interlayer subshape-referenced dimensional variations.</li>
       <li>Interlayer subshape-relative positioning.</li>
       <li>Rotation, including relative rotation. Relative rotation can use reference pivot point.</li>
+      <ul>
+        <li><span>IMPROVED:</span> Rotation pivot point choice now includes 'world origin', alongside 'self' and reference.</li>
+      </ul>
       <li>Array rotation, including relative rotation. Relative rotation can use reference pivot point.</li>
+      <ul>
+        <li><span>IMPROVED:</span> Rotation pivot point choice now includes 'world origin', alongside 'self' and reference.</li>
+      </ul>
     </ul>
     <li>Pattern extents can be displayed to ease understanding of the quilt construction.</li>
-		<li>Flip (horizontal, vertical, also aligned in either or both of X and Y) support.</li>
-		<li>Text annotation (pins).</li>
+	<li>Flip (horizontal, vertical, also aligned in either or both of X and Y) support.</li>
+	<li>Text annotation (pins).</li>
+    <li><span>IMPROVED:</span> Reference elements can be identified using 'Find' buttons and context menus across the user interface, easing workflow for reviewing and editing these relationships.</li>
     <li>High performance, multi-threaded pattern generation engine, supporting arbitrary pattern definitions and automatic duplicate removal. 225,000 patterns takes less than 10 seconds.</li>
     <ul>
-		  <li>Relative transforms are very fast, due to a sophisticated transformation pipeline.</li>
-	  </ul>
-		<li>Loading of patterns with many elements (e.g. from decomposed geometry) is very fast, due to multithreading in the loader.</li>
-		<li>Different colors can be assigned to geometry from the selected / unselected pattern elements.</li>
-	  <li>Export to hierarchical GDSII and Oasis. The export process is extremely fast, taking advantage of multithreading and optimized design.</li>
-	  <ul>
-	  	<li>GZIP-compressed output files are supported.</li>
-	  </ul>
-	  <li>Auto-configuration of Variance DOE.</li>
-	  <li>Multi-platform : Windows, macOS, Linux. No operational or functional difference across platforms.</li>
+	  <li>Relative transforms are very fast, due to a sophisticated transformation pipeline.</li>
+    </ul>
+	<li>Loading of patterns with many elements (e.g. from decomposed geometry) is very fast, due to multithreading in the loader.</li>
+	<li>Different colors can be assigned to geometry from the selected / unselected pattern elements.</li>
+    <li>Export to hierarchical GDSII and OASIS. The export process is extremely fast, taking advantage of multithreading and optimized design.</li>
+	<ul>
+	  <li><span>IMPROVED:</span> Resolved a defect with OASIS output for certain geometry.</li>
+	  <li>GZIP-compressed output files are supported.</li>
+	</ul>
+	<li>Auto-configuration of Variance DOE.</li>
+	<li>Multi-platform : Windows, macOS, Linux. No operational or functional difference across platforms.</li>
     <li>Modern viewport automatically detects and utilizes optimal framework for platform (Vulkan, OpenGL, Direct3D, Metal).</li>
-	  <ul>
-		  <li>Middle (or Ctrl-Left) click selection of elements in the viewport.</li>
-    	<li>Customization of background and axis colors.</li>
-	  </ul>
-	  <li>Runs under .NET 5 on all platforms, with standalone packages that include the runtime.</li>
+	<ul>
+	  <li>NOTE : nVidia driver problems prevent OpenGL under Linux. Vulkan is fine.</li>
+	  <li>Middle (or Ctrl-Left) click selection of elements in the viewport.</li>
+      <li>Customization of background and axis colors.</li>
+	</ul>
+	<li>Runs under .NET 6 on all platforms, with standalone packages that include the runtime.</li>
   </ul>
 </blockquote>
 

@@ -13,16 +13,12 @@
     <DefineConstants>TRACE;DOUBLE</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
-
-  </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eto.Forms" Version="2.6.0-ci-20211113.1455266255" />
-    <PackageReference Include="System.Management" Version="5.0.0" />
+    <PackageReference Include="Eto.Forms" Version="2.7.1" />
+    <PackageReference Include="System.Management" Version="6.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="5.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.1" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
     <PackageReference Include="System.Security.SecureString" Version="4.3.0" />
@@ -33,6 +29,7 @@
     <ProjectReference Include="..\..\DesignLibs_GPL\Common\geoCore\geoCore.csproj" />
     <ProjectReference Include="..\..\DesignLibs_GPL\Common\geoLib\geoLib.csproj" />
     <ProjectReference Include="..\..\DesignLibs_GPL\Common\geoWrangler\geoWrangler.csproj" />
+    <ProjectReference Include="..\..\DesignLibs_GPL\Common\shapeEngine\shapeEngine.csproj" />
     <ProjectReference Include="..\..\DesignLibs_GPL\Eto\errorReporter\errorReporter.csproj" />
     <ProjectReference Include="..\..\DesignLibs_GPL\Eto\Eto.VeldridSurface\Eto.VeldridSurface.csproj" />
     <ProjectReference Include="..\resources\resources.csproj" />

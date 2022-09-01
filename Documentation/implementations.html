@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+p.western {
+    font-family: "Calibri", serif;
+    font-size: 10pt;
+  color: #aaaaaa;
+    so-language: en-US
+}
+p.cjk {
+    font-family: "Calibri";
+    font-size: 10pt;
+    so-language: en-US
+}
+p.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA
+}
+h1 {
+    direction: ltr;
+    color: #365f91;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h1.western {
+    font-family: "Cambria", serif;
+    font-size: 13pt;
+    so-language: en-US
+}
+h1.cjk {
+    font-family: "宋体";
+    font-size: 13pt;
+    so-language: en-US
+}
+h1.ctl {
+font-family:;
+    font-size: 13pt;
+    so-language: ar-SA
+}
+h2 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h2.western {
+    font-family: "Cambria", serif;
+    font-size: 12pt;
+    so-language: en-US
+}
+h2.cjk {
+    font-family: "宋体";
+    font-size: 12pt;
+    so-language: en-US
+}
+h2.ctl {
+font-family:;
+    font-size: 12pt;
+    so-language: ar-SA
+}
+h3 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h3.western {
+    font-family: "Cambria", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+h3.cjk {
+    font-family: "宋体";
+    font-size: 10pt;
+    so-language: en-US
+}
+h3.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA
+}
+h4 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h4.western {
+    font-family: "Cambria", serif;
+    font-size: 10pt;
+    so-language: en-US;
+    font-style: italic
+}
+h4.cjk {
+    font-family: "宋体";
+    font-size: 10pt;
+    so-language: en-US;
+    font-style: italic
+}
+h4.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA;
+    font-style: italic
+}
+a:link {
+    color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {   font-family: "Cambria", serif;
+    font-size: 13pt;
+    so-language: en-US
+}
+p.western1 {    font-family: "Calibri", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+h2.western1 {   font-family: "Cambria", serif;
+    font-size: 12pt;
+    so-language: en-US
+}
+p.western2 {    font-family: "Calibri", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100%;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+</style>
+</head>
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<a name="implementations"></a>
+<h1 class="western">Implementations</h1>
+  <a name="eto"></a>
+  <h2 class="western">Eto.Forms</h2>
+    <p class="western">This is used to provide a UI from a common code-base for the tool. The images below are indicative of the user interface, with some notes about issues/limitations where applicable.</p>
+	<blockquote>
+    <a name="eto_wpf"></a>
+	<h3 class="western">WPF</h3>
+    <p class="western">Known issues:</p>
+    <ul>
+    	<li>None.</li>
+    </ul>
+
+    <a name="eto_mac"></a>
+	<h3 class="western">Mac</h3>
+    <p class="western">Known issues:</p>    
+    <ul>
+      <li>The Mac build is currently built for intel, so runs under Rosetta on newer hardware. Mx porting is pending hardware and software (viewport) support.</li>
+      <li>This has comparable performance to Windows (within 10%) following the move to use .NET Core 3.1.</li>
+    </ul>
+
+    <a name="eto_gtk"></a>
+	<h3 class="western">GTK</h3>
+    <p class="western">Known issues:</p>
+    <ul>
+      <li>The user interface under GTK has some large buttons and occasional layout refresh bugs that do not impair use of the tool. The actual look-and-feel comes from the theme, so the experience will differ across Fedora, Ubuntu, etc. based on the GTK theme being used.</li>
+      <li>This has comparable performance to Windows (within 10%) following the move to use .NET Core 3.1.</li>
+      <li>nVidia driver bugs cause the tool to crash on launch for OpenGL. Vulkan is fine. AMD and Intel hardware is not affected.</li>
+    </ul>
+      <table>
+        <tr>
+          <td = width="50%">
+            <img class="c" src="images/Quilt33_Gtk_1.png" alt=""/>
+          </td>
+          <td>
+            <img class="c" src="images/Quilt33_Gtk_2.png" alt=""/>
+          </td>
+        </tr>
+        <tr>
+          <td = width="50%">
+            <img class="c" src="images/Quilt33_Gtk_3.png" alt=""/>
+          </td>
+          <td>
+          </td>
+        </tr>
+      </table>
+    </blockquote>
+</body>
+</html>

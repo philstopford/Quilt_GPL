@@ -1,12 +1,11 @@
 ﻿using Eto.Drawing;
 
-namespace resources
+namespace resources;
+
+public static class images
 {
-    public static class images
+    public static Bitmap quiltImage()
     {
-        public static Bitmap quiltImage()
-        {
-            return Bitmap.FromResource("resources.quilt.png");
-        }
+        return Bitmap.FromResource("resources.quilt.png");
     }
 }

@@ -1,0 +1,430 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Quilt - Reference</title>
+<style type="text/css">
+* {
+  background-color: black
+}
+p.western {
+    font-family: "Calibri", serif;
+    font-size: 10pt;
+  color: #aaaaaa;
+    so-language: en-US
+}
+p.cjk {
+    font-family: "Calibri";
+    font-size: 10pt;
+    so-language: en-US
+}
+p.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA
+}
+h1 {
+    direction: ltr;
+    color: #365f91;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h1.western {
+    font-family: "Cambria", serif;
+    font-size: 13pt;
+    so-language: en-US
+}
+h1.cjk {
+    font-family: "宋体";
+    font-size: 13pt;
+    so-language: en-US
+}
+h1.ctl {
+font-family:;
+    font-size: 13pt;
+    so-language: ar-SA
+}
+h2 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h2.western {
+    font-family: "Cambria", serif;
+    font-size: 12pt;
+    so-language: en-US
+}
+h2.cjk {
+    font-family: "宋体";
+    font-size: 12pt;
+    so-language: en-US
+}
+h2.ctl {
+font-family:;
+    font-size: 12pt;
+    so-language: ar-SA
+}
+h3 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h3.western {
+    font-family: "Cambria", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+h3.cjk {
+    font-family: "宋体";
+    font-size: 10pt;
+    so-language: en-US
+}
+h3.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA
+}
+h4 {
+    direction: ltr;
+    color: #4f81bd;
+    line-height: 100%;
+    text-align: justify;
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2
+}
+h4.western {
+    font-family: "Cambria", serif;
+    font-size: 10pt;
+    so-language: en-US;
+    font-style: italic
+}
+h4.cjk {
+    font-family: "宋体";
+    font-size: 10pt;
+    so-language: en-US;
+    font-style: italic
+}
+h4.ctl {
+font-family:;
+    font-size: 10pt;
+    so-language: ar-SA;
+    font-style: italic
+}
+a:link {
+    color: #00aacc
+}
+ul {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+ol {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  color: #aaaaaa;
+  so-language: en-US
+}
+h1.western1 {   font-family: "Cambria", serif;
+    font-size: 13pt;
+    so-language: en-US
+}
+p.western1 {    font-family: "Calibri", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+h2.western1 {   font-family: "Cambria", serif;
+    font-size: 12pt;
+    so-language: en-US
+}
+p.western2 {    font-family: "Calibri", serif;
+    font-size: 10pt;
+    so-language: en-US
+}
+a {
+  font-family: "Calibri", serif;
+  font-size: 10pt;
+  so-language: en-US;
+  color: #33aacc
+}
+img {
+    max-width: 100%;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+#menu {
+position: fixed;
+left: 0;
+top: 5em;
+width: 3em;
+margin: -2.5em 0 0 0;
+z-index: 5;
+background: rgba(40, 40, 40, 0.9);
+color: #ccc;
+font-weight: normal;
+font-size: 12px;
+text-align: left;
+border: solid rgba(40, 40, 40, 0.5);
+border-left: none;
+padding: 0.5em 0.5em 0.5em 2.5em;
+box-shadow: 0 1px 3px black;
+/*border-radius: 3em 0.5em 0.5em 3em;*/
+}
+#menu li { margin: 0 }
+#menu a { color: inherit }
+
+/* Make menu absolute, not fixed, on IE 5 & 6 */
+/*#menu { position: absolute }*/
+#menu { position: fixed }
+
+</style>
+</head>
+
+<body lang="en-US" text="#aaaaaa" link="#00aacc" dir="ltr">
+
+<blockquote>
+    <a name="releases"></a>
+    <h1 class="western">Quilt Release History</h1>
+
+  <ul id=menu>
+    <li><a href="#releases_322">3.2.2</a>
+    <li><a href="#releases_321">3.2.1</a>
+    <li><a href="#releases_320">3.2</a>
+    <li><a href="#releases_310">3.1</a>
+    <li><a href="#releases_300">3.0</a>
+  </ul>
+
+    <blockquote>
+      <a name="releases_322"></a>
+      <h2 class="western">New to 3.2.2 (unreleased)</h2>
+      <blockquote>
+        <ul>
+          <li>NET 6.0 migration, bringing minor performance improvements.</li>
+          <li>GTK UI fix.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+    <blockquote>
+      <a name="releases_321"></a>
+      <h2 class="western">New to 3.2.1 (Oct 14 2021)</h2>
+      <blockquote>
+        <ul>
+          <li>Fixed inoperative multi-threaded project loading.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+    <blockquote>
+      <a name="releases_320"></a>
+      <h2 class="western">New to 3.2 (Jun 30 2021)</h2>
+      <blockquote>
+        <ul>
+          <li>Subshape parameters can be referenced from other elements, and different subshapes, in the pattern. This makes it possible to create new pattern configurations that were previously impossible.</li>
+          <ul>
+            <li>Currently, the parameter being referenced must be of the same type (i.e. horizontal length can only be referenced by horizontal length).</li>
+            <li>Any subshape within the referenced element can be used to drive the parameter of interest.</li>
+            <li>References to dimensions (rather than steps or increments) can be the final value (within the pattern) or the underlying minimum value.</li>
+            <li>Nested references are supported.</li>
+          </ul>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.2_reference_1.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.2_reference_2.png" alt=""/>
+          </td>
+        </tr>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/Quilt320Mac.png" alt=""/>
+          </td>
+          <td = width="33%">
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+      <ul>
+          <li>Loading from layout can be cancelled.</li>
+          <li>User interface updates to accommodate the increased number of controls.</li>
+          <li>Progress bars for loading / saving of projects.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+    <blockquote>
+      <a name="releases_310"></a>
+      <h2 class="western">New to 3.1 (Feb 28 2021)</h2>
+      <blockquote>
+        <ul>
+          <li>Export of layout-defined patterns will respect original layer/datatype, subject to merge rules.</li>
+          <li>Allow element name to define export layer/datatype definition.</li>
+          <li>Allow more viewport customization (background, axis colors).</li>
+          <li>Target .NET 5 for performance (~10%) and improved platform support.</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_layout_decomp_large.png" alt=""/>
+          </td>
+          <td = width="33%">
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Allow any pattern elements to be merged (union) with other elements during export using the new Merge parameter.</li>
+          <li>Bug fix for layout handling.</li>
+          <li>Added a keyholing pass to the decomposition pipeline to permit handling of loops.</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_loop_decomp.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_loop_decomp_2.png" alt=""/>
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Refined the rectangular decomposition methodology to handle multi-decomp better. Each set of decomposed geometry in the same design layer has its own relative transforms.</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_layout_decomp_samelayer_reltransform.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_layout_decomp_samelayer_reltransform_2.png" alt=""/>
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Refined the rectangular decomposition methodology to reduce incidence of surplus rectangles (new on left, old on right).</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_3.1decomp.png" alt=""/>
+          </td>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_3.0decomp.png" alt=""/>
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Allow variable array count and spacing.</li>
+        </ul>
+      </blockquote>
+      <table>
+        <tr>
+          <td = width="33%">
+            <img class="c" src="images/versions/3.1_variable_array.png" alt=""/>
+          </td>
+          <td = width="33%">
+          </td>
+        </tr>
+      </table>
+    </blockquote>
+
+    <blockquote>
+      <a name="releases_300"></a>
+      <h2 class="western">New to 3.0 (Oct 30 2020)</h2>
+      <table>
+        <tr>
+          <td = width="100%">
+            <table>
+              <tr>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp-pre.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp-post.png" alt=""/>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td width="100%">
+            <table>
+              <tr>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp_2-pre.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp_2.png" alt=""/>
+                </td>
+                <td = width="33%">
+                  <img class="c" src="images/versions/3.0_decomp_2-post.png" alt=""/>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <blockquote>
+        <ul>
+          <li>Support output of GZIP-compressed layout files for input and output.</li>
+          <li>Geometry can be selected with a middle (or Ctrl-Left) click in the viewport.</li>
+          <li>Geometry can be colored differently for selected/unselected elements.</li>
+          <li>Viewport can now zoom to the selected element in the requested pattern.</li>
+          <li>Hotkeys in context menu.</li>
+          <li>Element list now has a context menu, making it easier to copy, paste, remove and duplicate elements.</li>
+          <li>Quilt now loads patterns involving many elements (typically from layout decomposition) much faster, due to use of multithreading.</li>
+          <li>Added extents drawing to the tool. This allows the user to see the pattern extent used for placement in the quilt, making it easier to understand how placement is behaving (backported to 2.x line).</li>
+          <li>Pattern definition using layout files (GDSII, Oasis; including GZIP-compressed files) for any cell.</li>
+          <ul>
+            <li>Geometry will be mapped to internal primitives whenever possible.</li>
+            <li>Arrays will be constructed, where possible, from arrayed cell references.</li>
+            <ul>
+              <li>Complex cell hierarchies will be fully resolved to map into the Quilt system.</li>
+            </ul>
+            <li>Complex orthogonal geometry will be subjected to rectangular decomposition.</li>
+            <ul>
+              <li>Rectangular primitives will be added, ordered in increasing X,Y sequence based on the bottom left corner.</li>
+              <li>Decomposition primitives can be oriented vertically (default) or horizontally (as a user setting).</li>
+              <li>Relative positioning will be defined, using the series order of the decomposed rectangles.</li>
+              <li>Decomposed polygons will be unioned on export, to reconstitute polygons to a minimal case.</li>
+            </ul>
+            <li>Non-orthogonal geometry will be used as a complex primitive, displayed as an edge list.</li>
+          </ul>
+          <li>Pattern elements can be renamed now.</li>
+          <li>Allow negative X/Y position coordinates.</li>
+          <li>Reworked some internals to make the transformation pipeline simpler and much more robust.</li>
+          <li>Transformation system has been overhauled, allowing for deep relative transform hierarchies without any significant computational overhead.</li>
+        </ul>
+      </blockquote>
+    </blockquote>
+
+
+</blockquote>
+
+</body>
+</html>
