@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Clipper2Lib;
 using color;
 using Eto.Drawing;
-using geoLib;
 
 namespace Quilt;
 
@@ -19,19 +19,19 @@ public static class UIHelper
         return new MyColor(sourceColor.R, sourceColor.G, sourceColor.B);
     }
 
-    private static PointF myPointFToPointF(GeoLibPointF sourcePoint)
+    private static PointF myPointFToPointF(PointD sourcePoint)
     {
-        return new PointF((float)sourcePoint.X, (float)sourcePoint.Y);
+        return new PointF((float)sourcePoint.x, (float)sourcePoint.y);
     }
 
-    private static GeoLibPointF pointFTomyPointF(PointF sourcePoint)
+    private static PointD pointFTomyPointF(PointF sourcePoint)
     {
-        return new GeoLibPointF(sourcePoint.X, sourcePoint.Y);
+        return new PointD(sourcePoint.X, sourcePoint.Y);
     }
 
-    public static PointF[] myPointFArrayToPointFArray(GeoLibPointF[] sourceArray)
+    public static PointF[] myPointFArrayToPointFArray(PathD sourceArray)
     {
-        PointF[] returnArray = new PointF[sourceArray.Length];
+        PointF[] returnArray = new PointF[sourceArray.Count];
 #if !QUILTSINGLETHREADED
         Parallel.For(0, returnArray.Length, i =>
 #else
@@ -46,11 +46,11 @@ public static class UIHelper
         return returnArray;
     }
 
-    public static GeoLibPointF[] pointFArrayTomyPointFArray(PointF[] sourceArray)
+    public static PathD pointFArrayTomyPointFArray(PointF[] sourceArray)
     {
-        GeoLibPointF[] returnArray = new GeoLibPointF[sourceArray.Length];
+        PathD returnArray = Helper.initedPathD(sourceArray.Length);
 #if !QUILTSINGLETHREADED
-        Parallel.For(0, returnArray.Length, i =>
+        Parallel.For(0, returnArray.Count, i =>
 #else
             for (int i = 0; i < returnArray.Length; i++)
 #endif

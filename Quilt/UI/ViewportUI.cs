@@ -1,10 +1,9 @@
 ﻿using Eto.Drawing;
 using Eto.Forms;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using geoLib;
+using Clipper2Lib;
 using shapeEngine;
 
 namespace Quilt;
@@ -152,7 +151,7 @@ public partial class MainForm
                     alpha = (float)quiltContext.FGOpacity;
                 }
 
-                List<GeoLibPointF[]> points = commonVars.stitcher.previewShapes[pattern][i].getPoints();
+                PathsD points = commonVars.stitcher.previewShapes[pattern][i].getPoints();
                 int polyCount = points.Count;
                 vData.viewportData[pattern].patternData[i].initfgdata(polyCount);
  

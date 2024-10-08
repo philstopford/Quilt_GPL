@@ -1,11 +1,11 @@
 ﻿using Error;
-using geoLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Clipper2Lib;
 
 namespace Quilt;
 
@@ -72,9 +72,9 @@ public class Storage
     {
     }
 
-    private static List<GeoLibPointF[]> fileDataFromString(string fileDataString)
+    private static PathsD fileDataFromString(string fileDataString)
     {
-        List<GeoLibPointF[]> returnList = new();
+        PathsD returnList = new();
 
         char[] polySep = { ';' };
         char[] coordSep = { ',' };
@@ -87,11 +87,11 @@ public class Storage
             foreach (string t in polyStringArray)
             {
                 string[] pointStringArray = t.Split(coordSep);
-                GeoLibPointF[] polyData = new GeoLibPointF[pointStringArray.Length / 2]; // since we have two coord values per point (X,Y)
+                PathD polyData = Helper.initedPathD(pointStringArray.Length / 2); // since we have two coord values per point (X,Y)
                 int pt = 0;
                 while (pt < pointStringArray.Length)
                 {
-                    polyData[pt / 2] = new GeoLibPointF((float)Convert.ToDouble(pointStringArray[pt]), (float)Convert.ToDouble(pointStringArray[pt + 1]));
+                    polyData[pt / 2] = new (Convert.ToDouble(pointStringArray[pt]), Convert.ToDouble(pointStringArray[pt + 1]));
                     pt += 2;
                 }
 
@@ -108,14 +108,14 @@ public class Storage
         }
         else
         {
-            returnList.Add(new[] { new GeoLibPointF(0, 0) });
-            returnList.Add(new[] { new GeoLibPointF(0, 0) });
-            returnList.Add(new[] { new GeoLibPointF(0, 0) });
+            returnList.Add(new() { new (0, 0) });
+            returnList.Add(new() { new (0, 0) });
+            returnList.Add(new() { new (0, 0) });
         }
         return returnList;
     }
 
-    private static string stringFromFileData(List<GeoLibPointF[]> fileData)
+    private static string stringFromFileData(PathsD fileData)
     {
         string returnString = "";
         if (fileData == null || fileData.Count == 0)
@@ -125,11 +125,11 @@ public class Storage
 
         int poly = 0;
         int pt = 0;
-        returnString += fileData[poly][pt].X + "," + fileData[poly][pt].Y;
+        returnString += fileData[poly][pt].x + "," + fileData[poly][pt].y;
         pt++;
-        while (pt < fileData[poly].Length)
+        while (pt < fileData[poly].Count)
         {
-            returnString += "," + fileData[poly][pt].X + "," + fileData[poly][pt].Y;
+            returnString += "," + fileData[poly][pt].x + "," + fileData[poly][pt].y;
             pt++;
         }
         poly++;
@@ -137,11 +137,11 @@ public class Storage
         {
             returnString += ";";
             pt = 0;
-            returnString += fileData[poly][0].X + "," + fileData[poly][0].Y;
+            returnString += fileData[poly][0].x + "," + fileData[poly][0].y;
             pt++;
-            while (pt < fileData[poly].Length)
+            while (pt < fileData[poly].Count)
             {
-                returnString += "," + fileData[poly][pt].X + "," + fileData[poly][pt].Y;
+                returnString += "," + fileData[poly][pt].x + "," + fileData[poly][pt].y;
                 pt++;
             }
             poly++;

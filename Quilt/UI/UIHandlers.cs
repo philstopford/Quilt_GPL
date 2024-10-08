@@ -100,7 +100,6 @@ public partial class MainForm
         {
             UIFreeze = true;
             commonVars.gCH.reset();
-            commonVars.gCH.getGeo().baseScale = 1000.0;
 
             if (ext == "GDS" || ext == "GZ" && tokens[^2].ToUpper() == "GDS")
             {
@@ -577,7 +576,7 @@ public partial class MainForm
         if (aboutBox is not {Visible: true})
         {
             string creditText = "Version " + CentralProperties.version + ", " +
-                                "© " + CentralProperties.author + " 2018-2022" + "\r\n\r\n";
+                                "© " + CentralProperties.author + " 2018-2023" + "\r\n\r\n";
             creditText += "Licence: GPLv3";
             creditText += "\r\n\r\n";
             creditText += "Libraries used:\r\n";

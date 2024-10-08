@@ -199,27 +199,41 @@ box-shadow: 0 1px 3px black;
     <h1 class="western">Quilt Release History</h1>
 
   <ul id=menu>
-    <li><a href="#releases_500">5.0</a>
+    <li><a href="#releases_400">4.0</a>
   </ul>
 
     <blockquote>
-      <a name="releases_500"></a>
-      <h2 class="western">New to 5.0 (23 Mar 2023)</h2>
+      <a name="releases_400"></a>
+      <h2 class="western">New to 4.0 (Aug 27 2022)</h2>
       <blockquote>
-        <p class="western">Amongst other major changes, 4.0 moved from the Clipper 1.0 library to Clipper 2.0. This migration was performed within the existing representations, as the upgraded library was still seeing engineering and validation work for floating point values. With this tool update, 
-        we can now take advantage of this support to greatly simplify our code and system design, gaining major performance enhancements.</p>
         <ul>
-          <li>Moved to .NET 7.</li>
-          <li>Migration from GeoLib geometry to Clipper-native double precision representations.</li>
+          <li>Tip definitions now supported.</li>
           <ul>
-            <li>Massive refactoring effort, across multiple stable, complex systems and their interactions.</li>
-            <li>Gains of up to 40% in performance by:</li>
-            <ul>
-              <li>Use of Clipper-native data structures throughout, avoiding conversions.</li>
-              <li>Avoidance of copying data between representations.</li>
-              <li>Avoidance of computational overhead by scaling geometry between representations.</li>
-            </ul>
-            <li>Code simplification and readability by single representation.</li>
+            <li>References are supported for tip definition and numeric values.</li>
+            <li>Tip numeric properties can be varied (minimum length, increment, steps).</li>
+          </ul>
+          <li>Relative rotation transform enhancements.</li>
+          <ul>
+            <li>Option to rotate around local pivot, reference pivot or world origin.</li>
+          </ul>
+          <li>Decomposition updates.</li>
+          <li>Shape engine updates, and unification with Variance.</li>
+          <li>Layout handling enhancements.</li>
+          <ul>
+            <li>Resolved compatibility with certain flavors of OASIS (e.g. strict).</li>
+            <li>Revised layout to tool handling, to make scaling behavior less opaque.</li>
+            <li>Fixed a defect in the OASIS file writer that yielded missing or broken geometry in some cases.</li>
+          </ul>
+          <li>Adopted Clipper 2 library.</li>
+          <ul>
+            <li>Next-generation polygon clipping library, bringing major performance and behavioral improvements.</li>
+            <li>Layout decomposition runs in less than a half of the time compared to the last 3.x release.</li>
+            <li>NOTE: Patterns requiring keyhole injection during layout decomposition may be different in 4.0 compared to 3.2.2 and earlier, due to internal methodology changes in the clipping library.</li>
+          </ul>
+          <li>UI work.</li>
+          <ul>
+            <li>Use expander container to prevent non-orthogonal shapes causing UI to become too busy.</li>
+            <li>Button and context menu entries for selecting references used by the current element, in list and viewport.</li>
           </ul>
         </ul>
       </blockquote>

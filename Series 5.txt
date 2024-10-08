@@ -1,0 +1,28 @@
+Changelog for Quilt. A pattern generator.
+
+5.0
+
+	- Moved to NET 7.
+
+5.0a2
+
+	- Initial viewport position is offset until window is resized or splitter is nudged. This appears to lie outside our code.
+	- Moved ClipperD to set precision based on a constant for 4 decimal places (internal scaling inside Clipper).
+	- Moved various offsetting approaches to use InflatePaths() with a precision value of 4, to scale with enough resolution.
+	- Moving to avoid all conversion/scaling that isn't needed.
+	- Moving to all-floats caused some engineering complexities and the review is ongoing.
+	 - Decomposition pipeline needs more review to ensure nothing broke. It continues to need an integer representation as a working set, to allow the cut-generated notches to be eliminated later.
+	 - Decomposition needed an override for the keyhole width; set in CentralProperties for visibility. Value set by inspection/test.
+	- Identified a flaw in the box output for OASIS. Resolved.
+	- GeoCore output/input seems to be fine.
+	- Enhancements and fixes in GeoCore
+	 - Fixed circle detection/creation.
+	 - Fixed polygon output in GDSII.
+
+	! Need to review all explicit copy-via-new usage in the new code. This was a defensive-first approach, but is likely excessive.
+	
+5.0a1
+
+	- Moving all geometry to work from Clipper primitives (Point64, PointD, Path64, PathD, Paths64, PathsD).
+	 - This is intended to test the initial plan to consolidate geometry and allow for all representations to be Clipper-ready at any point.
+	  - End goal is to eliminate conversions/scalings that are not absolutely necessary.

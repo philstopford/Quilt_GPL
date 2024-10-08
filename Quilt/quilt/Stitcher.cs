@@ -1,6 +1,5 @@
 ﻿using Eto.Drawing;
 using geoCoreLib;
-using geoLib;
 using geoWrangler;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Clipper2Lib;
 
 namespace Quilt;
 
@@ -702,7 +702,7 @@ public class Stitcher
                 if (changed)
                 {
                     // Clear midpoint to force a recompute
-                    patternElements[i].setMidPoint(null);
+                    patternElements[i].setMidPoint(new (double.NaN, Double.NaN));
                 }
             }
 #if !QUILTSINGLETHREADED
@@ -1160,26 +1160,26 @@ public class Stitcher
             updateUIProgress?.Invoke(0.0f);
                 
             // Get our bounding box information to inform grid placement.
-            List<GeoLibPointF> bb = new();
+            PathD bb = new();
             try
             {
                 bb = patterns[0].boundingBox().getPoints();
             }
             catch (Exception)
             {
-                bb.Add(new GeoLibPointF(0, 0));
-                bb.Add(new GeoLibPointF(0, 0));
-                bb.Add(new GeoLibPointF(0, 0));
-                bb.Add(new GeoLibPointF(0, 0));
+                bb.Add(new (0, 0));
+                bb.Add(new (0, 0));
+                bb.Add(new (0, 0));
+                bb.Add(new (0, 0));
             }
-            GeoLibPointF bl = new(bb[0]);
-            GeoLibPointF tr = new(bb[2]);
+            PointD bl = new(bb[0]);
+            PointD tr = new(bb[2]);
 
-            double right = Math.Max(bl.X, tr.X);
-            left = Math.Min(bl.X, tr.X);
+            double right = Math.Max(bl.x, tr.x);
+            left = Math.Min(bl.x, tr.x);
 
-            double top = Math.Max(bl.Y, tr.Y);
-            bottom = Math.Min(bl.Y, tr.Y);
+            double top = Math.Max(bl.y, tr.y);
+            bottom = Math.Min(bl.y, tr.y);
 
             updateUIStatus?.Invoke("Weaving");
 
@@ -1196,24 +1196,24 @@ public class Stitcher
 
                     bb = patterns[pattern].boundingBox().getPoints();
 
-                    GeoLibPointF bl_test = new(bb[0]);
-                    GeoLibPointF tr_test = new(bb[2]);
+                    PointD bl_test = new(bb[0]);
+                    PointD tr_test = new(bb[2]);
 
-                    bottom = Math.Min(bottom, Math.Min(bl_test.Y, tr_test.Y));
-                    left = Math.Min(left, Math.Min(bl_test.X, tr_test.X));
-                    top = Math.Max(top, Math.Max(bl_test.Y, tr_test.Y));
-                    right = Math.Max(right, Math.Max(bl_test.X, tr_test.X));
+                    bottom = Math.Min(bottom, Math.Min(bl_test.y, tr_test.y));
+                    left = Math.Min(left, Math.Min(bl_test.x, tr_test.x));
+                    top = Math.Max(top, Math.Max(bl_test.y, tr_test.y));
+                    right = Math.Max(right, Math.Max(bl_test.x, tr_test.x));
 
                     Interlocked.Increment(ref counter);
                 }
             );
             timer.Stop();
 
-            bb[0] = new GeoLibPointF(left, bottom);
-            bb[1] = new GeoLibPointF(left, top);
-            bb[2] = new GeoLibPointF(right, top);
-            bb[3] = new GeoLibPointF(right, bottom);
-            GeoWrangler.close(bb);
+            bb[0] = new (left, bottom);
+            bb[1] = new (left, top);
+            bb[2] = new (right, top);
+            bb[3] = new (right, bottom);
+            bb = GeoWrangler.close(bb);
 
             width = Math.Abs(right - left) + padding;
             height = Math.Abs(top - bottom) + padding;
@@ -1237,7 +1237,7 @@ public class Stitcher
                     {
                         previewShapes[entry][ps].move(x, y);
                     });
-                    GeoLibPointF[] pBB = GeoWrangler.move(bb.ToArray(), x, y);
+                    PathD pBB = GeoWrangler.move(bb, x, y);
                     backgroundShapes[entry] = new PreviewShape();
                     backgroundShapes[entry].addPoints(pBB);
                     Interlocked.Increment(ref counter);
@@ -1319,10 +1319,10 @@ public class Stitcher
                     continue;
                 }
 
-                List<GeoLibPointF[]> geo = previewShapesForPattern[element].getPoints();
+                PathsD geo = previewShapesForPattern[element].getPoints();
                 for (int poly = 0; poly < geo.Count; poly++)
                 {
-                    previewShapesForPattern[linkedElementIndex].addPoints(geo[poly].ToArray(), false, text: previewShapesForPattern[element].isText(poly));
+                    previewShapesForPattern[linkedElementIndex].addPoints(new(geo[poly]), false, text: previewShapesForPattern[element].isText(poly));
                     // Override the source index.
                     previewShapesForPattern[linkedElementIndex].sourceIndices[^1] = previewShapesForPattern[element].sourceIndices[poly];
                 }
@@ -1337,7 +1337,7 @@ public class Stitcher
         {
             foreach (PreviewShape t1 in t)
             {
-                List<GeoLibPointF[]> geo = t1.getPoints().ToList();
+                PathsD geo = new (t1.getPoints());
                 int geoCount = geo.Count;
                 for (int poly = geoCount - 1; poly >= 0; poly--)
                 {
@@ -1353,9 +1353,9 @@ public class Stitcher
                 }
 
                 // Now consolidate our 'not drawn' elements. Drive some optional parameters to try and avoid losing keyholes.
-                List<GeoLibPointF[]> c = GeoWrangler.clean_and_flatten(geo, CentralProperties.scaleFactorForOperation, customSizing: 2, extension: 1.0).ToList();
+                PathsD c = new (GeoWrangler.clean_and_flatten(geo, customSizing: 2, extension: 1.0));
 
-                foreach (GeoLibPointF[] t2 in c)
+                foreach (PathD t2 in c)
                 {
                     t1.addPoints(t2, false);
                 }
@@ -1400,7 +1400,7 @@ public class Stitcher
                     // Duplicate name, need to merge the geometry.
                     foreach (List<PreviewShape> t in consolidated)
                     {
-                        List<GeoLibPointF[]> geoFromSameNamedElement = t[element].getPoints().ToList();
+                        PathsD geoFromSameNamedElement = new (t[element].getPoints());
                         for (int poly = 0; poly < geoFromSameNamedElement.Count; poly++)
                         {
                             if (!t[element].getDrawnPoly(poly))
@@ -1480,7 +1480,7 @@ public class Stitcher
             };
 
 
-            GeoLibPointF loc = patterns[i].getPos();
+            PointD loc = patterns[i].getPos();
 
             Parallel.For(0, consolidated[i].Count, po, (element) =>
             {
@@ -1537,15 +1537,15 @@ public class Stitcher
                     }
                 }
 
-                List<GeoLibPointF[]> polys = consolidated[i][element].getPoints().ToList();
+                PathsD polys = new (consolidated[i][element].getPoints());
                 for (int poly = 0; poly < polys.Count; poly++)
                 {
-                    GeoLibPoint[] ePoly = GeoWrangler.resize_to_int(polys[poly], scale);
+                    Path64 ePoly = GeoWrangler.resize_to_int(polys[poly], scale);
 
                     ePoly = GeoWrangler.simplify(ePoly);
-                    ePoly = GeoWrangler.stripColinear(ePoly);
+                    ePoly = GeoWrangler.stripCollinear(ePoly);
 
-                    drawing_.cellList[i].addPolygon(ePoly.ToArray(), targetLayer, targetDataType);
+                    drawing_.cellList[i].addPolygon(new(ePoly), targetLayer, targetDataType);
 
                     if (!consolidated[i][element].isText(poly))
                     {
@@ -1553,11 +1553,11 @@ public class Stitcher
                     }
 
                     // Get midpoint of geometry.
-                    GeoLibPointF bb = GeoWrangler.midPoint(polys[poly]);
+                    PointD bb = GeoWrangler.midPoint(polys[poly]);
                     // We should only have one polygon here, so naively assume that.
                     // Pin text coming from the element variable for now.
                     string pinName = patternElementNames[consolidated[i][element].sourceIndices[poly]];
-                    drawing_.cellList[i].addText(targetLayer, targetDataType, new GeoLibPoint((int)((bb.X - loc.X) * scale), (int)((bb.Y - loc.Y) * scale)), pinName);
+                    drawing_.cellList[i].addText(targetLayer, targetDataType, new ((int)((bb.x - loc.x) * scale), (int)((bb.y - loc.y) * scale)), pinName);
                 }
             });
 
@@ -1582,9 +1582,9 @@ public class Stitcher
 
         Parallel.For(0, patterns.Count, po, (i) =>
         {
-            GeoLibPointF loc = patterns[i].getPos();
+            PointD loc = patterns[i].getPos();
             gcell_root.elementList[i] = new GCCellref();
-            gcell_root.elementList[i].setPos(new GeoLibPoint(loc.X * scale, loc.Y * scale));
+            gcell_root.elementList[i].setPos(new (loc.x * scale, loc.y * scale));
 
             gcell_root.elementList[i].setCellRef(drawing_.cellList[i]);
             gcell_root.elementList[i].setName("pattern" + i);

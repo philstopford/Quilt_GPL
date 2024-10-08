@@ -1,10 +1,4 @@
-﻿using Eto.Veldrid;
-using Eto.Veldrid.Wpf;
-using System;
-using System.IO;
-using Veldrid;
-
-namespace Quilt.WPF;
+﻿namespace Quilt.WPF;
 
 internal static class Program
 {

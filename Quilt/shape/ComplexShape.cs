@@ -1,23 +1,23 @@
 ﻿using Error;
-using geoLib;
 using geoWrangler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Clipper2Lib;
 using shapeEngine;
 
 namespace Quilt;
 
 public class ComplexShape
 {
-    private GeoLibPointF[] points;
+    private PathD points;
 
-    public GeoLibPointF[] getPoints()
+    public PathD getPoints()
     {
         return pGetPoints();
     }
 
-    private GeoLibPointF[] pGetPoints()
+    private PathD pGetPoints()
     {
         return points;
     }
@@ -26,14 +26,14 @@ public class ComplexShape
     private double xOverlayVal;
     private double yOverlayVal;
 
-    public GeoLibPointF getOffset()
+    public PointD getOffset()
     {
         return pGetOffset();
     }
 
-    private GeoLibPointF pGetOffset()
+    private PointD pGetOffset()
     {
-        return new GeoLibPointF(xOverlayVal, yOverlayVal);
+        return new PointD(xOverlayVal, yOverlayVal);
     }
 
     public ComplexShape(List<PatternElement> patternElements, int settingsIndex, ShapeLibrary shape = null)
@@ -41,15 +41,15 @@ public class ComplexShape
         pMakeEntropyShape(patternElements, settingsIndex, shape);
     }
 
-    private List<GeoLibPointF> pMakeShape(bool returnEarly, ShapeLibrary shape, double hTipBias, double vTipBias)
+    private PathD pMakeShape(bool returnEarly, ShapeLibrary shape, double hTipBias, double vTipBias)
     {
-        List<GeoLibPointF> mcPoints = new();
+        PathD mcPoints = new();
 
         if (shape.shapeIndex == (int)ShapeLibrary.shapeNames_all.complex)
         {
             foreach (var t in shape.Vertex)
             {
-                mcPoints.Add(new GeoLibPointF(t.X, t.Y));
+                mcPoints.Add(new (t.X, t.Y));
             }
         }
         else
@@ -78,8 +78,8 @@ public class ComplexShape
             if (returnEarly)
             {
                 mcPoints.Clear();
-                mcPoints.AddRange(shape.Vertex.Select(t => new GeoLibPointF(t.X, t.Y)));
-                mcPoints = GeoWrangler.stripColinear(mcPoints);
+                mcPoints.AddRange(shape.Vertex.Select(t => new PointD (t.X, t.Y)));
+                mcPoints = GeoWrangler.stripCollinear(mcPoints);
 
                 return mcPoints;
             }
@@ -99,11 +99,10 @@ public class ComplexShape
             double s0VO = 0;
 
             mcPoints = shape.processCorners(false, false, false, s0HO, s0VO, iCR, iCV, iCVariation, icPA, oCR, oCV,
-                oCVariation, ocPA, cornerSegments, optimizeCorners, resolution,
-                CentralProperties.scaleFactorForOperation);
+                oCVariation, ocPA, cornerSegments, optimizeCorners, resolution);
         }
 
-        return GeoWrangler.close(GeoWrangler.stripColinear(mcPoints));
+        return GeoWrangler.close(GeoWrangler.stripCollinear(mcPoints));
     }
 
     private void pMakeEntropyShape(List<PatternElement> patternElements, int settingsIndex, ShapeLibrary shape = null)
@@ -120,11 +119,11 @@ public class ComplexShape
         const bool returnEarly = false; //debug
 
         // Force an early return from make shape, avoiding rounding.
-        List<GeoLibPointF> mcPoints = pMakeShape(true, shape, Convert.ToDouble(patternElements[settingsIndex].getDecimal(ShapeSettings.properties_decimal.hTBias)), Convert.ToDouble(patternElements[settingsIndex].getDecimal(ShapeSettings.properties_decimal.vTBias)));
+        PathD mcPoints = pMakeShape(true, shape, Convert.ToDouble(patternElements[settingsIndex].getDecimal(ShapeSettings.properties_decimal.hTBias)), Convert.ToDouble(patternElements[settingsIndex].getDecimal(ShapeSettings.properties_decimal.vTBias)));
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         if (returnEarly)
         {
-            points = mcPoints.ToArray();
+            points = new(mcPoints);
             return;
         }
 
@@ -141,12 +140,12 @@ public class ComplexShape
         // Error handling (failSafe) for no points or no subshape  - safety measure.
         if (!mcPoints.Any())
         {
-            mcPoints.Add(new GeoLibPointF(0.0f, 0.0f));
+            mcPoints.Add(new (0.0f, 0.0f));
         }
 
-        points = mcPoints.ToArray();
+        points = new (mcPoints);
 
-        if (Math.Abs(points[0].X - points[^1].X) > double.Epsilon || Math.Abs(points[0].Y - points[^1].Y) > double.Epsilon)
+        if (Math.Abs(points[0].x - points[^1].x) > constants.tolerance || Math.Abs(points[0].y - points[^1].y) > constants.tolerance)
         {
             ErrorReporter.showMessage_OK("Start and end not the same - entropyShape", "Oops");
         }

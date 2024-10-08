@@ -1,5 +1,9 @@
 Changelog for Quilt. A pattern generator.
 
+4.0.1
+
+	- Package updates and general code maintenance. No meaningful changes.
+
 4.0b1
 
 	- Closed a loop-hole that would lead to duplicate patterns if the variations were configured, but 'None' remained as a tip setting on the subshape(s).

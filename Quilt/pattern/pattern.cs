@@ -1,9 +1,9 @@
-﻿using geoLib;
-using geoWrangler;
+﻿using geoWrangler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Clipper2Lib;
 using shapeEngine;
 
 namespace Quilt;
@@ -30,8 +30,8 @@ public partial class Pattern
     // To get the bounding box for our list of preview shapes
     public class BoundingBox
     {
-        private List<GeoLibPointF> points;
-        private GeoLibPointF midPoint;
+        private PathD points;
+        private PointD midPoint;
             
         public double minX { get; private set; }
         public double maxX { get; private set; }
@@ -51,12 +51,12 @@ public partial class Pattern
                 maxX = 0;
                 minY = 0;
                 maxY = 0;
-                points = new List<GeoLibPointF>(4) { new(0, 0), new(0, 0), new(0, 0), new(0, 0) };
-                midPoint = new GeoLibPointF(0, 0);
+                points = new () { new(0, 0), new(0, 0), new(0, 0), new(0, 0) };
+                midPoint = new (0, 0);
                 return;
             }
 
-            List<GeoLibPointF[]> pPoints = previewShapes[0].getPoints();
+            PathsD pPoints = previewShapes[0].getPoints();
 
             if (pPoints.Count == 0)
             {
@@ -64,110 +64,110 @@ public partial class Pattern
                 maxX = 0;
                 minY = 0;
                 maxY = 0;
-                points = new List<GeoLibPointF>(4) { new(0, 0), new(0, 0), new(0, 0), new(0, 0) };
-                midPoint = new GeoLibPointF(0, 0);
+                points = new () { new(0, 0), new(0, 0), new(0, 0), new(0, 0) };
+                midPoint = new (0, 0);
                 return;
             }
 
-            BoundingBox test = pPoints[0].Any() ? new BoundingBox(pPoints[0]) : new BoundingBox(new[] { new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0), new GeoLibPointF(0, 0) });
+            BoundingBox test = pPoints[0].Any() ? new BoundingBox(pPoints[0]) : new BoundingBox(new PathD() { new (0, 0), new (0, 0), new (0, 0), new (0, 0) });
 
-            points = test.points.ToList();
+            points = new (test.points);
 
-            foreach (GeoLibPointF[] t1 in previewShapes.Select(t => t.getPoints()).SelectMany(polys => polys))
+            foreach (PathD t1 in previewShapes.Select(t => t.getPoints()).SelectMany(polys => polys))
             {
                 test = new BoundingBox(t1);
 
-                minX = test.points.Min(p => p.X);
-                if (minX < points[0].X)
+                minX = test.points.Min(p => p.x);
+                if (minX < points[0].x)
                 {
                     // Reposition our min X points
-                    points[0].X = minX;
-                    points[1].X = minX;
+                    points[0] = new (minX, points[0].y);
+                    points[1] = new (minX, points[1].y);
                 }
-                minY = test.points.Min(p => p.Y);
-                if (minY < points[0].Y)
+                minY = test.points.Min(p => p.y);
+                if (minY < points[0].y)
                 {
                     // Reposition our min Y points
-                    points[0].Y = minY;
-                    points[3].Y = minY;
+                    points[0] = new (points[0].x, minY);
+                    points[3] = new (points[3].x, minY);
                 }
-                maxX = test.points.Max(p => p.X);
-                if (maxX > points[2].X)
+                maxX = test.points.Max(p => p.x);
+                if (maxX > points[2].x)
                 {
                     // Reposition our max X points
-                    points[2].X = maxX;
-                    points[3].X = maxX;
+                    points[2] = new (maxX, points[2].y);
+                    points[3] = new (maxX, points[3].y);
                 }
-                maxY = test.points.Max(p => p.Y);
-                if (!(maxY > points[2].Y))
+                maxY = test.points.Max(p => p.y);
+                if (!(maxY > points[2].y))
                 {
                     continue;
                 }
 
                 // Reposition our max Y points
-                points[1].Y = maxY;
-                points[2].Y = maxY;
+                points[1] = new (points[1].x, maxY);
+                points[2] = new (points[2].x, maxY);
             }
-            minX = points.Min(p => p.X);
-            minY = points.Min(p => p.Y);
-            maxX = points.Max(p => p.X);
-            maxY = points.Max(p => p.Y);
-            midPoint = new GeoLibPointF(minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
+            minX = points.Min(p => p.x);
+            minY = points.Min(p => p.y);
+            maxX = points.Max(p => p.x);
+            maxY = points.Max(p => p.y);
+            midPoint = new (minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
         }
 
-        public List<GeoLibPointF> getPoints()
+        public PathD getPoints()
         {
             return pGetPoints();
         }
 
-        private List<GeoLibPointF> pGetPoints()
+        private PathD pGetPoints()
         {
             return points;
         }
 
-        public GeoLibPointF getMidPoint()
+        public PointD getMidPoint()
         {
             return pGetMidPoint();
         }
 
-        private GeoLibPointF pGetMidPoint()
+        private PointD pGetMidPoint()
         {
             return midPoint;
         }
 
-        private BoundingBox(GeoLibPointF[] incomingPoints)
+        private BoundingBox(PathD incomingPoints)
         {
             pBoundingBox(incomingPoints);
         }
 
-        private void pBoundingBox(GeoLibPointF[] incomingPoints)
+        private void pBoundingBox(PathD incomingPoints)
         {
-            points = new List<GeoLibPointF>();
-            if (incomingPoints == null || incomingPoints.Length == 0)
+            points = new ();
+            if (incomingPoints == null || incomingPoints.Count == 0)
             {
                 minX = 0;
                 maxX = 0;
                 minY = 0;
                 maxY = 0;
-                points.Add(new GeoLibPointF(0.0f, 0.0f));
-                points.Add(new GeoLibPointF(0.0f, 0.0f));
-                points.Add(new GeoLibPointF(0.0f, 0.0f));
-                points.Add(new GeoLibPointF(0.0f, 0.0f));
-                midPoint = new GeoLibPointF(0.0f, 0.0f);
+                points.Add(new (0.0f, 0.0f));
+                points.Add(new (0.0f, 0.0f));
+                points.Add(new (0.0f, 0.0f));
+                points.Add(new (0.0f, 0.0f));
+                midPoint = new (0.0f, 0.0f);
             }
             else
             {
                 // Compile a list of our points.
-                List<GeoLibPointF> iPoints = incomingPoints.ToList();
-                minX = iPoints.Min(p => p.X);
-                minY = iPoints.Min(p => p.Y);
-                maxX = iPoints.Max(p => p.X);
-                maxY = iPoints.Max(p => p.Y);
-                points.Add(new GeoLibPointF(minX, minY));
-                points.Add(new GeoLibPointF(minX, maxY));
-                points.Add(new GeoLibPointF(maxX, maxY));
-                points.Add(new GeoLibPointF(maxX, minY));
-                midPoint = new GeoLibPointF(minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
+                PathD iPoints = new (incomingPoints);
+                minX = iPoints.Min(p => p.x);
+                minY = iPoints.Min(p => p.y);
+                maxX = iPoints.Max(p => p.x);
+                maxY = iPoints.Max(p => p.y);
+                points.Add(new (minX, minY));
+                points.Add(new (minX, maxY));
+                points.Add(new (maxX, maxY));
+                points.Add(new (maxX, minY));
+                midPoint = new (minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
             }
         }
     }
@@ -214,17 +214,17 @@ public partial class Pattern
         y = py;
     }
 
-    public GeoLibPointF getPos()
+    public PointD getPos()
     {
         return pGetPos();
     }
 
-    private GeoLibPointF pGetPos()
+    private PointD pGetPos()
     {
-        return new GeoLibPointF(x, y);
+        return new (x, y);
     }
 
-    private List<GeoLibPointF> pBBDims(int index)
+    private PathD pBBDims(int index)
     {
         PreviewShape pShape1 = new(this, index);
         BoundingBox bb = new(new List<PreviewShape> { pShape1 });
@@ -237,14 +237,14 @@ public partial class Pattern
     private double pBBDimension(bbDims prop, int index)
     {
         double ret = 0;
-        List<GeoLibPointF> bb = pBBDims(index);
+        PathD bb = pBBDims(index);
         switch (prop)
         {
             case bbDims.width:
-                ret = bb.Max(p => p.X) - bb.Min(p => p.X);
+                ret = bb.Max(p => p.x) - bb.Min(p => p.x);
                 break;
             case bbDims.height:
-                ret = bb.Max(p => p.Y) - bb.Min(p => p.Y);
+                ret = bb.Max(p => p.y) - bb.Min(p => p.y);
                 break;
         }
 
@@ -368,11 +368,11 @@ public partial class Pattern
         if (refFlipped)
         {
             ShapeLibrary t = new(CentralProperties.shapeTable, pGetPatternElement(xRef));
-            GeoLibPointF pivot = t.getPivotPoint();
+            PointD pivot = t.getPivotPoint();
 
             bool alignX = pGetPatternElement(xRef).getInt(PatternElement.properties_i.alignX) == 1;
             bool alignY = pGetPatternElement(xRef).getInt(PatternElement.properties_i.alignY) == 1;
-            x_ = Convert.ToDecimal(GeoWrangler.flip(true, false, alignX, alignY, pivot, new[] { new GeoLibPointF(Convert.ToDouble(x_), 0) })[0].X);
+            x_ = Convert.ToDecimal(GeoWrangler.flip(true, false, alignX, alignY, pivot, new() { new (Convert.ToDouble(x_), 0) })[0].x);
         }
 
         if (!doX)
@@ -506,11 +506,11 @@ public partial class Pattern
         if (refFlipped)
         {
             ShapeLibrary t = new(CentralProperties.shapeTable, pGetPatternElement(yRef));
-            GeoLibPointF pivot = t.getPivotPoint();
+            PointD pivot = t.getPivotPoint();
 
             bool alignX = pGetPatternElement(yRef).getInt(PatternElement.properties_i.alignX) == 1;
             bool alignY = pGetPatternElement(yRef).getInt(PatternElement.properties_i.alignY) == 1;
-            y_ = Convert.ToDecimal(GeoWrangler.flip(false, true, alignX, alignY, pivot, new[] { new GeoLibPointF(0, Convert.ToDouble(y_)) })[0].Y);
+            y_ = Convert.ToDecimal(GeoWrangler.flip(false, true, alignX, alignY, pivot, new () { new (0, Convert.ToDouble(y_)) })[0].y);
         }
 
         if (!doY)

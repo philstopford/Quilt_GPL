@@ -1,8 +1,8 @@
-﻿using geoLib;
-using geoWrangler;
+﻿using geoWrangler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Clipper2Lib;
 using shapeEngine;
 
 namespace Quilt;
@@ -143,7 +143,7 @@ public class PatternElement : ShapeSettings
         layoutLayer = defaultLayoutLDValue;
         layoutDataType = defaultLayoutLDValue;
 
-        midpoint = null;
+        midpoint = new PointD(double.NaN, double.NaN);
 
         s0MinHLRef = 0;
         s0MinHLSubShapeRef = 0;
@@ -553,21 +553,21 @@ public class PatternElement : ShapeSettings
 
     }
 
-    private GeoLibPointF midpoint;
+    private PointD midpoint;
 
     public bool midPointSet()
     {
-        return midpoint != null;
+        return (!double.IsNaN(midpoint.x) && !double.IsNaN(midpoint.y));
     }
 
-    public GeoLibPointF getMidPoint()
+    public PointD getMidPoint()
     {
-        return new GeoLibPointF(midpoint.X, midpoint.Y);
+        return new (midpoint.x, midpoint.y);
     }
 
-    public void setMidPoint(GeoLibPointF point)
+    public void setMidPoint(PointD point)
     {
-        midpoint = point == null ? null : new GeoLibPointF(point.X, point.Y);
+        midpoint = (double.IsNaN(point.x) || double.IsNaN(point.y))  ? new PointD(double.NaN, double.NaN) : new (point.x, point.y);
     }
 
     private string name;
@@ -2896,9 +2896,9 @@ public class PatternElement : ShapeSettings
     private List<decimal> externalGeoCoordX;
     private List<decimal> externalGeoCoordY;
 
-    public List<GeoLibPointF[]> decomposedPolys; // used to push back decomposed polygons to the stitcher to populate other elements.
+    public PathsD decomposedPolys; // used to push back decomposed polygons to the stitcher to populate other elements.
 
-    public List<GeoLibPointF[]> nonOrthoGeometry;
+    public PathsD nonOrthoGeometry;
 
     public new enum properties_decimal
     {
@@ -4710,12 +4710,12 @@ public class PatternElement : ShapeSettings
         return description;
     }
 
-    public void parsePoints(ref bool abortParse, GeoLibPointF[] points, int layer, int datatype, bool isText, bool vertical)
+    public void parsePoints(ref bool abortParse, PathD points, int layer, int datatype, bool isText, bool vertical)
     {
         pParsePoints(ref abortParse, points, layer, datatype, isText, vertical:vertical);
     }
 
-    private void pParsePoints(ref bool abortParse, GeoLibPointF[] points, int layer, int datatype, bool isText, bool vertical)
+    private void pParsePoints(ref bool abortParse, PathD points, int layer, int datatype, bool isText, bool vertical)
     {
         if (abortParse)
         {
@@ -4729,17 +4729,17 @@ public class PatternElement : ShapeSettings
         // So this is where it gets tricky. We need to analyze our point data. We may be able to map it into a primitive type already known to us. Defer to the pattern element to sort it out.
         // This should already be the case, but let's be careful in case the caller was not kind.
         points = GeoWrangler.removeDuplicates(points);
-        points = GeoWrangler.stripColinear(points);
+        points = GeoWrangler.stripCollinear(points);
         points = GeoWrangler.clockwiseAndReorderXY(points);
         bool ortho = GeoWrangler.orthogonal(points, angularTolerance: 0);
 
-        minXPos = Convert.ToDecimal(points[0].X);
-        minYPos = Convert.ToDecimal(points[0].Y);
+        minXPos = Convert.ToDecimal(points[0].x);
+        minYPos = Convert.ToDecimal(points[0].y);
 
         // Remove the closing point from the geometry and any duplicate terminators.
         points = GeoWrangler.stripTerminators(points, false);
 
-        int pointsLength = points.Length;
+        int pointsLength = points.Count;
         // This can be our first hint of what kind of geometry we're dealing with.
         bool ok = false;
 
@@ -4776,52 +4776,51 @@ public class PatternElement : ShapeSettings
         points = GeoWrangler.close(points);
         
         // Run decomposition
-        decomposedPolys = new List<GeoLibPointF[]>();
-        nonOrthoGeometry = new List<GeoLibPointF[]>();
+        decomposedPolys = new ();
+        nonOrthoGeometry = new ();
         if (abortParse)
         {
             reset();
             return;
         }
-        GeoLibPoint[] toKeyHoler = GeoWrangler.pointsFromPointF(points, CentralProperties.scaleFactorForOperation);
         if (abortParse)
         {
             reset();
             return;
         }
         
-        List<GeoLibPoint[]> decompOut;
+        PathsD decompOut;
         if (ortho)
         {
-            // Give the keyholder a whirl:
-            GeoLibPoint[] toDecomp = GeoWrangler.pointFromPath(GeoWrangler.makeKeyHole(GeoWrangler.sliverGapRemoval(GeoWrangler.pathFromPoint(toKeyHoler, 1)), reverseEval:true, biDirectionalEval:false)[0], 1);
+            // Give the keyholder a whirl: override the internal keyhole width with a value based on experimentation.
+            PathD toDecomp = GeoWrangler.makeKeyHole(GeoWrangler.sliverGapRemoval(points), reverseEval:true, biDirectionalEval:false, customSizing:CentralProperties.keyhole_width)[0];
             if (abortParse)
             {
                 reset();
                 return;
             }
         
-            GeoLibPoint[]  bounds = GeoWrangler.getBounds(toDecomp);
+            PathD bounds = GeoWrangler.getBounds(toDecomp);
             if (abortParse)
             {
                 reset();
                 return;
             }
 
-            GeoLibPointF dist = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+            PointD dist = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
             if (abortParse)
             {
                 reset();
                 return;
             }
-            decompOut = GeoWrangler.rectangular_decomposition(ref abortParse, toDecomp, scaling: 2,
-                maxRayLength: (long) Math.Max(Math.Abs(dist.X), Math.Abs(dist.Y)), vertical: vertical);
+            decompOut = GeoWrangler.rectangular_decomposition(ref abortParse, toDecomp,
+                maxRayLength: (long) Math.Max(Math.Abs(dist.x), Math.Abs(dist.y)), vertical: vertical);
         }
         else
         {
             decompOut = new()
             {
-                toKeyHoler
+                points
             };
         }
 
@@ -4830,7 +4829,7 @@ public class PatternElement : ShapeSettings
             reset();
             return;
         }
-        decomposedPolys = GeoWrangler.pointFsFromPoints(decompOut, CentralProperties.scaleFactorForOperation);
+        decomposedPolys = new(decompOut);
         if (abortParse)
         {
             reset();
@@ -4850,7 +4849,7 @@ public class PatternElement : ShapeSettings
             minYPos = 0;
             // No decomposition, so treat as complex.
             setInt(properties_i.shapeIndex, (int)typeShapes_mode1.complex);
-            GeoLibPointF[] tmpNO = new GeoLibPointF[pointsLength];
+            PathD tmpNO = Helper.initedPathD(pointsLength);
             for (int p = 0; p < pointsLength; p++)
             {
                 if (abortParse)
@@ -4858,9 +4857,9 @@ public class PatternElement : ShapeSettings
                     reset();
                     return;
                 }
-                externalGeoCoordX.Add(Convert.ToDecimal(points[p].X));
-                externalGeoCoordY.Add(Convert.ToDecimal(points[p].Y));
-                tmpNO[p] = new GeoLibPointF(points[p].X, points[p].Y);
+                externalGeoCoordX.Add(Convert.ToDecimal(points[p].x));
+                externalGeoCoordY.Add(Convert.ToDecimal(points[p].y));
+                tmpNO[p] = new (points[p].x, points[p].y);
             }
             tmpNO = GeoWrangler.close(tmpNO);
             nonOrthoGeometry.Add(tmpNO);
@@ -4884,7 +4883,7 @@ public class PatternElement : ShapeSettings
         }
     }
 
-    private bool pText(GeoLibPointF[] points)
+    private bool pText(PathD points)
     {
         bool ret = pRectangle(points);
         if (ret)
@@ -4894,14 +4893,14 @@ public class PatternElement : ShapeSettings
         return ret;
     }
 
-    private bool pRectangle(GeoLibPointF[] points)
+    private bool pRectangle(PathD points)
     {
         try
         {
             setInt(properties_i.shapeIndex, (int)typeShapes_mode1.rectangle);
-            GeoLibPointF dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
-            subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-            subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+            PointD dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
+            subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+            subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
             return true;
         }
         catch (Exception)
@@ -4910,46 +4909,46 @@ public class PatternElement : ShapeSettings
         }
     }
 
-    private bool pLShape(GeoLibPointF[] points)
+    private bool pLShape(PathD points)
     {
         try
         {
             setInt(properties_i.shapeIndex, (int)typeShapes_mode1.L);
             // Start naively, taking geometry as-is.
             // Get bounds.
-            GeoLibPointF[] bounds = GeoWrangler.getBounds(points);
-            GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
-            double extents_x = Math.Abs(extents.X);
-            double extents_y = Math.Abs(extents.Y);
+            PathD bounds = GeoWrangler.getBounds(points);
+            PointD extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+            double extents_x = Math.Abs(extents.x);
+            double extents_y = Math.Abs(extents.y);
 
-            GeoLibPointF dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
-            decimal poss_subShapeMinHorLength = Convert.ToDecimal(dist.X);
-            decimal poss_subShapeMinVerLength = Convert.ToDecimal(dist.Y);
+            PointD dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
+            decimal poss_subShapeMinHorLength = Convert.ToDecimal(dist.x);
+            decimal poss_subShapeMinVerLength = Convert.ToDecimal(dist.y);
             dist = GeoWrangler.distanceBetweenPoints_point(points[3], points[5]);
-            decimal poss_subShape2MinHorLength = Convert.ToDecimal(dist.X);
-            decimal poss_subShape2MinVerLength = Convert.ToDecimal(dist.Y);
+            decimal poss_subShape2MinHorLength = Convert.ToDecimal(dist.x);
+            decimal poss_subShape2MinVerLength = Convert.ToDecimal(dist.y);
 
             bool handled = true;
 
             // Transforms may now make this awkward. Let's see what we have. using our extents to figure things out.
             // Left-hand edge is correctly located. Dig deeper.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[5]).X) - extents_x) < double.Epsilon)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[5]).x) - extents_x) < constants.tolerance)
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) - extents_y) < double.Epsilon)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
                 {
                     // Bottom edge is correctly located for a non-transformed L.
                 }
                 else
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).Y) - extents_y) < double.Epsilon)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).y) - extents_y) < constants.tolerance)
                     {
                         // 90 degree counter-clockwise rotation
                         dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[5]);
-                        poss_subShapeMinHorLength = Convert.ToDecimal(dist.Y);
-                        poss_subShapeMinVerLength = Convert.ToDecimal(dist.X);
+                        poss_subShapeMinHorLength = Convert.ToDecimal(dist.y);
+                        poss_subShapeMinVerLength = Convert.ToDecimal(dist.x);
                         dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
-                        poss_subShape2MinHorLength = Convert.ToDecimal(dist.Y);
-                        poss_subShape2MinVerLength = Convert.ToDecimal(dist.X);
+                        poss_subShape2MinHorLength = Convert.ToDecimal(dist.y);
+                        poss_subShape2MinVerLength = Convert.ToDecimal(dist.x);
                         minRotation = 90.0m;
                     }
                     else
@@ -4960,31 +4959,31 @@ public class PatternElement : ShapeSettings
             }
             else
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).X) - extents_x) < double.Epsilon)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < constants.tolerance)
                 {
                     // Two scenarios lead to tbe same result here numerically - vertical flip or rotated 90 degrees clockwise.
 
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) - extents_y) < double.Epsilon)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
                     {
                         dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
-                        poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
-                        poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                        poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
+                        poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
                         dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[4]);
-                        poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
-                        poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                        poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
+                        poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
                         minRotation = -90.0m;
                     }
                     else
                     {
-                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).Y) - extents_y) < double.Epsilon)
+                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).y) - extents_y) < constants.tolerance)
                         {
                             // 180 degree rotation.
                             dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
-                            poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                            poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
+                            poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
                             dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[5]);
-                            poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-                            poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                            poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+                            poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
                             minRotation = 180.0m;
                         }
                         else
@@ -5021,10 +5020,10 @@ public class PatternElement : ShapeSettings
         }
     }
 
-    private bool pMightBeTorU(GeoLibPointF[] points)
+    private bool pMightBeTorU(PathD points)
     {
         // Abuse tone inversion to see whether we have two islands afterwards (the gaps for the T) or 1 (for the U).
-        int polyCount = GeoWrangler.invertTone(points, CentralProperties.scaleFactorForOperation, preserveColinear: false, useBounds: true).Count;
+        int polyCount = GeoWrangler.invertTone(points, preserveColinear: false, useBounds: true).Count;
         // int polyCount = workAroundInvertTone(points, CentralProperties.scaleFactorForOperation).Count;
         switch (polyCount)
         {
@@ -5037,20 +5036,20 @@ public class PatternElement : ShapeSettings
         }
     }
 
-    private bool pTShape(GeoLibPointF[] points)
+    private bool pTShape(PathD points)
     {
         try
         {
             setInt(properties_i.shapeIndex, (int)typeShapes_mode1.T);
 
-            GeoLibPointF dist;
+            PointD dist;
 
             // Start naively, taking geometry as-is.
             // Get bounds.
-            GeoLibPointF[] bounds = GeoWrangler.getBounds(points);
-            GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
-            double extents_x = Math.Abs(extents.X);
-            double extents_y = Math.Abs(extents.Y);
+            PathD bounds = GeoWrangler.getBounds(points);
+            PointD extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+            double extents_x = Math.Abs(extents.x);
+            double extents_y = Math.Abs(extents.y);
 
             decimal poss_subShapeMinHorLength = 0;
             decimal poss_subShapeMinVerLength = 0;
@@ -5060,62 +5059,62 @@ public class PatternElement : ShapeSettings
             bool handled = true;
 
             // Figure out the transforms.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) - extents_y) < double.Epsilon)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
             {
                 // T-shape appears to be correctly located.
                 dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
-                poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
+                poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[4], points[6]);
-                poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-                subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).Y));
+                poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
+                poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+                subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).y));
             }
             else
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X) - extents_x) < double.Epsilon)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < constants.tolerance)
                 {
                     // T-shape appears to be rotated 90 degrees CCW.
                     minRotation = -90.0m;
                     dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[7]);
-                    poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
-                    poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                    poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
+                    poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
 
                     dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
-                    poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
-                    poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                    subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[5], points[6]).X));
+                    poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
+                    poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
+                    subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[5], points[6]).x));
                 }
                 else
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).X) - extents_x) < double.Epsilon)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < constants.tolerance)
                     {
                         // T-shape appears to be rotated 90 degrees.
                         minRotation = 90.0m;
                         dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
-                        poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
-                        poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                        poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
+                        poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
 
                         dist = GeoWrangler.distanceBetweenPoints_point(points[4], points[6]);
-                        poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
-                        poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                        subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X));
+                        poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
+                        poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
+                        subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x));
                     }
                     else
                     {
-                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).Y) - extents_y) < double.Epsilon)
+                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).y) - extents_y) < constants.tolerance)
                         {
                             // T-shape appears to be rotated 180 degrees.
                             minRotation = 180.0m;
                             dist = GeoWrangler.distanceBetweenPoints_point(points[4], points[6]);
-                            poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                            poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
+                            poss_subShapeMinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
 
                             dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
-                            poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                            poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-                            subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).Y));
+                            poss_subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
+                            poss_subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+                            subShape2MinVerOffset = Convert.ToDecimal(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).y));
                         }
                         else
                         {
@@ -5144,20 +5143,20 @@ public class PatternElement : ShapeSettings
         }
     }
 
-    private bool pUShape(GeoLibPointF[] points)
+    private bool pUShape(PathD points)
     {
         try
         {
             setInt(properties_i.shapeIndex, (int)typeShapes_mode1.U);
 
-            GeoLibPointF dist;
+            PointD dist;
 
             // Start naively, taking geometry as-is.
             // Get bounds.
-            GeoLibPointF[] bounds = GeoWrangler.getBounds(points);
-            GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
-            double extents_x = Math.Abs(extents.X);
-            double extents_y = Math.Abs(extents.Y);
+            PathD bounds = GeoWrangler.getBounds(points);
+            PointD extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+            double extents_x = Math.Abs(extents.x);
+            double extents_y = Math.Abs(extents.y);
 
             bool handled = true;
 
@@ -5166,37 +5165,37 @@ public class PatternElement : ShapeSettings
             subShapeMinVerLength = Convert.ToDecimal(extents_y);
 
             // Figure out the transforms.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) - extents_y) < double.Epsilon)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).X) - extents_x) < double.Epsilon)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < constants.tolerance)
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).Y) - extents_y) < double.Epsilon)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).y) - extents_y) < constants.tolerance)
                     {
                         // U notch facing downwards.
                         minRotation = 180.0m;
                         dist = GeoWrangler.distanceBetweenPoints_point(points[5], points[7]);
-                        subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-                        subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                        subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+                        subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
                         dist = GeoWrangler.distanceBetweenPoints_point(points[3], points[5]);
-                        subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
-                        subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.Y));
+                        subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.x));
+                        subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.y));
                     }
                     else
                     {
-                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X) - extents_x) < double.Epsilon)
+                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < constants.tolerance)
                         {
                             // U notch right
                             minRotation = -90.0m;
                             (subShapeMinHorLength, subShapeMinVerLength) = (subShapeMinVerLength, subShapeMinHorLength);
                             dist = GeoWrangler.distanceBetweenPoints_point(points[2], new(0,0));
-                            minXPos = -Convert.ToDecimal(dist.Y);
-                            minYPos = -Convert.ToDecimal(dist.X);
+                            minXPos = -Convert.ToDecimal(dist.y);
+                            minYPos = -Convert.ToDecimal(dist.x);
                             dist = GeoWrangler.distanceBetweenPoints_point(points[3], points[5]);
-                            subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                            subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
+                            subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
+                            subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
                             (subShape2MinHorLength, subShape2MinVerLength) = (subShape2MinVerLength, subShape2MinHorLength);
                             dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
-                            subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                            subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.y));
                             subShape2MinVerOffset = 0;
                         }
                         else
@@ -5208,15 +5207,15 @@ public class PatternElement : ShapeSettings
                 }
                 else
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).X) - extents_x) < double.Epsilon)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < constants.tolerance)
                     {
                         // U notch up
                         dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
-                        subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-                        subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                        subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+                        subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
                         dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
-                        subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
-                        subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.Y));
+                        subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.x));
+                        subShape2MinVerOffset = -Math.Abs(Convert.ToDecimal(dist.y));
                     }
                     else
                     {
@@ -5226,19 +5225,19 @@ public class PatternElement : ShapeSettings
             }
             else
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).Y) - extents_y) < double.Epsilon)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).y) - extents_y) < constants.tolerance)
                 {
                     // U notch left
                     minRotation = 90.0m;
                     (subShapeMinHorLength, subShapeMinVerLength) = (subShapeMinVerLength, subShapeMinHorLength);
                     dist = GeoWrangler.distanceBetweenPoints_point(points[0], new(0,0));
-                    minXPos = Convert.ToDecimal(dist.Y);
-                    minYPos = Convert.ToDecimal(dist.X);
+                    minXPos = Convert.ToDecimal(dist.y);
+                    minYPos = Convert.ToDecimal(dist.x);
                     dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
-                    subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                    subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                    subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
+                    subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
                     dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[3]);
-                    subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                    subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.x));
                     subShape2MinVerOffset = 0;
                 }
                 else
@@ -5259,10 +5258,10 @@ public class PatternElement : ShapeSettings
         }
     }
 
-    private bool pMightBeXorS(GeoLibPointF[] points)
+    private bool pMightBeXorS(PathD points)
     {
         // Abuse tone inversion to see whether we have 4 islands afterwards (the gaps for the X) or 2 (for the S).
-        int polyCount = GeoWrangler.invertTone(points, CentralProperties.scaleFactorForOperation, preserveColinear:false, useBounds: true).Count;
+        int polyCount = GeoWrangler.invertTone(points, preserveColinear:false, useBounds: true).Count;
         switch (polyCount)
         {
             case 2:
@@ -5273,7 +5272,7 @@ public class PatternElement : ShapeSettings
                 return false;
         }
     }
-    private bool pXShape(GeoLibPointF[] points)
+    private bool pXShape(PathD points)
     {
         try
         {
@@ -5282,24 +5281,24 @@ public class PatternElement : ShapeSettings
             setInt(properties_i.shapeIndex, (int)typeShapes_mode1.X);
 
             // X-shape is unusual as the X, Y point is not the leftmost X, lowest Y.
-            minXPos = Convert.ToDecimal(points[10].X);
-            minYPos = Convert.ToDecimal(points[10].Y);
+            minXPos = Convert.ToDecimal(points[10].x);
+            minYPos = Convert.ToDecimal(points[10].y);
 
             // Extract the subshape 1 values.
-            GeoLibPointF ss1 = GeoWrangler.distanceBetweenPoints_point(points[10], points[4]);
+            PointD ss1 = GeoWrangler.distanceBetweenPoints_point(points[10], points[4]);
 
-            subShapeMinHorLength = Math.Abs(Convert.ToDecimal(ss1.X));
-            subShapeMinVerLength = Math.Abs(Convert.ToDecimal(ss1.Y));
+            subShapeMinHorLength = Math.Abs(Convert.ToDecimal(ss1.x));
+            subShapeMinVerLength = Math.Abs(Convert.ToDecimal(ss1.y));
 
             // Extract the subshape 2 values.
-            GeoLibPointF ss2 = GeoWrangler.distanceBetweenPoints_point(points[0], points[6]);
+            PointD ss2 = GeoWrangler.distanceBetweenPoints_point(points[0], points[6]);
 
-            subShape2MinHorLength = Math.Abs(Convert.ToDecimal(ss2.X));
-            subShape2MinVerLength = Math.Abs(Convert.ToDecimal(ss2.Y));
+            subShape2MinHorLength = Math.Abs(Convert.ToDecimal(ss2.x));
+            subShape2MinVerLength = Math.Abs(Convert.ToDecimal(ss2.y));
 
-            GeoLibPointF ss2offsets = GeoWrangler.distanceBetweenPoints_point(points[0], points[10]);
-            subShape2MinHorOffset = -Math.Abs(Convert.ToDecimal(ss2offsets.X));
-            subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(ss2offsets.Y));
+            PointD ss2offsets = GeoWrangler.distanceBetweenPoints_point(points[0], points[10]);
+            subShape2MinHorOffset = -Math.Abs(Convert.ToDecimal(ss2offsets.x));
+            subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(ss2offsets.y));
 
             return true;
         }
@@ -5309,63 +5308,63 @@ public class PatternElement : ShapeSettings
         }
     }
 
-    private bool pSShape(GeoLibPointF[] points)
+    private bool pSShape(PathD points)
     {
         try
         {
             setInt(properties_i.shapeIndex, (int)typeShapes_mode1.S);
 
-            GeoLibPointF dist;
+            PointD dist;
 
             // Start naively, taking geometry as-is.
             // Get bounds.
-            GeoLibPointF[] bounds = GeoWrangler.getBounds(points);
-            GeoLibPointF extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
-            double extents_x = Math.Abs(extents.X);
-            double extents_y = Math.Abs(extents.Y);
+            PathD bounds = GeoWrangler.getBounds(points);
+            PointD extents = GeoWrangler.distanceBetweenPoints_point(bounds[0], bounds[1]);
+            double extents_x = Math.Abs(extents.x);
+            double extents_y = Math.Abs(extents.y);
 
             // Figure out the transforms.
             subShapeMinHorLength = Convert.ToDecimal(extents_x);
             subShapeMinVerLength = Convert.ToDecimal(extents_y);
 
             // Figure out the transforms.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).Y) - extents_y) > double.Epsilon)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) > constants.tolerance)
             {
                 dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
-                subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-                subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+                subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[0]);
-                subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
-                subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.x));
+                subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(dist.y));
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[7], points[9]);
-                subShape3MinHorLength = Math.Abs(Convert.ToDecimal(dist.X));
-                subShape3MinVerLength = Math.Abs(Convert.ToDecimal(dist.Y));
+                subShape3MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
+                subShape3MinVerLength = Math.Abs(Convert.ToDecimal(dist.y));
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[6], points[8]);
-                subShape3MinHorOffset = Math.Abs(Convert.ToDecimal(dist.X));
-                subShape3MinVerOffset = Math.Abs(Convert.ToDecimal(dist.Y));
+                subShape3MinHorOffset = Math.Abs(Convert.ToDecimal(dist.x));
+                subShape3MinVerOffset = Math.Abs(Convert.ToDecimal(dist.y));
             }
             else
             {
                 minRotation = -90.0m;
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
-                subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
+                subShape2MinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[2]);
-                subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.Y));
-                subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                subShape2MinHorOffset = Math.Abs(Convert.ToDecimal(dist.y));
+                subShape2MinVerOffset = Math.Abs(Convert.ToDecimal(dist.x));
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[9], points[11]);
-                subShape3MinHorLength = Math.Abs(Convert.ToDecimal(dist.Y));
-                subShape3MinVerLength = Math.Abs(Convert.ToDecimal(dist.X));
+                subShape3MinHorLength = Math.Abs(Convert.ToDecimal(dist.y));
+                subShape3MinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
 
                 dist = GeoWrangler.distanceBetweenPoints_point(points[7], points[9]);
-                subShape3MinHorOffset = Math.Abs(Convert.ToDecimal(dist.Y));
-                subShape3MinVerOffset = Math.Abs(Convert.ToDecimal(dist.X));
+                subShape3MinHorOffset = Math.Abs(Convert.ToDecimal(dist.y));
+                subShape3MinVerOffset = Math.Abs(Convert.ToDecimal(dist.x));
             }
             return true;
         }

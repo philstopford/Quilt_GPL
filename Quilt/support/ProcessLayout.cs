@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Clipper2Lib;
 using shapeEngine;
 
 namespace Quilt;
@@ -32,14 +33,14 @@ public class ProcessLayout
     }
 
     // ReSharper disable once UnusedMember.Local
-    private static void pDumpToDisk(List<GeoLibPointF[]> geoData)
+    private static void pDumpToDisk(PathsD geoData)
     {
         for (int poly = 0; poly < geoData.Count; poly++)
         {
             List<string> lines = new();
-            for (int pt = 0; pt < geoData[poly].Length; pt++)
+            for (int pt = 0; pt < geoData[poly].Count; pt++)
             {
-                string line = "new GeoLibPoint(" + geoData[poly][pt].X + ", " + geoData[poly][pt].Y + ")";
+                string line = "new GeoLibPoint(" + geoData[poly][pt].x + ", " + geoData[poly][pt].y + ")";
                 if (pt > 0)
                 {
                     line += ",";
@@ -58,8 +59,6 @@ public class ProcessLayout
     private bool pProcessLayout(ref bool abortLoad, double tolerance, bool vertical)
     {
         // Iterate our string list to extract geometry for each layer.
-        double scaling = getGeoCore.Invoke().scaling;
-
         for (int i = 0; i < structureLDs.Count; i++)
         {
             if (abortLoad)
@@ -72,13 +71,13 @@ public class ProcessLayout
 
             // Get geometry from geoCore. This is a flat list of geometry with references flattened.
             // Would be neat to get array data to map to Quilt in a future build.
-            List<GeoLibPointF[]> polydata = getGeoCore.Invoke().points(true);
+            PathsD polydata = getGeoCore.Invoke().points(true);
 
             // For debug / dev purposes.
             // pDumpToDisk(polydata);
 
             // Clean up the geometry for processing.
-            polydata = GeoWrangler.stripColinear(polydata, tolerance);
+            polydata = GeoWrangler.stripCollinear(polydata);
 
             List<bool> isText = getGeoCore.Invoke().isText();
             List<string> names = getGeoCore.Invoke().names();
@@ -136,13 +135,13 @@ public class ProcessLayout
                     if (arrayParms?[p] != null)
                     {
                         // The layout value differs from what we need - layout refers to a pitch; we need a space.
-                        double width = polydata[p].Max(q => q.X) - polydata[p].Min(q => q.X);
-                        double height = polydata[p].Max(q => q.Y) - polydata[p].Min(q => q.Y);
+                        double width = polydata[p].Max(q => q.x) - polydata[p].Min(q => q.x);
+                        double height = polydata[p].Max(q => q.y) - polydata[p].Min(q => q.y);
 
-                        pattElements[elementIndex].setDecimal(PatternElement.properties_decimal.arrayMinXSpace, Convert.ToDecimal((arrayParms[p].pitch.X - width) * scaling));
-                        pattElements[elementIndex].setDecimal(PatternElement.properties_decimal.arrayMinYSpace, Convert.ToDecimal((arrayParms[p].pitch.Y - height) * scaling));
-                        pattElements[elementIndex].setInt(PatternElement.properties_i.arrayMinXCount, arrayParms[p].count.X);
-                        pattElements[elementIndex].setInt(PatternElement.properties_i.arrayMinYCount, arrayParms[p].count.Y);
+                        pattElements[elementIndex].setDecimal(PatternElement.properties_decimal.arrayMinXSpace, Convert.ToDecimal((arrayParms[p].pitch.X - width)));
+                        pattElements[elementIndex].setDecimal(PatternElement.properties_decimal.arrayMinYSpace, Convert.ToDecimal((arrayParms[p].pitch.Y - height)));
+                        pattElements[elementIndex].setInt(PatternElement.properties_i.arrayMinXCount, (int)arrayParms[p].count.X);
+                        pattElements[elementIndex].setInt(PatternElement.properties_i.arrayMinYCount, (int)arrayParms[p].count.Y);
                         breakOut = true;
                     }
                 }

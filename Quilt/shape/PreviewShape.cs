@@ -1,12 +1,12 @@
 ﻿// tiled layout handling, Layout biasing/CDU.
 using color;
 using Error;
-using geoLib;
 using geoWrangler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Clipper2Lib;
 using shapeEngine;
 
 namespace Quilt;
@@ -19,24 +19,24 @@ public class PreviewShape
     private int layoutDatatype; // coming from layout originated elements, to export back to same layer/datatype.
 
     // Class for our preview shapes.
-    private List<GeoLibPointF[]> previewPoints; // list of polygons defining the shape(s) that will be drawn. In the complex case, we populate this from complexPoints.
+    private PathsD previewPoints; // list of polygons defining the shape(s) that will be drawn. In the complex case, we populate this from complexPoints.
     public List<int> sourceIndices;
-    public List<GeoLibPointF[]> getPoints()
+    public PathsD getPoints()
     {
         return pGetPoints();
     }
 
-    private List<GeoLibPointF[]> pGetPoints()
+    private PathsD pGetPoints()
     {
         return previewPoints;
     }
 
-    public GeoLibPointF[] getPoints(int index)
+    public PathD getPoints(int index)
     {
         return pGetPoints(index);
     }
 
-    private GeoLibPointF[] pGetPoints(int index)
+    private PathD pGetPoints(int index)
     {
         return previewPoints[index];
     }
@@ -48,8 +48,7 @@ public class PreviewShape
 
     private void pMove(int poly, int pt, double x, double y)
     {
-        previewPoints[poly][pt].X += x;
-        previewPoints[poly][pt].Y += y;
+        previewPoints[poly][pt] = new (previewPoints[poly][pt].x + x, previewPoints[poly][pt].y + y);
     }
 
     public void move(double x, double y, int startPolyIndex = -1, int endPolyIndex = int.MaxValue, int startPtIndex = -1, int endPtIndex = int.MaxValue)
@@ -70,7 +69,7 @@ public class PreviewShape
             for (int poly = polyStart; poly < polyEnd; poly++)
 #endif
             {
-                int ptEnd = Math.Max(startPtIndex, previewPoints[poly].Length);
+                int ptEnd = Math.Max(startPtIndex, previewPoints[poly].Count);
 
 #if !QUILTSINGLETHREADED
                 Parallel.For(ptStart, ptEnd, pt =>
@@ -78,8 +77,7 @@ public class PreviewShape
                 for (int pt = ptStart; pt < ptEnd; pt++)
 #endif
                     {
-                        previewPoints[poly][pt].X += x;
-                        previewPoints[poly][pt].Y += y;
+                        previewPoints[poly][pt] = new (previewPoints[poly][pt].x + x, previewPoints[poly][pt].y + y);
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -90,12 +88,12 @@ public class PreviewShape
 #endif
     }
 
-    public void addPoints(GeoLibPointF[] poly, bool drawn, bool text = false)
+    public void addPoints(PathD poly, bool drawn, bool text = false)
     {
         pAddPoints(poly, drawn, text);
     }
 
-    private void pAddPoints(GeoLibPointF[] poly, bool drawn, bool text = false)
+    private void pAddPoints(PathD poly, bool drawn, bool text = false)
     {
         pAddPoints(poly);
         drawnPoly.Add(drawn);
@@ -114,25 +112,25 @@ public class PreviewShape
         drawnPoly.RemoveAt(index);
         textEntity.RemoveAt(index);
     }
-    public void addPoints(GeoLibPointF[] poly)
+    public void addPoints(PathD poly)
     {
         pAddPoints(poly);
     }
 
-    private void pAddPoints(GeoLibPointF[] poly)
+    private void pAddPoints(PathD poly)
     {
-        previewPoints.Add(poly.ToArray());
+        previewPoints.Add(new(poly));
         sourceIndices.Add(elementIndex);
     }
 
-    public void setPoints(List<GeoLibPointF[]> newPoints)
+    public void setPoints(PathsD newPoints)
     {
         pSetPoints(newPoints);
     }
 
-    private void pSetPoints(List<GeoLibPointF[]> newPoints)
+    private void pSetPoints(PathsD newPoints)
     {
-        previewPoints = newPoints;
+        previewPoints = new(newPoints);
         for (int i = 0; i < newPoints.Count; i++)
         {
             sourceIndices.Add(elementIndex);
@@ -204,7 +202,7 @@ public class PreviewShape
     private void pInit()
     {
         // Stub to enable direct drive of preview data, primarily for the implant system.
-        previewPoints = new List<GeoLibPointF[]>();
+        previewPoints = new ();
         sourceIndices = new List<int>();
         layoutLayer = -1;
         layoutDatatype = -1;
@@ -221,7 +219,7 @@ public class PreviewShape
 
     private void pInit(PreviewShape source)
     {
-        previewPoints = source.previewPoints.ToList();
+        previewPoints = new(source.previewPoints);
         sourceIndices = source.sourceIndices.ToList();
         layoutLayer = source.layoutLayer;
         layoutDatatype = source.layoutDatatype;
@@ -237,9 +235,9 @@ public class PreviewShape
         pInit(pattern, settingsIndex);
     }
 
-    private GeoLibPointF[] pGetPointArray(Pattern pattern, int index, bool doRotation= true)
+    private PathD pGetPointArray(Pattern pattern, int index, bool doRotation= true)
     {
-        GeoLibPointF[] tempArray;
+        PathD tempArray;
 
         PatternElement patternElement = pattern.getPatternElement(index);
 
@@ -251,36 +249,36 @@ public class PreviewShape
         switch (shapeString)
         {
             case "complex":
-                tempArray = new GeoLibPointF[patternElement.getInt(PatternElement.properties_i.externalGeoVertexCount)];
-                for (int i = 0; i < tempArray.Length; i++)
+                tempArray = Helper.initedPathD (patternElement.getInt(PatternElement.properties_i.externalGeoVertexCount));
+                for (int i = 0; i < tempArray.Count; i++)
                 {
                     x = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.xPos));
                     y = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.yPos));
                     x += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.externalGeoCoordX, i));
                     y += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.externalGeoCoordY, i));
-                    tempArray[i] = new GeoLibPointF(x, y);
+                    tempArray[i] = new (x, y);
                 }
                 break;
             case "bounding":
-                tempArray = new GeoLibPointF[15];
+                tempArray = Helper.initedPathD(15);
                 // We store some values here, but the actual dimensions will be adjusted later when the extents are known.
                 decimal left = patternElement.getDecimal(PatternElement.properties_decimal.boundingLeft);
                 decimal right = patternElement.getDecimal(PatternElement.properties_decimal.boundingRight);
                 decimal top = patternElement.getDecimal(PatternElement.properties_decimal.boundingTop);
                 decimal bottom = patternElement.getDecimal(PatternElement.properties_decimal.boundingBottom);
 
-                tempArray[0] = new GeoLibPointF((double)left, (double)bottom);
-                tempArray[1] = new GeoLibPointF((double)left, (double)top);
-                tempArray[2] = new GeoLibPointF((double)right, (double)top);
-                tempArray[3] = new GeoLibPointF((double)right, (double)bottom);
+                tempArray[0] = new ((double)left, (double)bottom);
+                tempArray[1] = new ((double)left, (double)top);
+                tempArray[2] = new ((double)right, (double)top);
+                tempArray[3] = new ((double)right, (double)bottom);
 
 #if !QUILTSINGLETHREADED
-                Parallel.For(0, tempArray.Length, i =>
+                Parallel.For(0, tempArray.Count, i =>
 #else
                     for (int i = 4; i < tempArray.Length; i++)
 #endif
                     {
-                        tempArray[i] = new GeoLibPointF(tempArray[0]);
+                        tempArray[i] = new (tempArray[0]);
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -294,7 +292,7 @@ public class PreviewShape
                 decimal tipY = patternElement.getDecimal(ShapeSettings.properties_decimal.vTBias);
                 decimal tipX = patternElement.getDecimal(ShapeSettings.properties_decimal.hTBias);
 
-                tempArray = new GeoLibPointF[15];
+                tempArray = Helper.initedPathD (15);
                 bool doTipLeft = patternElement.getInt(PatternElement.properties_i.shape0Tip) == (int)ShapeSettings.tipLocations.all;
                 doTipLeft = doTipLeft || patternElement.getInt(PatternElement.properties_i.shape0Tip) == (int)ShapeSettings.tipLocations.BL;
                 doTipLeft = doTipLeft || patternElement.getInt(PatternElement.properties_i.shape0Tip) == (int)ShapeSettings.tipLocations.BLR;
@@ -370,11 +368,11 @@ public class PreviewShape
                 double yOffset = _yOffset;
 
                 // Populate array.
-                tempArray[0] = new GeoLibPointF((double)bottom_leftX_1, (double)bottom_leftY_1);
-                tempArray[1] = new GeoLibPointF((double)top_leftX_1, (double)top_leftY_1);
-                tempArray[2] = new GeoLibPointF((double)top_rightX_1, (double)top_rightY_1);
-                tempArray[3] = new GeoLibPointF((double)bottom_rightX_1, (double)bottom_rightY_1);
-                tempArray[4] = new GeoLibPointF(tempArray[0]);
+                tempArray[0] = new ((double)bottom_leftX_1, (double)bottom_leftY_1);
+                tempArray[1] = new ((double)top_leftX_1, (double)top_leftY_1);
+                tempArray[2] = new ((double)top_rightX_1, (double)top_rightY_1);
+                tempArray[3] = new ((double)bottom_rightX_1, (double)bottom_rightY_1);
+                tempArray[4] = new (tempArray[0]);
 
                 // Apply our deltas
 #if !QUILTSINGLETHREADED
@@ -385,8 +383,7 @@ public class PreviewShape
                     for (Int32 i = 0; i < 5; i++)
 #endif
                     {
-                        tempArray[i].X += offset + x;
-                        tempArray[i].Y += offset1 + y;
+                        tempArray[i] = new (tempArray[i].x + offset + x, tempArray[i].y + offset1 + y);
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -463,11 +460,11 @@ public class PreviewShape
                 yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) + _yOffset;
 
                 // Populate array.
-                tempArray[5 + 0] = new GeoLibPointF((double)bottom_leftX_2, (double)bottom_leftY_2);
-                tempArray[5 + 1] = new GeoLibPointF((double)top_leftX_2, (double)top_leftY_2);
-                tempArray[5 + 2] = new GeoLibPointF((double)top_rightX_2, (double)top_rightY_2);
-                tempArray[5 + 3] = new GeoLibPointF((double)bottom_rightX_2, (double)bottom_rightY_2);
-                tempArray[5 + 4] = new GeoLibPointF(tempArray[5 + 0]);
+                tempArray[5 + 0] = new ((double)bottom_leftX_2, (double)bottom_leftY_2);
+                tempArray[5 + 1] = new ((double)top_leftX_2, (double)top_leftY_2);
+                tempArray[5 + 2] = new ((double)top_rightX_2, (double)top_rightY_2);
+                tempArray[5 + 3] = new ((double)bottom_rightX_2, (double)bottom_rightY_2);
+                tempArray[5 + 4] = new (tempArray[5 + 0]);
 
                 // Apply our deltas
 #if !QUILTSINGLETHREADED
@@ -478,8 +475,7 @@ public class PreviewShape
                     for (Int32 i = 0; i < 5; i++)
 #endif
                     {
-                        tempArray[5 + i].X += xOffset1 + x;
-                        tempArray[5 + i].Y += yOffset1 + y;
+                        tempArray[5 + i] = new (tempArray[5 + i].x + (xOffset1 + x), tempArray[5 + i].y + (yOffset1 + y));
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -561,11 +557,11 @@ public class PreviewShape
                 }
 
                 // Populate array.
-                tempArray[10 + 0] = new GeoLibPointF((double)bottom_leftX_3, (double)bottom_leftY_3);
-                tempArray[10 + 1] = new GeoLibPointF((double)top_leftX_3, (double)top_leftY_3);
-                tempArray[10 + 2] = new GeoLibPointF((double)top_rightX_3, (double)top_rightY_3);
-                tempArray[10 + 3] = new GeoLibPointF((double)bottom_rightX_3, (double)bottom_rightY_3);
-                tempArray[10 + 4] = new GeoLibPointF(tempArray[10 + 0]);
+                tempArray[10 + 0] = new ((double)bottom_leftX_3, (double)bottom_leftY_3);
+                tempArray[10 + 1] = new ((double)top_leftX_3, (double)top_leftY_3);
+                tempArray[10 + 2] = new ((double)top_rightX_3, (double)top_rightY_3);
+                tempArray[10 + 3] = new ((double)bottom_rightX_3, (double)bottom_rightY_3);
+                tempArray[10 + 4] = new (tempArray[10 + 0]);
 
                 // Apply our deltas
 #if !QUILTSINGLETHREADED
@@ -574,8 +570,7 @@ public class PreviewShape
                     for (Int32 i = 0; i < 5; i++)
 #endif
                     {
-                        tempArray[10 + i].X += xOffset + x;
-                        tempArray[10 + i].Y += yOffset + y;
+                        tempArray[10 + i] = new (tempArray[10 + i].x + (xOffset + x), tempArray[10 + i].y + (yOffset + y));
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -583,7 +578,9 @@ public class PreviewShape
                 break;
         }
 
-        GeoLibPointF[] temp = pTransformed(tempArray, pattern, index, doRotation: doRotation);
+        PointD bb = new(double.NaN, double.NaN);
+        
+        PathD temp = pTransformed(tempArray, pattern, index, bb, doRotation: doRotation);
         
         // If we flipped in X xor Y, the 1st and 3rd subshapes got moved in the flip. We need to re-locate them.
         if ((patternElement.getInt(PatternElement.properties_i.flipH) == 1) ^
@@ -592,13 +589,13 @@ public class PreviewShape
             //GeoLibPointF[] t1 = temp.Take(5).ToArray();
             //GeoLibPointF[] t2 = temp.Skip(5).Take(5).ToArray();
             //GeoLibPointF[] t3 = temp.Skip(10).Take(5).ToArray();
-            Array.Reverse(temp);
+            temp.Reverse();
         }
         return temp;
     }
 
     // This deals with arrayed geometry....
-    private List<GeoLibPointF[]> pTransformed(List<GeoLibPointF[]> source, Pattern pattern, int index, bool doRotation = true)
+    private PathsD pTransformed(PathsD source, Pattern pattern, int index, bool doRotation = true)
     {
         PatternElement patternElement = pattern.getPatternElement(index);
 
@@ -630,18 +627,18 @@ public class PreviewShape
 
         // Array flip not provided at this time.
         bool refPivot = patternElement.getInt(PatternElement.properties_i.refArrayPivot) == 1;
-        GeoLibPointF bb = GeoWrangler.midPoint(source);
+        PointD bb = GeoWrangler.midPoint(source);
 
         if (patternElement.getInt(PatternElement.properties_i.refArrayPivot) == 2)
         {
             bb = new(0.0, 0.0);
         }
         
-        return source.Select(t => pTransformed(t, pattern, index, bb, rotAngle, rotRef, rotRefUseArray, flipH: false, flipV: false, alignX: false, alignY: false, refPivot, doRotation)).ToList();
+        return new (source.Select(t => pTransformed(t, pattern, index, bb, rotAngle, rotRef, rotRefUseArray, flipH: false, flipV: false, alignX: false, alignY: false, refPivot, doRotation)));
     }
 
     // This deals with non-arrayed geometry
-    private GeoLibPointF[] pTransformed(GeoLibPointF[] tempArray, Pattern pattern, int index, GeoLibPointF bb = null, bool doRotation = true)
+    private PathD pTransformed(PathD tempArray, Pattern pattern, int index, PointD bb, bool doRotation = true)
     {
         PatternElement patternElement = pattern.getPatternElement(index);
 
@@ -670,24 +667,24 @@ public class PreviewShape
     }
 
     // Note that this has the corrected rotRef (0 is the first pattern element, -1 is world)
-    private GeoLibPointF[] pTransformed(GeoLibPointF[] tempArray, Pattern pattern, int index, GeoLibPointF bb, double rotAngle, int rotRef, int rotRefUseArray, bool flipH, bool flipV, bool alignX, bool alignY, bool refPivot, bool doRotation)
+    private PathD pTransformed(PathD tempArray, Pattern pattern, int index, PointD bb, double rotAngle, int rotRef, int rotRefUseArray, bool flipH, bool flipV, bool alignX, bool alignY, bool refPivot, bool doRotation)
     {
-        GeoLibPointF[] transformed = tempArray.ToArray();
+        PathD transformed = new (tempArray);
         
         // ReSharper disable once ConvertIfStatementToNullCoalescingAssignment
-        if (bb == null)
+        if (double.IsNaN(bb.x) || double.IsNaN(bb.y))
         {
             bb = GeoWrangler.midPoint(tempArray);
         }
 
-        GeoLibPointF pivot = new(bb.X, bb.Y);
+        PointD pivot = new(bb.x, bb.y);
 
         if (!doRotation)
         {
             rotAngle = 0.0f;
         }
 
-        if (Math.Abs(rotAngle) > double.Epsilon)
+        if (Math.Abs(rotAngle) > constants.tolerance)
         {
             transformed = GeoWrangler.Rotate(pivot, tempArray, rotAngle);
         }
@@ -704,7 +701,7 @@ public class PreviewShape
                     bool refIsArray = pattern.getPatternElement(rotRef).isXArray() || pattern.getPatternElement(rotRef).isYArray();
                     refIsArray = refIsArray || pattern.getPatternElement(rotRef).getInt(PatternElement.properties_i.arrayRef) > 0;
 
-                    GeoLibPointF r_pivot = new(pivot.X, pivot.Y);
+                    PointD r_pivot = new(pivot.x, pivot.y);
 
                     bool done = false;
 
@@ -738,7 +735,7 @@ public class PreviewShape
                                         double arrayWidth = xCount * width + (xCount - 1) * xSpace;
                                         double arrayHeight = yCount * height + (yCount - 1) * ySpace;
 
-                                        r_pivot = new GeoLibPointF(bounds[0] + arrayWidth / 2.0f,
+                                        r_pivot = new (bounds[0] + arrayWidth / 2.0f,
                                             bounds[1] + arrayHeight / 2.0f);
                                         break;
                                     case 1:
@@ -747,7 +744,7 @@ public class PreviewShape
                                         r_pivot = pattern.getPatternElement(rotRef).getMidPoint();
                                         break;
                                     case 2:
-                                        r_pivot = new GeoLibPointF(0.0, 0.0);
+                                        r_pivot = new (0.0, 0.0);
                                         break;
                                 }
                             }
@@ -764,11 +761,11 @@ public class PreviewShape
                             bool boundsAfterRotation = pattern.getPatternElement(index).getInt(PatternElement.properties_i.refBoundsAfterRotation) == 1;
                             if (pattern.getPatternElement(rotRef).midPointSet())
                             {
-                                r_pivot = new GeoLibPointF(pattern.getPatternElement(rotRef).getMidPoint());
+                                r_pivot = new (pattern.getPatternElement(rotRef).getMidPoint());
                             }
                             else
                             {
-                                r_pivot = new GeoLibPointF(GeoWrangler.midPoint(pGetPointArray(pattern, rotRef, doRotation: boundsAfterRotation)));
+                                r_pivot = new (GeoWrangler.midPoint(pGetPointArray(pattern, rotRef, doRotation: boundsAfterRotation)));
                                 pattern.getPatternElement(rotRef).setMidPoint(r_pivot);
                             }
                             
@@ -782,7 +779,7 @@ public class PreviewShape
                         rotAngle = Convert.ToDouble(pattern.getPatternElement(rotRef).getDecimal(PatternElement.properties_decimal.rotation));
                     }
 
-                    if (Math.Abs(rotAngle) > double.Epsilon)
+                    if (Math.Abs(rotAngle) > constants.tolerance)
                     {
                         transformed = GeoWrangler.Rotate(r_pivot, transformed, rotAngle);
                     }
@@ -797,27 +794,25 @@ public class PreviewShape
             bb = GeoWrangler.midPoint(transformed);
             transformed = GeoWrangler.flip(flipH, flipV, alignX, alignY, bb, transformed);
         }
-
-        tempArray = transformed.ToArray();
-
-        return tempArray;
+        
+        return new(transformed);
     }
 
     private double[] pShapeBounds(Pattern pattern, int settingsIndex, bool doRotation = true)
     {
-        GeoLibPointF[] inputPoints = pGetPointArray(pattern, settingsIndex, doRotation: doRotation);
+        PathD inputPoints = pGetPointArray(pattern, settingsIndex, doRotation: doRotation);
         // Apply any transformations to get the bounding box post-rotation, etc.
-        inputPoints = pTransformed(new List<GeoLibPointF[]> { inputPoints }, pattern, settingsIndex, doRotation: doRotation)[0];
+        inputPoints = pTransformed(new PathsD { inputPoints }, pattern, settingsIndex, doRotation: doRotation)[0];
         return pShapeBounds(inputPoints);
     }
 
-    private static double[] pShapeBounds(GeoLibPointF[] inputPoints)
+    private static double[] pShapeBounds(PathD inputPoints)
     {
-        double minX = inputPoints.Min(p => p.X);
-        double maxX = inputPoints.Max(p => p.X);
+        double minX = inputPoints.Min(p => p.x);
+        double maxX = inputPoints.Max(p => p.x);
 
-        double minY = inputPoints.Min(p => p.Y);
-        double maxY = inputPoints.Max(p => p.Y);
+        double minY = inputPoints.Min(p => p.y);
+        double maxY = inputPoints.Max(p => p.y);
 
         return new [] { minX, minY, maxX, maxY };
     }
@@ -826,7 +821,7 @@ public class PreviewShape
     {
         try
         {
-            previewPoints = new List<GeoLibPointF[]>();
+            previewPoints = new ();
             sourceIndices = new List<int>();
             drawnPoly = new List<bool>();
             textEntity = new List<bool>();
@@ -841,24 +836,26 @@ public class PreviewShape
             bool textShape = shapeType == (int)CentralProperties.shapeNames.text;
             bool layoutShape = shapeType == (int)CentralProperties.shapeNames.complex;
 
-            GeoLibPointF[] outputPoints;
+            PathD outputPoints;
 
             ComplexShape complexPoints;
 
-            GeoLibPointF[] inputPoints = pGetPointArray(pattern, settingsIndex);
+            PathD inputPoints = pGetPointArray(pattern, settingsIndex);
 
             if (!layoutShape)
             {
                 complexPoints = new ComplexShape(pattern.getPatternElements(), settingsIndex);
                 outputPoints = complexPoints.getPoints();
 
-                outputPoints = pTransformed(outputPoints, pattern, settingsIndex);
+                PointD bb = new(double.NaN, double.NaN);
+                
+                outputPoints = pTransformed(outputPoints, pattern, settingsIndex, bb);
 
-                previewPoints.Add(inputPoints.Take(5).ToArray());
+                previewPoints.Add(new(inputPoints.Take(5)));
                 drawnPoly.Add(true);
-                previewPoints.Add(inputPoints.Skip(5).Take(5).ToArray());
+                previewPoints.Add(new(inputPoints.Skip(5).Take(5)));
                 drawnPoly.Add(true);
-                previewPoints.Add(inputPoints.Skip(10).Take(5).ToArray());
+                previewPoints.Add(new(inputPoints.Skip(10).Take(5)));
                 drawnPoly.Add(true);
 
                 previewPoints.Add(outputPoints);
@@ -869,7 +866,7 @@ public class PreviewShape
                 ShapeLibrary shape = new(CentralProperties.shapeTable, shapeType, patternElement);
                 inputPoints = GeoWrangler.close(inputPoints);
 
-                previewPoints.Add(inputPoints.ToArray());
+                previewPoints.Add(new(inputPoints));
                 drawnPoly.Add(true);
 
                 inputPoints = GeoWrangler.move(inputPoints, -patternElement.getDecimal(PatternElement.properties_decimal.xPos), -patternElement.getDecimal(PatternElement.properties_decimal.yPos));
@@ -877,7 +874,7 @@ public class PreviewShape
                 complexPoints = new ComplexShape(pattern.getPatternElements(), settingsIndex, shape);
 
                 outputPoints = complexPoints.getPoints();
-                previewPoints.Add(outputPoints.ToArray());
+                previewPoints.Add(new (outputPoints));
                 drawnPoly.Add(false);
             }
             int arrayRef = patternElement.getInt(PatternElement.properties_i.arrayRef) - 1; // due to 'self' reference, we need to offset the value by 1
@@ -948,16 +945,16 @@ public class PreviewShape
             drawnPoly = new List<bool>(oDP);
 
             // Get our offsets configured.
-            GeoLibPointF offset = shapeOffsets.doOffsets(0, patternElement);
-            double xOffset = offset.X;
-            double yOffset = offset.Y;
+            PointD offset = shapeOffsets.doOffsets(0, patternElement);
+            double xOffset = offset.x;
+            double yOffset = offset.y;
                 
             sourceIndices.Clear();
             for (int poly = 0; poly < previewPoints.Count; poly++)
             {
                 textEntity.Add(textShape); // To track for output to layout.
                 sourceIndices.Add(settingsIndex);
-                int pCount = previewPoints[poly].Length;
+                int pCount = previewPoints[poly].Count;
                 int poly1 = poly;
 #if !QUILTSINGLETHREADED
                 Parallel.For(0, pCount, point =>
@@ -965,16 +962,16 @@ public class PreviewShape
                     for (Int32 point = 0; point < pCount; point++)
 #endif
                     {
-                        double px = previewPoints[poly1][point].X + xOffset;
-                        double py = previewPoints[poly1][point].Y - yOffset;
+                        double px = previewPoints[poly1][point].x + xOffset;
+                        double py = previewPoints[poly1][point].y - yOffset;
 
-                        previewPoints[poly1][point] = new GeoLibPointF(px, py);
+                        previewPoints[poly1][point] = new (px, py);
                     }
 #if !QUILTSINGLETHREADED
                 );
 #endif
-                if (Math.Abs(previewPoints[poly][0].X - previewPoints[poly][previewPoints[poly].Length - 1].X) > double.Epsilon ||
-                    Math.Abs(previewPoints[poly][0].Y - previewPoints[poly][previewPoints[poly].Length - 1].Y) > double.Epsilon)
+                if (Math.Abs(previewPoints[poly][0].x - previewPoints[poly][previewPoints[poly].Count - 1].x) > constants.tolerance ||
+                    Math.Abs(previewPoints[poly][0].y - previewPoints[poly][previewPoints[poly].Count - 1].y) > constants.tolerance)
                 {
                     ErrorReporter.showMessage_OK("Start and end not the same - previewShape", "Oops");
                 }
