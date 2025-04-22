@@ -578,12 +578,9 @@ public partial class MainForm : Form
             return;
         }
 
-        viewPort.SetUpVeldrid();
-
-        // Title = $"Veldrid backend: {vSurface.Backend.ToString()}";
+        pCreateVPContextMenu();
 
         viewPort.Clock.Start();
-        pCreateVPContextMenu();
     }
 
     private void pCreateLBContextMenu()
@@ -844,37 +841,17 @@ public partial class MainForm : Form
             ResourceBindingModel.Improved);
 
         vSurface = new VeldridSurface(quiltContext.backend, options);
-
-        vSurface.VeldridInitialized += (_, _) => VeldridReady = true;
-
-
-        string exeDirectory;
-        string shaders;
-        if (Platform.IsMac)
-        {
-            // AppContext.BaseDirectory is too simple for the case of the Mac
-            // projects. When building an app bundle that depends on the Mono
-            // framework being installed, it properly returns the path of the
-            // executable in Eto.Veldrid.app/Contents/MacOS. When building an
-            // app bundle that instead bundles Mono by way of mkbundle, on the
-            // other hand, it returns the directory containing the .app.
-
-            // ReSharper disable once PossibleNullReferenceException
-            exeDirectory = Path.GetDirectoryName(Environment.ProcessPath);
-            shaders = Path.Combine("..", "Resources", "shaders");
-        }
-        else
-        {
-            exeDirectory = AppContext.BaseDirectory;
-            shaders = "shaders";
-        }
-
-
+        
         viewPort = new VeldridDriver(ref ovpSettings, ref vSurface)
         {
             Surface = vSurface,
-            ExecutableDirectory = exeDirectory,
-            ShaderSubdirectory = shaders
+        };
+
+        vSurface.VeldridInitialized += (_, _) =>
+        {
+            viewPort.SetUpVeldrid();
+            
+            VeldridReady = true;
         };
 
         vSurface.Size = new Size(viewportSize, viewportSize);

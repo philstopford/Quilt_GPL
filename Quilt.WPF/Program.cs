@@ -1,4 +1,10 @@
-﻿namespace Quilt.WPF;
+﻿using System;
+using System.IO;
+using Eto.Veldrid;
+using Eto.Veldrid.Wpf;
+using Veldrid;
+
+namespace Quilt.WPF;
 
 internal static class Program
 {
@@ -67,8 +73,8 @@ internal static class Program
         QuiltApplication pa = new(platform, quiltContext);
         if (dark)
         {
-            System.Windows.Application.Current.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary { Source = new Uri("pack://application:,,,/DynamicAero2;component/Theme.xaml", UriKind.RelativeOrAbsolute) });
-            System.Windows.Application.Current.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary { Source = new Uri("pack://application:,,,/DynamicAero2;component/Brushes/Dark.xaml", UriKind.RelativeOrAbsolute) });
+            //System.Windows.Application.Current.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary { Source = new Uri("pack://application:,,,/DynamicAero2;component/Theme.xaml", UriKind.RelativeOrAbsolute) });
+            //System.Windows.Application.Current.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary { Source = new Uri("pack://application:,,,/DynamicAero2;component/Brushes/Dark.xaml", UriKind.RelativeOrAbsolute) });
         }
         pa.Run();
     }

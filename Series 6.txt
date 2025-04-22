@@ -1,0 +1,30 @@
+Changelog for Quilt. A pattern generator.
+
+6.0
+
+    - Avoided hang-on-quit issue with GTK when file dialogs have been shown.
+    - Fixed viewport keyboard handling.
+
+6.0a3
+
+	- GeoCore enhancements.
+	 - Repetition evaluation system was overhauled, to properly retain and evaluate repetition data (e.g. irregular arrays) and to avoid baking repetitions in its internal representation.
+	 ! There is work planned for internal de-duplication, or compaction, in a later update.
+
+6.0a2
+
+	- Completed optimization work to speed up the viewport drawing.
+	 - Changed drawing methodology to be much more efficient.
+	  - Moved data generation into independent tasks so we can efficiently queue the work onto threads (axes, gridlines, polylines, points, filled geometry).
+	  - Geometry computation now fully multi-threaded to allow peak performance for few/many polygons and sparse/dense point count.
+	  - Generate/update buffers only when needed (i.e. when the viewport draws).
+	  - Use more efficient draw calls based on a tweaked buffer strategy.
+	- Thanks to Veldrid developer TechPizzaDev, we have a working viewport now on GTK, including for Wayland.
+	 - This works with mesa threading as well, and current versions of mesa.
+	 ! Vulkan is not usable under Wayland due to the need for X11 to override the contents.
+	 ! Keyboard input into the viewport is not available at the moment.
+
+6.0a1
+
+	- GeoCore overhaul for (ir)regular array handling.
+	- Working to resolve compatibility with newer mesa versions

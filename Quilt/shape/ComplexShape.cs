@@ -54,26 +54,6 @@ public class ComplexShape
         }
         else
         {
-            // Build our shape.
-            // This seems like overkill, but we're consistent with Variance by taking this approach, which helps.
-            const double globalBias_Sides = 0;
-            const double globalBias_Tips = 0;
-            
-            const double vTipBiasType = 0;
-            const double vTipBiasNegVar = 0;
-            const double vTipBiasPosVar = 0;
-
-            const double hTipBiasType = 0;
-            const double hTipBiasNegVar = 0;
-            const double hTipBiasPosVar = 0;
-
-            shape.computeTips(globalBias_Tips, hTipBias, hTipBiasType, hTipBiasNegVar, hTipBiasPosVar, vTipBias,
-                vTipBiasType, vTipBiasNegVar, vTipBiasPosVar);
-
-            shape.computeBias(globalBias_Sides);
-
-            shape.biasCorners();
-
             // Return early, with no rounding.
             if (returnEarly)
             {
@@ -84,22 +64,11 @@ public class ComplexShape
                 return mcPoints;
             }
 
-            double iCR = 0;
-            double oCR = 0;
-            double iCV = 0;
-            double oCV = 0;
-            double iCVariation = 0;
-            double oCVariation = 0;
             int cornerSegments = 90;
             int optimizeCorners = 1;
             double resolution = 0.01;
-            bool icPA = false;
-            bool ocPA = false;
-            double s0HO = 0;
-            double s0VO = 0;
 
-            mcPoints = shape.processCorners(false, false, false, s0HO, s0VO, iCR, iCV, iCVariation, icPA, oCR, oCV,
-                oCVariation, ocPA, cornerSegments, optimizeCorners, resolution);
+            mcPoints = shape.processCorners(false, false, cornerSegments, optimizeCorners, resolution);
         }
 
         return GeoWrangler.close(GeoWrangler.stripCollinear(mcPoints));
@@ -115,6 +84,7 @@ public class ComplexShape
             shape = new ShapeLibrary(CentralProperties.shapeTable, patternElements[settingsIndex]);
             shape.setShape(patternElements[settingsIndex].getInt(PatternElement.properties_i.shapeIndex));
         }
+        shape.computeCage();
         
         const bool returnEarly = false; //debug
 
@@ -145,7 +115,7 @@ public class ComplexShape
 
         points = new (mcPoints);
 
-        if (Math.Abs(points[0].x - points[^1].x) > constants.tolerance || Math.Abs(points[0].y - points[^1].y) > constants.tolerance)
+        if (Math.Abs(points[0].x - points[^1].x) > Constants.tolerance || Math.Abs(points[0].y - points[^1].y) > Constants.tolerance)
         {
             ErrorReporter.showMessage_OK("Start and end not the same - entropyShape", "Oops");
         }

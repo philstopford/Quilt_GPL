@@ -199,57 +199,28 @@ box-shadow: 0 1px 3px black;
     <h1 class="western">Quilt Release History</h1>
 
   <ul id=menu>
-    <li><a href="#releases_600">6.0</a>
+    <li><a href="#releases_500">5.0</a>
   </ul>
 
     <blockquote>
-      <a name="releases_600"></a>
-      <h2 class="western">New to 6.0 (Jun 12 2024)</h2>
-
-      <table>
-        <tr>
-          <td = width="100%">
-            <table>
-              <tr>
-                <td = width="50%">
-                  <img class="c" src="images/versions/6.0_gtk_1.png" alt=""/>
-                </td>
-                <td = width="50%">
-                  <img class="c" src="images/versions/6.0_gtk_2.png" alt=""/>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-
+      <a name="releases_500"></a>
+      <h2 class="western">New to 5.0 (23 Mar 2023)</h2>
       <blockquote>
+        <p class="western">Amongst other major changes, 4.0 moved from the Clipper 1.0 library to Clipper 2.0. This migration was performed within the existing representations, as the upgraded library was still seeing engineering and validation work for floating point values. With this tool update, 
+        we can now take advantage of this support to greatly simplify our code and system design, gaining major performance enhancements.</p>
         <ul>
-          <li>Moved to .NET 8.</li>
-          <li>GeoCore refinements:</li>
+          <li>Moved to .NET 7.</li>
+          <li>Migration from GeoLib geometry to Clipper-native double precision representations.</li>
           <ul>
-            <li>Improved handling of complex layouts.</li>
+            <li>Massive refactoring effort, across multiple stable, complex systems and their interactions.</li>
+            <li>Gains of up to 40% in performance by:</li>
             <ul>
-              <li>Previous code would read in irregular arrays, but would write a flattened representation, which was not ideal.</li>
-              <ul>
-                <li>New approach centralizes the handling of array data to make the code less complex.</li>
-              </ul>
-              <li>Repetition handling has been greatly improved and subject to extensive validation.</li>
+              <li>Use of Clipper-native data structures throughout, avoiding conversions.</li>
+              <li>Avoidance of copying data between representations.</li>
+              <li>Avoidance of computational overhead by scaling geometry between representations.</li>
             </ul>
-            <li>Improved handling of compressed layout data following some runtime changes in the platform.</li>
-            <li>Obscure bug in the box handling was found and addressed.</li>
-            <li>Correctness review across the code.</li>
+            <li>Code simplification and readability by single representation.</li>
           </ul>
-          <li>Updated viewport.</li>
-          <ul>
-            <li>Data preparation also sees major gains (> 10x) from broad and deep use of multithreading across all areas.</li>
-            <li>Increased performance (> 2x) from moving data preparation into tasks and only updating buffers when required. More efficient drawing strategies were also deployed.</li>
-            <li>With assistance from the Veldrid maintainer, new approach resolves issues with mesa/GTK under newer Linux environments.</li>
-            <ul>
-              <li>Currently, Vulkan does not seem to work well on Linux.</li>
-            </ul>
-          </ul>
-          <li>Mac platform support has ended, due to lack of user interest and lack of hardware.</li>
         </ul>
       </blockquote>
     </blockquote>

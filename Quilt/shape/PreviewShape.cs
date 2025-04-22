@@ -684,7 +684,7 @@ public class PreviewShape
             rotAngle = 0.0f;
         }
 
-        if (Math.Abs(rotAngle) > constants.tolerance)
+        if (Math.Abs(rotAngle) > Constants.tolerance)
         {
             transformed = GeoWrangler.Rotate(pivot, tempArray, rotAngle);
         }
@@ -779,7 +779,7 @@ public class PreviewShape
                         rotAngle = Convert.ToDouble(pattern.getPatternElement(rotRef).getDecimal(PatternElement.properties_decimal.rotation));
                     }
 
-                    if (Math.Abs(rotAngle) > constants.tolerance)
+                    if (Math.Abs(rotAngle) > Constants.tolerance)
                     {
                         transformed = GeoWrangler.Rotate(r_pivot, transformed, rotAngle);
                     }
@@ -970,8 +970,8 @@ public class PreviewShape
 #if !QUILTSINGLETHREADED
                 );
 #endif
-                if (Math.Abs(previewPoints[poly][0].x - previewPoints[poly][previewPoints[poly].Count - 1].x) > constants.tolerance ||
-                    Math.Abs(previewPoints[poly][0].y - previewPoints[poly][previewPoints[poly].Count - 1].y) > constants.tolerance)
+                if (Math.Abs(previewPoints[poly][0].x - previewPoints[poly][previewPoints[poly].Count - 1].x) > Constants.tolerance ||
+                    Math.Abs(previewPoints[poly][0].y - previewPoints[poly][previewPoints[poly].Count - 1].y) > Constants.tolerance)
                 {
                     ErrorReporter.showMessage_OK("Start and end not the same - previewShape", "Oops");
                 }

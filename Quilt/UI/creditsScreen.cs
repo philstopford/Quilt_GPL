@@ -16,7 +16,7 @@ public sealed class CreditsScreen : Form
         Size = new Size(600, 430);
 
         Panel imageHolder = new();
-        ImageView image = new() {Image = resources.images.quiltImage()};
+        ImageView image = new() {Image = resources.Images.quiltImage()};
         imageHolder.Size = new Size((int)(image.Image.Width * 0.4f), (int)(image.Image.Height * 0.4f));
         imageHolder.Content = image;
         content.Rows.Add(new TableRow());

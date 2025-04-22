@@ -6,7 +6,7 @@ public static class CentralProperties
 {
     public const string productName = "Quilt";
     public const string author = "Phil Stopford";
-    public const string version = "5.0.0";
+    public const string version = "6.0";
 
     public const int keyhole_width = 55;
 

@@ -54,11 +54,10 @@ public class Stitcher
     private int showInput;
 
     private int counter;
-    private int max;
-
+    private int patternCount;
     private GeoCore g;
     private GCDrawingfield drawing_;
-    private ParallelOptions po;
+    //private ParallelOptions po;
 
     // Quilt will hold the list of patterns
     public ObservableCollection<string> patternElementNames { get; private set; }
@@ -79,17 +78,22 @@ public class Stitcher
 
     private void pTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
-        updateUIProgress?.Invoke((double)counter / max);
+        if (patternCount < 1)
+        {
+            patternCount = 1;
+        }
+
+        updateUIProgress((double)counter / patternCount);
     }
 
     private void pStatusUIWrapper(string text)
     {
-        updateUIStatus?.Invoke(text);
+        updateUIStatus(text);
     }
 
     private void pProgressUIWrapper(double val)
     {
-        updateUIProgress?.Invoke(val);
+        updateUIProgress(val);
     }
 
     public int getPatternCount()
@@ -276,76 +280,9 @@ public class Stitcher
         }
     }
 
-    /*
-    void pCleanup_distinctParallel()
-    {
-        indeterminateQuiltUI?.Invoke("Clean-up", "Clean-up");
-        po = new ParallelOptions();
-        int threads = po.MaxDegreeOfParallelism;
-        var clean_ = patterns.Distinct(new PatternComparer()).AsParallel().WithExecutionMode(ParallelExecutionMode.ForceParallelism).WithDegreeOfParallelism(threads);
-        patterns = clean_.ToList();
-    }
-
-    void pCleanup_parallelFor()
-    {
-        List<Pattern> clean = new List<Pattern>();
-        List<int> cleanHash = new List<int>();
-
-        // Make use of threading here to reduce overhead in large patterns.
-        // Set our parallel task options based on user settings.
-        po = new ParallelOptions();
-        // Attempt at parallelism.
-        CancellationTokenSource cancelSource = new CancellationTokenSource();
-
-        int updateSample = patterns.Count / 100;
-
-        if (updateSample < 1)
-        {
-            updateSample = 1;
-        }
-
-        // At first glance, this might be concerning. However, we are scanning for any equivalent pattern. If an equivalent pattern is found, we reject the attempt to add an identical pattern.
-        // As such, since we are not looking for uniqueness, but equivalence, this check is safely parallelized. We lock patterns to prevent misfires.
-        updateUIStatus?.Invoke("Clean-up");
-        float progress = 0.0f;
-        for (int i = 0; i < patterns.Count; i++)
-        {
-            Pattern pattern = patterns[i];
-            int pHC = pattern.GetHashCode();
-            bool add = true;
-
-            Parallel.For(0, cleanHash.Count, po, (p, loopState) =>
-            {
-                // Fail the attempt to add if an equivalent pattern is found in the clean list.
-                add = Equals(add, !(pHC == cleanHash[p]));
-
-                if (!add)
-                {
-                    // We already failed the attempt, so cancel the evaluation and move on.
-                    cancelSource.Cancel();
-                }
-            });
-
-            if (add)
-            {
-                clean.Add(pattern);
-                cleanHash.Add(pattern.GetHashCode());
-            }
-            if (i % updateSample == 0)
-            {
-                progress += 0.01f;
-                updateUIProgress?.Invoke(progress);
-            }
-
-        }
-
-        patterns = clean.ToList();
-    }
-    */
-
     private void pCleanup_distinct()
     {
-        indeterminateQuiltUI?.Invoke("Clean-up", "Clean-up");
+        indeterminateQuiltUI("Clean-up", "Clean-up");
         var clean_ = patterns.Distinct(new PatternComparer());
         patterns = clean_.ToList();
     }
@@ -1007,18 +944,14 @@ public class Stitcher
 
             if (patternElements.Count == 0)
             {
-                doneQuiltUI?.Invoke("No pattern elements!");
+                doneQuiltUI("No pattern elements!");
                 return;
             }
 
             Stopwatch sw = new();
-            indeterminateQuiltUI?.Invoke("Generating Quilt", "Generating");
+            indeterminateQuiltUI("Generating Quilt", "Generating");
             sw.Reset();
             sw.Start();
-
-            timer = new System.Timers.Timer {AutoReset = true, Interval = CentralProperties.timer_interval};
-            // Set up timers for the UI refresh
-            timer.Elapsed += pTimerElapsed;
 
             // Get our total variant count for all elements
             long variant = 1;
@@ -1048,15 +981,20 @@ public class Stitcher
                 
             string pattName = pattEl.getString(PatternElement.properties_s.name);
 
-            updateUIStatus?.Invoke(pattName);
+            updateUIStatus(pattName);
 
             // Get the first variant from the first pattern element.
             PatternElement varEl = pattEl.getNextVariant();
 
-            double progress = 0;
+            progress = 0;
 
-            generatingPatternUI?.Invoke();
+            generatingPatternUI();
 
+            timer = new System.Timers.Timer {AutoReset = true, Interval = CentralProperties.timer_interval};
+            // Set up timers for the UI refresh
+            timer.Elapsed += updateUIProgress_from_timer;
+            timer.Start();
+            
             while (varEl != null)
             {
                 // For each variant, add a new pattern
@@ -1068,11 +1006,11 @@ public class Stitcher
 
                 if (variant % variantCount == 0)
                 {
-                    updateUIProgress?.Invoke(progress);
                     progress += 0.01;
                 }
                 variant++;
             }
+            timer.Stop();
 
             // Start dealing with other elements and their variations.
             int level = 1;
@@ -1081,6 +1019,7 @@ public class Stitcher
 
             // Here, we want to iterate across our list of patterns. For each existing pattern, we need to create a list of derived patterns with the new set of variants.
             // This builds out the factorial for all variants of all elements.
+            timer.Start();
             while (level < patternElements.Count)
             {
                 List<Pattern> oldPatterns = patterns.ToList();
@@ -1095,9 +1034,7 @@ public class Stitcher
                 pattEl = pSetDependentTips(pattEl, level);
                     
                 pattName = pattEl.getString(PatternElement.properties_s.name);
-
-                updateUIStatus?.Invoke(pattName);
-
+                
                 foreach (Pattern t in oldPatterns)
                 {
                     varEl = pattEl.getNextVariant();
@@ -1117,7 +1054,7 @@ public class Stitcher
 
                         if (variant % variantCount == 0)
                         {
-                            updateUIProgress?.Invoke(progress);
+                            updateUIProgress(progress);
                             progress += 0.01;
                         }
                         variant++;
@@ -1126,18 +1063,21 @@ public class Stitcher
 
                 level++;
             }
+            
+            timer.Stop();
 
             pCleanup();
 
-            int patternCount = patterns.Count;
-            po = new ParallelOptions();
+            patternCount = patterns.Count;
+            //po = new ParallelOptions();
+            //po.MaxDegreeOfParallelism = 16;
 
             // The below forces dimensions to be equivalent, overriding any individual variation. 
             // This code works, but UI control is missing right now and needs thought about how to implement.
             // Here, we walk the dependencies of the elements in each pattern.
             // The dependent dimensions are computed (e.g. linked width, height, etc.)
 #if !QUILTSINGLETHREADED
-            Parallel.For(0, patternCount, po, (pattern) =>
+            Parallel.For(0, patternCount/*, po*/, (pattern) =>
 #else
                 for (int pattern = 0; pattern < patternCount; pattern++)
 #endif
@@ -1153,11 +1093,11 @@ public class Stitcher
             backgroundShapes = Array.Empty<PreviewShape>();
             if (patternCount == 0)
             {
-                doneQuiltUI?.Invoke("");
+                doneQuiltUI("");
                 return;
             }
                 
-            updateUIProgress?.Invoke(0.0f);
+            updateUIProgress(0.0f);
                 
             // Get our bounding box information to inform grid placement.
             PathD bb = new();
@@ -1181,16 +1121,18 @@ public class Stitcher
             double top = Math.Max(bl.y, tr.y);
             bottom = Math.Min(bl.y, tr.y);
 
-            updateUIStatus?.Invoke("Weaving");
+            updateUIStatus("Weaving");
 
             previewShapes = new List<PreviewShape>[patternCount];
             backgroundShapes = new PreviewShape[patternCount];
                 
             counter = 0;
-            max = patternCount;
 
+            updateUIProgress(0);
+            timer = new() { AutoReset = true, Interval = CentralProperties.timer_interval };
+            timer.Elapsed += pTimerElapsed;
             timer.Start();
-            Parallel.For(0, patternCount, po, (pattern) =>
+            Parallel.For(0, patternCount/*, po*/, (pattern) =>
                 {
                     previewShapes[pattern] = patterns[pattern].generate_shapes().ToList();
 
@@ -1218,22 +1160,22 @@ public class Stitcher
             width = Math.Abs(right - left) + padding;
             height = Math.Abs(top - bottom) + padding;
 
-            stitchingQuiltUI?.Invoke();
+            stitchingQuiltUI();
             // Move the non-0 patterns, try to create a reasonable grid.
             cols = (int)Math.Sqrt(patternCount);
             rows = (int)Math.Floor((double)patternCount / cols);
 
-            updateUIProgress?.Invoke(0.0f);
+            updateUIProgress(0);
 
             counter = 0;
 
             timer.Start();
-            Parallel.For(0, patternCount, po, (entry) =>
+            Parallel.For(0, patternCount/*, po*/, (entry) =>
                 {
                     double x = width * (entry % cols);
                     int yCount = (int)Math.Floor((double)entry / cols);
                     double y = height * yCount;
-                    Parallel.For(0, previewShapes[entry].Count, po, (ps) =>
+                    Parallel.For(0, previewShapes[entry].Count/*, po*/, (ps) =>
                     {
                         previewShapes[entry][ps].move(x, y);
                     });
@@ -1241,13 +1183,13 @@ public class Stitcher
                     backgroundShapes[entry] = new PreviewShape();
                     backgroundShapes[entry].addPoints(pBB);
                     Interlocked.Increment(ref counter);
-
                 }
             );
             timer.Stop();
+            timer.Dispose();
 
             sw.Stop();
-            doneQuiltUI?.Invoke(patternCount + " patterns in " + sw.Elapsed.TotalSeconds.ToString("0.00") + " s.");
+            doneQuiltUI(patternCount + " patterns in " + sw.Elapsed.TotalSeconds.ToString("0.00") + " s.");
         }
         catch (Exception)
         {
@@ -1255,8 +1197,6 @@ public class Stitcher
         }
         finally
         {
-            timer.Stop();
-            timer.Dispose();
             viewport?.Invoke();
             evaluating = false;
             Monitor.Exit(evalLock);
@@ -1460,7 +1400,7 @@ public class Stitcher
         int consolidatedCount = consolidated.Count;
         drawing_.addCells(consolidatedCount);
 
-        Parallel.For(0, consolidatedCount, po, (i) =>
+        Parallel.For(0, consolidatedCount/*, po*/, (i) =>
         {
             drawing_.cellList[i] = new GCCell
             {
@@ -1482,7 +1422,7 @@ public class Stitcher
 
             PointD loc = patterns[i].getPos();
 
-            Parallel.For(0, consolidated[i].Count, po, (element) =>
+            Parallel.For(0, consolidated[i].Count/*, po*/, (element) =>
             {
                 // layer is 1-index based for output, so need to offset element value accordingly.
                 int targetLayer = element + 1;
@@ -1572,15 +1512,24 @@ public class Stitcher
         });
     }
 
+    private double progress = 0;
+    private void updateUIProgress_from_timer(object sender, EventArgs e)
+    {
+        updateUIProgress(progress);
+    }
     private void pBuildQuilt(int scale, int updateInterval)
     {
-        double progress = 0;
+        progress = 0;
         //bool mirror_x = false;
         GCCell gcell_root = drawing_.addCell();
 
         gcell_root.addCellrefs(patterns.Count);
 
-        Parallel.For(0, patterns.Count, po, (i) =>
+        System.Timers.Timer timer = new() { AutoReset = true, Interval = CentralProperties.timer_interval};
+
+        timer.Start();
+        timer.Elapsed += updateUIProgress_from_timer;
+        Parallel.For(0, patterns.Count/*, po*/, (i) =>
         {
             PointD loc = patterns[i].getPos();
             gcell_root.elementList[i] = new GCCellref();
@@ -1601,9 +1550,10 @@ public class Stitcher
                 return;
             }
 
-            updateUIProgress?.Invoke(progress);
             progress += 0.01;
         });
+        timer.Stop();
+        timer.Dispose();
 
         g.setDrawing(drawing_);
         g.setValid(true);
@@ -1633,7 +1583,7 @@ public class Stitcher
         };
 
         // Set our parallel task options based on user settings.
-        po = new ParallelOptions();
+        // po = new ParallelOptions();
     }
 
     public void toGeoCore(int type, string file)
@@ -1649,7 +1599,7 @@ public class Stitcher
         {
             sw.Reset();
             sw.Start();
-            indeterminateQuiltUI?.Invoke("Saving", "Saving");
+            indeterminateQuiltUI("Saving", "Saving");
 
             const int scale = 100; // for 0.01 nm resolution
             pInitQuilt(scale);
@@ -1703,7 +1653,7 @@ public class Stitcher
         finally
         {
             sw.Stop();
-            doneQuiltUI?.Invoke("Done in " + sw.Elapsed.TotalSeconds.ToString("0.00") + " s.");
+            doneQuiltUI("Done in " + sw.Elapsed.TotalSeconds.ToString("0.00") + " s.");
             Monitor.Exit(exportLock);
         }
     }
@@ -1731,7 +1681,7 @@ public class Stitcher
 
         string[] descriptions = new string[patterns.Count];
 #if !QUILTSINGLETHREADED
-        Parallel.For(0, descriptions.Length, po, (p) =>
+        Parallel.For(0, descriptions.Length/*, po*/, (p) =>
 #else
             for (int p = 0; p < patterns.Count; p++)
 #endif

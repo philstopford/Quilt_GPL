@@ -61,7 +61,7 @@ public partial class MainForm
 
     class VPPatternElementData
     {
-        public class fgdata
+        public class Fgdata
         {
             public PointF[] polys { get; set; }
             public Color color { get; set; }
@@ -71,7 +71,7 @@ public partial class MainForm
             public bool mask { get; set; }
         }
 
-        public class bgdata
+        public class Bgdata
         {
             public PointF[] bgpolys { get; set; }
             public Color bgcolor { get; set; }
@@ -79,12 +79,12 @@ public partial class MainForm
             public int bgindex { get; set; }
         }
 
-        public fgdata[] fgdatalist { get; set; }
-        public bgdata[] bgdatalist { get; set; }
+        public Fgdata[] fgdatalist { get; set; }
+        public Bgdata[] bgdatalist { get; set; }
 
         public void initfgdata(int cnt)
         {
-            fgdatalist = new fgdata[cnt];
+            fgdatalist = new Fgdata[cnt];
             for (int i = 0; i < cnt; i++)
             {
                 fgdatalist[i] = new();
@@ -93,7 +93,7 @@ public partial class MainForm
 
         public void initbgdata(int cnt)
         {
-            bgdatalist = new bgdata[cnt];
+            bgdatalist = new Bgdata[cnt];
             for (int i = 0; i < cnt; i++)
             {
                 bgdatalist[i] = new();
@@ -319,6 +319,7 @@ public partial class MainForm
             try
             {
                 viewPort.updateViewport();
+                vSurface.Invalidate();
             }
             catch (Exception)
             {

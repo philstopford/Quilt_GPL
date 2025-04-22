@@ -70,6 +70,7 @@ public partial class MainForm
             layout_filename = ofd.FileName;
             pLoadLayoutFromFile();
         }
+        ofd.Dispose();
         pUpdateLBContextMenu();
     }
 
@@ -240,9 +241,11 @@ public partial class MainForm
                 if (sfd.ShowDialog(ParentWindow) == DialogResult.Ok)
                 {
                     filename = sfd.FileName;
+                    sfd.Dispose();
                 }
                 else
                 {
+                    sfd.Dispose();
                     pSaveEnabler();
                     return;
                 }
@@ -354,6 +357,7 @@ public partial class MainForm
         {
             pDoLoad(ofd.FileName);
         }
+        ofd.Dispose();
 
         pDoPatternElementUI(true);
     }
@@ -515,10 +519,12 @@ public partial class MainForm
         };
         if (sfd.ShowDialog(ParentWindow) != DialogResult.Ok)
         {
+            sfd.Dispose();
             return;
         }
 
         string filename = sfd.FileName;
+        sfd.Dispose();
         string[] tokens = filename.Split(new[] { '.' });
         string ext = tokens[^1].ToUpper();
 
@@ -576,7 +582,7 @@ public partial class MainForm
         if (aboutBox is not {Visible: true})
         {
             string creditText = "Version " + CentralProperties.version + ", " +
-                                "© " + CentralProperties.author + " 2018-2023" + "\r\n\r\n";
+                                "© " + CentralProperties.author + " 2018-2024" + "\r\n\r\n";
             creditText += "Licence: GPLv3";
             creditText += "\r\n\r\n";
             creditText += "Libraries used:\r\n";
@@ -783,25 +789,25 @@ public partial class MainForm
             return;
         }
 
-        quiltContext.AA = (bool)checkBox_OGLAA.Checked;
+        quiltContext.AA = (bool)checkBox_OGLAA.Checked!;
         ovpSettings.aA(quiltContext.AA);
         CommonVars.setOpenGLProp(CommonVars.properties_gl.aa);
 
         Debug.Assert(checkBox_OGLFill.Checked != null, "checkBox_OGLFill.Checked != null");
-        quiltContext.filledPolygons = (bool)checkBox_OGLFill.Checked;
+        quiltContext.filledPolygons = (bool)checkBox_OGLFill.Checked!;
         ovpSettings.drawFilled(quiltContext.filledPolygons);
         CommonVars.setOpenGLProp(CommonVars.properties_gl.fill);
 
         Debug.Assert(checkBox_OGLPoints.Checked != null, "checkBox_OGLPoints.Checked != null");
-        quiltContext.drawPoints = (bool)checkBox_OGLPoints.Checked;
+        quiltContext.drawPoints = (bool)checkBox_OGLPoints.Checked!;
         ovpSettings.drawPoints(quiltContext.drawPoints);
         CommonVars.setOpenGLProp(CommonVars.properties_gl.points);
 
         Debug.Assert(checkBox_drawExtents.Checked != null, "checkBox_drawExtents.Checked != null");
-        quiltContext.drawExtents = (bool)checkBox_drawExtents.Checked;
+        quiltContext.drawExtents = (bool)checkBox_drawExtents.Checked!;
 
         Debug.Assert(checkBox_verticalRectDecomp.Checked != null, "checkBox_verticalRectDecomp.Checked != null");
-        quiltContext.verticalRectDecomp = (bool)checkBox_verticalRectDecomp.Checked;
+        quiltContext.verticalRectDecomp = (bool)checkBox_verticalRectDecomp.Checked!;
 
         quiltContext.openGLZoomFactor = Convert.ToInt32(num_zoomSpeed.Value);
         ovpSettings.setZoomFactor(quiltContext.openGLZoomFactor);
@@ -815,7 +821,7 @@ public partial class MainForm
         quiltContext.angularTolerance = num_angularTolerance.Value;
 
         Debug.Assert(checkBox_expandUI.Checked != null, "checkBox_expandUI.Checked != null");
-        quiltContext.expandUI = (bool)checkBox_expandUI.Checked;
+        quiltContext.expandUI = (bool)checkBox_expandUI.Checked!;
         
         viewPort.updateViewport();
         utilsUIFrozen = false;
@@ -900,7 +906,7 @@ public partial class MainForm
     private void pShowInput()
     {
         Debug.Assert(checkBox_showInput.Checked != null, "checkBox_showInput.Checked != null");
-        if ((bool)checkBox_showInput.Checked)
+        if ((bool)checkBox_showInput.Checked!)
         {
             commonVars.stitcher.setShowInput(1);
         }

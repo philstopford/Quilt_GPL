@@ -9,7 +9,7 @@ namespace Quilt;
 
 public class PatternElement : ShapeSettings
 {
-    public enum position { BL, TL, BR, TR, BS, TS, LS, RS, C }
+    public enum Position { BL, TL, BR, TR, BS, TS, LS, RS, C }
     public override bool Equals(object obj)
     {
         return getDescription() == ((PatternElement)obj)?.getDescription();
@@ -4932,15 +4932,15 @@ public class PatternElement : ShapeSettings
 
             // Transforms may now make this awkward. Let's see what we have. using our extents to figure things out.
             // Left-hand edge is correctly located. Dig deeper.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[5]).x) - extents_x) < constants.tolerance)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[5]).x) - extents_x) < Constants.tolerance)
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < Constants.tolerance)
                 {
                     // Bottom edge is correctly located for a non-transformed L.
                 }
                 else
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).y) - extents_y) < constants.tolerance)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).y) - extents_y) < Constants.tolerance)
                     {
                         // 90 degree counter-clockwise rotation
                         dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[5]);
@@ -4959,11 +4959,11 @@ public class PatternElement : ShapeSettings
             }
             else
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < constants.tolerance)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < Constants.tolerance)
                 {
                     // Two scenarios lead to tbe same result here numerically - vertical flip or rotated 90 degrees clockwise.
 
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < Constants.tolerance)
                     {
                         dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
                         poss_subShapeMinVerLength = Math.Abs(Convert.ToDecimal(dist.x));
@@ -4975,7 +4975,7 @@ public class PatternElement : ShapeSettings
                     }
                     else
                     {
-                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).y) - extents_y) < constants.tolerance)
+                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).y) - extents_y) < Constants.tolerance)
                         {
                             // 180 degree rotation.
                             dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
@@ -5023,7 +5023,7 @@ public class PatternElement : ShapeSettings
     private bool pMightBeTorU(PathD points)
     {
         // Abuse tone inversion to see whether we have two islands afterwards (the gaps for the T) or 1 (for the U).
-        int polyCount = GeoWrangler.invertTone(points, preserveColinear: false, useBounds: true).Count;
+        int polyCount = GeoWrangler.invertTone(points, preserveCollinear: false, useBounds: true).Count;
         // int polyCount = workAroundInvertTone(points, CentralProperties.scaleFactorForOperation).Count;
         switch (polyCount)
         {
@@ -5059,7 +5059,7 @@ public class PatternElement : ShapeSettings
             bool handled = true;
 
             // Figure out the transforms.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < Constants.tolerance)
             {
                 // T-shape appears to be correctly located.
                 dist = GeoWrangler.distanceBetweenPoints_point(points[0], points[2]);
@@ -5073,7 +5073,7 @@ public class PatternElement : ShapeSettings
             }
             else
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < constants.tolerance)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < Constants.tolerance)
                 {
                     // T-shape appears to be rotated 90 degrees CCW.
                     minRotation = -90.0m;
@@ -5088,7 +5088,7 @@ public class PatternElement : ShapeSettings
                 }
                 else
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < constants.tolerance)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < Constants.tolerance)
                     {
                         // T-shape appears to be rotated 90 degrees.
                         minRotation = 90.0m;
@@ -5103,7 +5103,7 @@ public class PatternElement : ShapeSettings
                     }
                     else
                     {
-                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).y) - extents_y) < constants.tolerance)
+                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[4], points[5]).y) - extents_y) < Constants.tolerance)
                         {
                             // T-shape appears to be rotated 180 degrees.
                             minRotation = 180.0m;
@@ -5165,11 +5165,11 @@ public class PatternElement : ShapeSettings
             subShapeMinVerLength = Convert.ToDecimal(extents_y);
 
             // Figure out the transforms.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < constants.tolerance)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) < Constants.tolerance)
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < constants.tolerance)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[1], points[2]).x) - extents_x) < Constants.tolerance)
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).y) - extents_y) < constants.tolerance)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[2], points[3]).y) - extents_y) < Constants.tolerance)
                     {
                         // U notch facing downwards.
                         minRotation = 180.0m;
@@ -5182,7 +5182,7 @@ public class PatternElement : ShapeSettings
                     }
                     else
                     {
-                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < constants.tolerance)
+                        if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < Constants.tolerance)
                         {
                             // U notch right
                             minRotation = -90.0m;
@@ -5207,7 +5207,7 @@ public class PatternElement : ShapeSettings
                 }
                 else
                 {
-                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < constants.tolerance)
+                    if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[7]).x) - extents_x) < Constants.tolerance)
                     {
                         // U notch up
                         dist = GeoWrangler.distanceBetweenPoints_point(points[2], points[4]);
@@ -5225,7 +5225,7 @@ public class PatternElement : ShapeSettings
             }
             else
             {
-                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).y) - extents_y) < constants.tolerance)
+                if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[6], points[7]).y) - extents_y) < Constants.tolerance)
                 {
                     // U notch left
                     minRotation = 90.0m;
@@ -5261,7 +5261,7 @@ public class PatternElement : ShapeSettings
     private bool pMightBeXorS(PathD points)
     {
         // Abuse tone inversion to see whether we have 4 islands afterwards (the gaps for the X) or 2 (for the S).
-        int polyCount = GeoWrangler.invertTone(points, preserveColinear:false, useBounds: true).Count;
+        int polyCount = GeoWrangler.invertTone(points, preserveCollinear:false, useBounds: true).Count;
         switch (polyCount)
         {
             case 2:
@@ -5328,7 +5328,7 @@ public class PatternElement : ShapeSettings
             subShapeMinVerLength = Convert.ToDecimal(extents_y);
 
             // Figure out the transforms.
-            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) > constants.tolerance)
+            if (Math.Abs(Math.Abs(GeoWrangler.distanceBetweenPoints_point(points[0], points[1]).y) - extents_y) > Constants.tolerance)
             {
                 dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
                 subShape2MinHorLength = Math.Abs(Convert.ToDecimal(dist.x));
