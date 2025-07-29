@@ -582,7 +582,7 @@ public partial class MainForm
         if (aboutBox is not {Visible: true})
         {
             string creditText = "Version " + CentralProperties.version + ", " +
-                                "© " + CentralProperties.author + " 2018-2024" + "\r\n\r\n";
+                                "© " + CentralProperties.author + " 2018-2025" + "\r\n\r\n";
             creditText += "Licence: GPLv3";
             creditText += "\r\n\r\n";
             creditText += "Libraries used:\r\n";
