@@ -6,7 +6,7 @@ public static class CentralProperties
 {
     public const string productName = "Quilt";
     public const string author = "Phil Stopford";
-    public const string version = "6.0";
+    public const string version = "6.1";
 
     public const int keyhole_width = 55;
 
@@ -26,7 +26,8 @@ public static class CentralProperties
         complex
     }
 
-    public static int[] shapeTable = new[] {
+    public static readonly int[] shapeTable =
+    [
         (int)ShapeLibrary.shapeNames_all.none,
         (int)ShapeLibrary.shapeNames_all.rect,
         (int)ShapeLibrary.shapeNames_all.Lshape,
@@ -37,6 +38,6 @@ public static class CentralProperties
         (int)ShapeLibrary.shapeNames_all.text,
         (int)ShapeLibrary.shapeNames_all.bounding,
         (int)ShapeLibrary.shapeNames_all.complex
-    };
+    ];
     
 }

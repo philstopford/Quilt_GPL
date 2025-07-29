@@ -27,7 +27,7 @@ public partial class MainForm
             subshapes_tabcontrol.Pages.Add(subshapes_dimension);
             subshapes_tabcontrol.Pages.Add(subshapes_offset);
             subshapes_tabcontrol.Pages.Add(subshapes_tips);
-            Expander exp = new Expander()
+            Expander exp = new()
             {
                 Content = subshapes_tabcontrol,
                 Expanded = quiltContext.expandUI,
@@ -134,7 +134,7 @@ public partial class MainForm
         Panel s0tip = new();
         TableLayout tl_s0_tip = new();
         s0tip.Content = tl_s0_tip;
-        tl_s0_tip.Rows.Add(new());
+        tl_s0_tip.Rows.Add(new TableRow());
         
         comboBox_s0_tip_ref = new DropDown
         {
@@ -154,13 +154,13 @@ public partial class MainForm
         };
         comboBox_s0_tip_subShapeRef.BindDataContext(c => c.DataStore, (UIStringLists m) => m.tipRefSubShapeList);
 
-        tl_s0_tip.Rows[^1].Cells.Add(new() {Control = comboBox_s0_tip_subShapeRef});
+        tl_s0_tip.Rows[^1].Cells.Add(new TableCell {Control = comboBox_s0_tip_subShapeRef});
         tl.Rows[1].Cells.Add(new TableCell { Control = s0tip });
 
-        btn_s0_tip = new ()
+        btn_s0_tip = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
-            Enabled = false,
+            Enabled = false
         };
         btn_s0_tip.Click += delegate
         {
@@ -172,7 +172,7 @@ public partial class MainForm
         Panel s1tip = new();
         TableLayout tl_s1_tip = new();
         s1tip.Content = tl_s1_tip;
-        tl_s1_tip.Rows.Add(new());
+        tl_s1_tip.Rows.Add(new TableRow());
         
         comboBox_s1_tip_ref = new DropDown
         {
@@ -192,13 +192,13 @@ public partial class MainForm
         };
         comboBox_s1_tip_subShapeRef.BindDataContext(c => c.DataStore, (UIStringLists m) => m.tipRefSubShape2List);
 
-        tl_s1_tip.Rows[^1].Cells.Add(new() {Control = comboBox_s1_tip_subShapeRef});
+        tl_s1_tip.Rows[^1].Cells.Add(new TableCell {Control = comboBox_s1_tip_subShapeRef});
         tl.Rows[1].Cells.Add(new TableCell { Control = s1tip });
 
-        btn_s1_tip = new ()
+        btn_s1_tip = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
-            Enabled = false,
+            Enabled = false
         };
         btn_s1_tip.Click += delegate
         {
@@ -210,7 +210,7 @@ public partial class MainForm
         Panel s2tip = new();
         TableLayout tl_s2_tip = new();
         s2tip.Content = tl_s2_tip;
-        tl_s2_tip.Rows.Add(new());
+        tl_s2_tip.Rows.Add(new TableRow());
         
         comboBox_s2_tip_ref = new DropDown
         {
@@ -230,13 +230,13 @@ public partial class MainForm
         };
         comboBox_s2_tip_subShapeRef.BindDataContext(c => c.DataStore, (UIStringLists m) => m.tipRefSubShape3List);
 
-        tl_s2_tip.Rows[^1].Cells.Add(new() {Control = comboBox_s2_tip_subShapeRef});
+        tl_s2_tip.Rows[^1].Cells.Add(new TableCell {Control = comboBox_s2_tip_subShapeRef});
         tl.Rows[1].Cells.Add(new TableCell { Control = s2tip });
 
-        btn_s2_tip = new ()
+        btn_s2_tip = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
-            Enabled = false,
+            Enabled = false
         };
         btn_s2_tip.Click += delegate
         {

@@ -46,39 +46,29 @@ public partial class MainForm
             if (ss_tref > 0)
             {
                 // Retrieve the tip from the reference layer to show in the menu.
-                switch (ss_stref)
+                comboBox_tipLocationsSelectedIndex = ss_stref switch
                 {
-                    case 0:
-                        comboBox_tipLocationsSelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, ss_tref)
-                            .getInt(PatternElement.properties_i.shape0Tip);
-                        break;
-                    case 1:
-                        comboBox_tipLocationsSelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, ss_tref)
-                            .getInt(PatternElement.properties_i.shape1Tip);
-                        break;
-                    case 2:
-                        comboBox_tipLocationsSelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, ss_tref)
-                            .getInt(PatternElement.properties_i.shape2Tip);
-                        break;
-                }
+                    0 => commonVars.stitcher.getPatternElement(patternIndex: 0, ss_tref)
+                        .getInt(PatternElement.properties_i.shape0Tip),
+                    1 => commonVars.stitcher.getPatternElement(patternIndex: 0, ss_tref)
+                        .getInt(PatternElement.properties_i.shape1Tip),
+                    2 => commonVars.stitcher.getPatternElement(patternIndex: 0, ss_tref)
+                        .getInt(PatternElement.properties_i.shape2Tip),
+                    _ => comboBox_tipLocationsSelectedIndex
+                };
             }
             else
             {
-                switch (ss)
+                comboBox_tipLocationsSelectedIndex = ss switch
                 {
-                    case 0:
-                        comboBox_tipLocationsSelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index)
-                            .getInt(PatternElement.properties_i.shape0Tip);
-                        break;
-                    case 1:
-                        comboBox_tipLocationsSelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index)
-                            .getInt(PatternElement.properties_i.shape1Tip);
-                        break;
-                    case 2:
-                        comboBox_tipLocationsSelectedIndex = commonVars.stitcher.getPatternElement(patternIndex: 0, index)
-                            .getInt(PatternElement.properties_i.shape2Tip);
-                        break;
-                }
+                    0 => commonVars.stitcher.getPatternElement(patternIndex: 0, index)
+                        .getInt(PatternElement.properties_i.shape0Tip),
+                    1 => commonVars.stitcher.getPatternElement(patternIndex: 0, index)
+                        .getInt(PatternElement.properties_i.shape1Tip),
+                    2 => commonVars.stitcher.getPatternElement(patternIndex: 0, index)
+                        .getInt(PatternElement.properties_i.shape2Tip),
+                    _ => comboBox_tipLocationsSelectedIndex
+                };
             }
 
             switch (ss)

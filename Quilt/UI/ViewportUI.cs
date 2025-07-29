@@ -21,7 +21,7 @@ public partial class MainForm
         double x = ovpSettings.getCameraX();
         double y = ovpSettings.getCameraY();
         double zoom = ovpSettings.getZoomFactor();
-        return new[] { x, y, zoom };
+        return [x, y, zoom];
     }
 
     private async void pGeneratePreviewPanelContent()
@@ -59,7 +59,7 @@ public partial class MainForm
         }
     }
 
-    class VPPatternElementData
+    private class VPPatternElementData
     {
         public class Fgdata
         {
@@ -87,7 +87,7 @@ public partial class MainForm
             fgdatalist = new Fgdata[cnt];
             for (int i = 0; i < cnt; i++)
             {
-                fgdatalist[i] = new();
+                fgdatalist[i] = new Fgdata();
             }
         }
 
@@ -96,13 +96,13 @@ public partial class MainForm
             bgdatalist = new Bgdata[cnt];
             for (int i = 0; i < cnt; i++)
             {
-                bgdatalist[i] = new();
+                bgdatalist[i] = new Bgdata();
             }
         }
 
     }
 
-    class ViewportPatternData
+    private class ViewportPatternData
     {
         public VPPatternElementData[] patternData;
 
@@ -112,7 +112,7 @@ public partial class MainForm
         }
     }
 
-    class ViewportData
+    private class ViewportData
     {
         public ViewportPatternData[] viewportData;
 
@@ -125,7 +125,7 @@ public partial class MainForm
     private void pUpdateViewport_2()
     {
         int pShapesCount = commonVars.stitcher.previewShapes.Length;
-        ViewportData vData = new ViewportData(pShapesCount);
+        ViewportData vData = new(pShapesCount);
         int selElementIndex = 0; 
         int maskCheck = 0;
         Application.Instance.Invoke(() =>
@@ -138,12 +138,12 @@ public partial class MainForm
         // for (int pattern = 0; pattern < pShapesCount; pattern++)
         {
             int patternPShapesCount = commonVars.stitcher.previewShapes[pattern].Count;
-            vData.viewportData[pattern] = new(patternPShapesCount);
+            vData.viewportData[pattern] = new ViewportPatternData(patternPShapesCount);
             
             Parallel.For(0, patternPShapesCount, i =>
             // for (int i = 0 ; i < patternPShapesCount; i++)
             {
-                vData.viewportData[pattern].patternData[i] = new();
+                vData.viewportData[pattern].patternData[i] = new VPPatternElementData();
                 float alpha = (float)quiltContext.BGOpacity;
                 // Boost opacity for the selected pattern element to make it obvious in the viewport.
                 if (i == selElementIndex)
@@ -188,18 +188,13 @@ public partial class MainForm
                             drawnIndex = 0;
                         }
 
-                        switch (drawnIndex)
+                        polyColor = drawnIndex switch
                         {
-                            case 0:
-                                polyColor = Color.FromArgb(commonVars.getColors().subshape1_Color.toArgb());
-                                break;
-                            case 1:
-                                polyColor = Color.FromArgb(commonVars.getColors().subshape2_Color.toArgb());
-                                break;
-                            case 2:
-                                polyColor = Color.FromArgb(commonVars.getColors().subshape3_Color.toArgb());
-                                break;
-                        }
+                            0 => Color.FromArgb(commonVars.getColors().subshape1_Color.toArgb()),
+                            1 => Color.FromArgb(commonVars.getColors().subshape2_Color.toArgb()),
+                            2 => Color.FromArgb(commonVars.getColors().subshape3_Color.toArgb()),
+                            _ => polyColor
+                        };
 
                         drawnIndex++;
                     }
@@ -217,33 +212,33 @@ public partial class MainForm
             }
             );
 
-            
-            if (quiltContext.drawExtents)
+
+            if (!quiltContext.drawExtents)
             {
-                if (vData.viewportData[pattern].patternData == null)
-                {
-                    vData.viewportData[pattern] = new(1);
-                }
-
-                if (vData.viewportData[pattern].patternData.Length == 0)
-                {
-                    vData.viewportData[pattern].patternData = new VPPatternElementData[1];
-                }
-                if (vData.viewportData[pattern].patternData[0] == null)
-                {
-                    vData.viewportData[pattern].patternData[0] = new();
-                }
-                vData.viewportData[pattern].patternData[0].initbgdata(1);
-                Color extentColor = Color.FromArgb(commonVars.getColors().extents_Color.toArgb());
-
-                vData.viewportData[pattern].patternData[0].bgdatalist[0].bgalpha = 1.0f;
-                vData.viewportData[pattern].patternData[0].bgdatalist[0].bgcolor = extentColor;
-                vData.viewportData[pattern].patternData[0].bgdatalist[0].bgindex = 0;
-                vData.viewportData[pattern].patternData[0].bgdatalist[0].bgpolys = UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern]
-                    .getPoints()[0]);
-
+                return;
             }
-            
+            if (vData.viewportData[pattern].patternData == null)
+            {
+                vData.viewportData[pattern] = new ViewportPatternData(1);
+            }
+
+            if (vData.viewportData[pattern].patternData.Length == 0)
+            {
+                vData.viewportData[pattern].patternData = new VPPatternElementData[1];
+            }
+            if (vData.viewportData[pattern].patternData[0] == null)
+            {
+                vData.viewportData[pattern].patternData[0] = new VPPatternElementData();
+            }
+            vData.viewportData[pattern].patternData[0].initbgdata(1);
+            Color extentColor = Color.FromArgb(commonVars.getColors().extents_Color.toArgb());
+
+            vData.viewportData[pattern].patternData[0].bgdatalist[0].bgalpha = 1.0f;
+            vData.viewportData[pattern].patternData[0].bgdatalist[0].bgcolor = extentColor;
+            vData.viewportData[pattern].patternData[0].bgdatalist[0].bgindex = 0;
+            vData.viewportData[pattern].patternData[0].bgdatalist[0].bgpolys = UIHelper.myPointFArrayToPointFArray(commonVars.stitcher.backgroundShapes[pattern]
+                .getPoints()[0]);
+
         }
         );
             
@@ -252,13 +247,13 @@ public partial class MainForm
             try
             {
                 Monitor.Enter(drawingLock);
-                foreach (var vdata in vData.viewportData)
+                foreach (ViewportPatternData vdata in vData.viewportData)
                 {
-                    foreach (var data in vdata.patternData)
+                    foreach (VPPatternElementData data in vdata.patternData)
                     {
                         if (data.fgdatalist != null)
                         {
-                            foreach (var t in data.fgdatalist)
+                            foreach (VPPatternElementData.Fgdata t in data.fgdatalist)
                             {
                                 if (t.polys != null)
                                 {
@@ -275,9 +270,12 @@ public partial class MainForm
                             }
                         }
 
-                        if (data.bgdatalist != null)
+                        if (data.bgdatalist == null)
                         {
-                            foreach (var t in data.bgdatalist)
+                            continue;
+                        }
+                        {
+                            foreach (VPPatternElementData.Bgdata t in data.bgdatalist)
                             {
                                 if (t.bgpolys != null)
                                 {
@@ -349,7 +347,7 @@ public partial class MainForm
         };
         itemIndex++;
 
-        var VPMenuDisplayOptionsMenu = vp_menu.Items.GetSubmenu("Display Options");
+        ButtonMenuItem VPMenuDisplayOptionsMenu = vp_menu.Items.GetSubmenu("Display Options");
         itemIndex++;
         int displayOptionsSubItemIndex = 0;
         VPMenuDisplayOptionsMenu.Items.Add(new ButtonMenuItem { Text = "Toggle AA" });
@@ -425,7 +423,7 @@ public partial class MainForm
         };
         itemIndex++;
 
-        var VPMenuZoomInMenu = vp_menu.Items.GetSubmenu("Fast Zoom In");
+        ButtonMenuItem VPMenuZoomInMenu = vp_menu.Items.GetSubmenu("Fast Zoom In");
         itemIndex++;
         int zoomInSubItemIndex = 0;
         VPMenuZoomInMenu.Items.Add(new ButtonMenuItem { Text = "Zoom In (x5)" });
@@ -463,7 +461,7 @@ public partial class MainForm
         };
         itemIndex++;
 
-        var VPMenuZoomOutMenu = vp_menu.Items.GetSubmenu("Fast Zoom Out");
+        ButtonMenuItem VPMenuZoomOutMenu = vp_menu.Items.GetSubmenu("Fast Zoom Out");
         // itemIndex++;
         int zoomOutSubItemIndex = 0;
         VPMenuZoomOutMenu.Items.Add(new ButtonMenuItem { Text = "Zoom Out (x5)" });

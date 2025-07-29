@@ -74,14 +74,14 @@ public class Storage
 
     private static PathsD fileDataFromString(string fileDataString)
     {
-        PathsD returnList = new();
+        PathsD returnList = [];
 
-        char[] polySep = { ';' };
-        char[] coordSep = { ',' };
+        char[] polySep = [';'];
+        char[] coordSep = [','];
 
         if (fileDataString.Length > 0)
         {
-            List<string> hashList = new();
+            List<string> hashList = [];
 
             string[] polyStringArray = fileDataString.Split(polySep);
             foreach (string t in polyStringArray)
@@ -91,7 +91,7 @@ public class Storage
                 int pt = 0;
                 while (pt < pointStringArray.Length)
                 {
-                    polyData[pt / 2] = new (Convert.ToDouble(pointStringArray[pt]), Convert.ToDouble(pointStringArray[pt + 1]));
+                    polyData[pt / 2] = new PointD(Convert.ToDouble(pointStringArray[pt]), Convert.ToDouble(pointStringArray[pt + 1]));
                     pt += 2;
                 }
 
@@ -108,9 +108,9 @@ public class Storage
         }
         else
         {
-            returnList.Add(new() { new (0, 0) });
-            returnList.Add(new() { new (0, 0) });
-            returnList.Add(new() { new (0, 0) });
+            returnList.Add([new PointD(0, 0)]);
+            returnList.Add([new PointD(0, 0)]);
+            returnList.Add([new PointD(0, 0)]);
         }
         return returnList;
     }
@@ -155,7 +155,7 @@ public class Storage
         return pSaveQuiltSettings(filename, ref quilt);
     }
 
-    private void pSaveQuiltSettings_element_subshapes(ref XElement xelement, ref PatternElement tmp)
+    private static void pSaveQuiltSettings_element_subshapes(ref XElement xelement, ref PatternElement tmp)
     {
         for (int i = 0; i < 3; i++)
         {
@@ -215,7 +215,7 @@ public class Storage
 
     }
 
-    private void pSaveQuiltSettings_element_tips(ref XElement xelement, ref PatternElement tmp)
+    private static void pSaveQuiltSettings_element_tips(ref XElement xelement, ref PatternElement tmp)
     {
         xelement.Add(new XElement("MinHorTipLength", tmp.getDecimal(PatternElement.properties_decimal.minHorTipLength)));
         xelement.Add(new XElement("HorTipInc", tmp.getDecimal(PatternElement.properties_decimal.horTipLengthInc)));
@@ -234,7 +234,7 @@ public class Storage
         xelement.Add(new XElement("VerTipRefFinal", tmp.getInt(PatternElement.properties_i.VTRefFinal)));
     }
 
-    private void pSaveQuiltSettings_element_BBox(ref XElement xelement, ref PatternElement tmp)
+    private static void pSaveQuiltSettings_element_BBox(ref XElement xelement, ref PatternElement tmp)
     {
         xelement.Add(new XElement("boundingLeft", tmp.getDecimal(PatternElement.properties_decimal.boundingLeft)),
             new XElement("boundingLeftInc", tmp.getDecimal(PatternElement.properties_decimal.boundingLeftInc)),
@@ -253,7 +253,7 @@ public class Storage
             new XElement("boundingTopSteps", tmp.getInt(PatternElement.properties_i.boundingTopSteps)));
     }
 
-    private void pSaveQuiltSettings_element_Pos(ref XElement xelement, ref PatternElement tmp)
+    private static void pSaveQuiltSettings_element_Pos(ref XElement xelement, ref PatternElement tmp)
     {
         xelement.Add(new XElement("posIndex", tmp.getInt(PatternElement.properties_i.posIndex)),
 
@@ -285,7 +285,7 @@ public class Storage
             new XElement("alignY", tmp.getInt(PatternElement.properties_i.alignY)));
     }
     
-    private void pSaveQuiltSettings_element_array(ref XElement xelement, ref PatternElement tmp)
+    private static void pSaveQuiltSettings_element_array(ref XElement xelement, ref PatternElement tmp)
     {
             xelement.Add(
                 new XElement("arrayRef", tmp.getInt(PatternElement.properties_i.arrayRef)),
@@ -313,7 +313,7 @@ public class Storage
             );
     }
 
-    private void pSaveQuiltSettings_element(ref XDocument doc, ref Stitcher quilt, int i)
+    private static void pSaveQuiltSettings_element(ref XDocument doc, ref Stitcher quilt, int i)
     {
             PatternElement tmp = quilt.getPatternElement(patternIndex: 0, i);
             XElement xelement = new("layer" + (i + 1),
@@ -1773,7 +1773,7 @@ public class Storage
         {
             ErrorReporter.showMessage_OK("Settings file for version " + version, "Legacy import");
         }
-        string[] tokenVersion = version.Split(new[] { '.' });
+        string[] tokenVersion = version.Split(['.']);
 
         preLoadUI?.Invoke();
 
@@ -1792,12 +1792,12 @@ public class Storage
         updateUIstatus?.Invoke("Loading...");
             
 #if !QUILTSINGLETHREADED
-        Parallel.For(0, elementCount, (layer)  =>
+        Parallel.For(0, elementCount, layer  =>
 #else
             for (int layer = 0; layer < elementCount; layer++)
 #endif
             {
-                loadedElements[layer] = new();
+                loadedElements[layer] = new PatternElement();
                 string layerref = "layer" + (layer + 1);
 
                 try
@@ -1871,7 +1871,7 @@ public class Storage
                 // ignored
             }
 
-            viewportLoad?.Invoke(new[] { x, y, zoom });
+            viewportLoad?.Invoke([x, y, zoom]);
         }
         catch (Exception e)
         {

@@ -29,42 +29,26 @@ public partial class Pattern
 
     private int pGetDimensionSubshapeIndex(int sRef, PatternElement.properties_decimal value, int subshape)
     {
-        int subshaperef;
-            
-        switch (value)
+        int subshaperef = value switch
         {
-            case PatternElement.properties_decimal.minHorLength:
-            case PatternElement.properties_decimal.horLength:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinHLSubShapeRef, subshape);
-                break;
-            case PatternElement.properties_decimal.minVerLength:
-            case PatternElement.properties_decimal.verLength:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinVLSubShapeRef, subshape);
-                break;
-            case PatternElement.properties_decimal.minHorOffset:
-            case PatternElement.properties_decimal.horOffset:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinHOSubShapeRef, subshape);
-                break;
-            case PatternElement.properties_decimal.minVerOffset:
-            case PatternElement.properties_decimal.verOffset:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinVOSubShapeRef, subshape);
-                break;
-            case PatternElement.properties_decimal.horLengthInc:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.HLIncSubShapeRef, subshape);
-                break;
-            case PatternElement.properties_decimal.verLengthInc:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.VLIncSubShapeRef, subshape);
-                break;
-            case PatternElement.properties_decimal.horOffsetInc:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.HOIncSubShapeRef, subshape);
-                break;
-            case PatternElement.properties_decimal.verOffsetInc:
-                subshaperef = pGetPatternElement(sRef).getInt(PatternElement.properties_i.VOIncSubShapeRef, subshape);
-                break;
-            default:
-                subshaperef = 0;
-                break;
-        }
+            PatternElement.properties_decimal.minHorLength or PatternElement.properties_decimal.horLength =>
+                pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinHLSubShapeRef, subshape),
+            PatternElement.properties_decimal.minVerLength or PatternElement.properties_decimal.verLength =>
+                pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinVLSubShapeRef, subshape),
+            PatternElement.properties_decimal.minHorOffset or PatternElement.properties_decimal.horOffset =>
+                pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinHOSubShapeRef, subshape),
+            PatternElement.properties_decimal.minVerOffset or PatternElement.properties_decimal.verOffset =>
+                pGetPatternElement(sRef).getInt(PatternElement.properties_i.MinVOSubShapeRef, subshape),
+            PatternElement.properties_decimal.horLengthInc => pGetPatternElement(sRef)
+                .getInt(PatternElement.properties_i.HLIncSubShapeRef, subshape),
+            PatternElement.properties_decimal.verLengthInc => pGetPatternElement(sRef)
+                .getInt(PatternElement.properties_i.VLIncSubShapeRef, subshape),
+            PatternElement.properties_decimal.horOffsetInc => pGetPatternElement(sRef)
+                .getInt(PatternElement.properties_i.HOIncSubShapeRef, subshape),
+            PatternElement.properties_decimal.verOffsetInc => pGetPatternElement(sRef)
+                .getInt(PatternElement.properties_i.VOIncSubShapeRef, subshape),
+            _ => 0
+        };
 
         return subshaperef;
     }
@@ -132,7 +116,7 @@ public partial class Pattern
             while (sRef >= 0)
             {
                 // This is kind of ugly, but I don't see a better approach yet.
-                int subshaperef = 0;
+                const int subshaperef = 0;
 
                 val = pGetDecimalValue(sRef, subshaperef, value);
                 sRef = pGetRef(sRef, refProp, subshape);
@@ -267,19 +251,13 @@ public partial class Pattern
                 nestedRef = pGetPatternElement(ref_).getInt(PatternElement.properties_i.tipRef, ssref_);
             }
 
-            int newValue = 0;
-            switch (ssref_)
+            int newValue = ssref_ switch
             {
-                case 0:
-                    newValue = pGetPatternElement(ref_).getInt(PatternElement.properties_i.shape0Tip);
-                    break;
-                case 1:
-                    newValue = pGetPatternElement(ref_).getInt(PatternElement.properties_i.shape1Tip);
-                    break;
-                case 2:
-                    newValue = pGetPatternElement(ref_).getInt(PatternElement.properties_i.shape2Tip);
-                    break;
-            }
+                0 => pGetPatternElement(ref_).getInt(PatternElement.properties_i.shape0Tip),
+                1 => pGetPatternElement(ref_).getInt(PatternElement.properties_i.shape1Tip),
+                2 => pGetPatternElement(ref_).getInt(PatternElement.properties_i.shape2Tip),
+                _ => 0
+            };
 
             switch (ss)
             {

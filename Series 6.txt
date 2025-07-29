@@ -1,5 +1,21 @@
 Changelog for Quilt. A pattern generator.
 
+6.1
+
+	- Moved to NET 9.0
+
+6.1a3
+
+	- Experimental adoption of ppy.Veldrid packages, as a maintained Veldrid project.
+
+6.1a2
+
+	- Extensive code refactoring.
+
+6.1a1
+
+	- Layout file improvements in GeoCore.
+
 6.0
 
     - Avoided hang-on-quit issue with GTK when file dialogs have been shown.

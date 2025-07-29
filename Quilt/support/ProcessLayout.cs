@@ -13,7 +13,7 @@ namespace Quilt;
 public class ProcessLayout
 {
     public delegate GeoCore GetGeoCore();
-    public GetGeoCore getGeoCore { get; set; }
+    public GetGeoCore getGeoCore { get; init; }
 
     public List<PatternElement> pattElements;
     private List<string> structureLDs;
@@ -23,7 +23,7 @@ public class ProcessLayout
     {
         structureLDNames = structureLDNames_;
         structureLDs = structureLDs_;
-        pattElements = new List<PatternElement>();
+        pattElements = [];
     }
 
     private void pAddPatternElement(string name)
@@ -37,7 +37,7 @@ public class ProcessLayout
     {
         for (int poly = 0; poly < geoData.Count; poly++)
         {
-            List<string> lines = new();
+            List<string> lines = [];
             for (int pt = 0; pt < geoData[poly].Count; pt++)
             {
                 string line = "new GeoLibPoint(" + geoData[poly][pt].x + ", " + geoData[poly][pt].y + ")";

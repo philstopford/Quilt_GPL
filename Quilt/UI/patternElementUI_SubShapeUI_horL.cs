@@ -68,10 +68,10 @@ public partial class MainForm
         TableRow s0_hl_r1 = new();
         s0_hl.Rows.Add(s0_hl_r1);
 
-        btn_s0_hl = new ()
+        btn_s0_hl = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
-            Enabled = false,
+            Enabled = false
         };
         btn_s0_hl.Click += delegate
         {
@@ -138,7 +138,7 @@ public partial class MainForm
         TableRow s1_hl_r1 = new();
         s1_hl.Rows.Add(s1_hl_r1);
 
-        btn_s1_hl = new ()
+        btn_s1_hl = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -208,7 +208,7 @@ public partial class MainForm
         TableRow s2_hl_r1 = new();
         s2_hl.Rows.Add(s2_hl_r1);
 
-        btn_s2_hl = new ()
+        btn_s2_hl = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -286,7 +286,7 @@ public partial class MainForm
         
         leftMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s0_hl)});
         
-        btn_s0_hlinc = new ()
+        btn_s0_hlinc = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -345,7 +345,7 @@ public partial class MainForm
         
         middleMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s1_hl)});
         
-        btn_s1_hlinc = new ()
+        btn_s1_hlinc = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -404,7 +404,7 @@ public partial class MainForm
         
         rightMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s2_hl)});
         
-        btn_s2_hlinc = new ()
+        btn_s2_hlinc = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -480,7 +480,7 @@ public partial class MainForm
         
         leftMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s0_hl)});
         
-        btn_s0_hlst = new ()
+        btn_s0_hlst = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -539,7 +539,7 @@ public partial class MainForm
         
         middleMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s1_hl)});
         
-        btn_s1_hlst = new ()
+        btn_s1_hlst = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -598,7 +598,7 @@ public partial class MainForm
         
         rightMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s2_hl)});
         
-        btn_s2_hlst = new ()
+        btn_s2_hlst = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false

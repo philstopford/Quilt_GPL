@@ -2,6 +2,7 @@
 using System.IO;
 using Eto.Veldrid;
 using Eto.Veldrid.Wpf;
+using Eto.Wpf;
 using Veldrid;
 
 namespace Quilt.WPF;
@@ -31,9 +32,9 @@ internal static class Program
                 }
             }
 
-            foreach (var t in args)
+            foreach (string t in args)
             {
-                string[] tokens = t.Split(new[] { '.' });
+                string[] tokens = t.Split(['.']);
                 string extension = tokens[^1];
                 if (extension.ToUpper() == "QUILT" || extension.ToUpper() == "XML")
                 {
@@ -65,7 +66,7 @@ internal static class Program
             }
         }
 
-        var platform = new Eto.Wpf.Platform();
+        Platform platform = new();
         platform.Add<VeldridSurface.IHandler>(() => new WpfVeldridSurfaceHandler());
 
         QuiltContext quiltContext = new(xmlFile, backend);

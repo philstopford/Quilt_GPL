@@ -68,7 +68,7 @@ public partial class MainForm
         TableRow s0_vl_r1 = new();
         s0_vl.Rows.Add(s0_vl_r1);
 
-        btn_s0_vl = new ()
+        btn_s0_vl = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -137,7 +137,7 @@ public partial class MainForm
         TableRow s1_vl_r1 = new();
         s1_vl.Rows.Add(s1_vl_r1);
 
-        btn_s1_vl = new ()
+        btn_s1_vl = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -206,7 +206,7 @@ public partial class MainForm
         TableRow s2_vl_r1 = new();
         s2_vl.Rows.Add(s2_vl_r1);
 
-        btn_s2_vl = new ()
+        btn_s2_vl = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -282,7 +282,7 @@ public partial class MainForm
         
         leftMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s0_vl)});
         
-        btn_s0_vlinc = new ()
+        btn_s0_vlinc = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -341,7 +341,7 @@ public partial class MainForm
         
         middleMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s1_vl)});
         
-        btn_s1_vlinc = new ()
+        btn_s1_vlinc = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -400,7 +400,7 @@ public partial class MainForm
         
         rightMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s2_vl)});
         
-        btn_s2_vlinc = new ()
+        btn_s2_vlinc = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -476,7 +476,7 @@ public partial class MainForm
         
         leftMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s0_vl)});
         
-        btn_s0_vlst = new ()
+        btn_s0_vlst = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -535,7 +535,7 @@ public partial class MainForm
         
         middleMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s1_vl)});
         
-        btn_s1_vlst = new ()
+        btn_s1_vlst = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -594,7 +594,7 @@ public partial class MainForm
         
         rightMiddle.Cells.Add(new TableCell {Control = TableLayout.AutoSized(s2_vl)});
         
-        btn_s2_vlst = new ()
+        btn_s2_vlst = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false

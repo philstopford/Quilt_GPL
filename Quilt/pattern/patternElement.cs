@@ -135,8 +135,8 @@ public class PatternElement : ShapeSettings
 
         relativeArray = 0;
 
-        externalGeoCoordX = new List<decimal>();
-        externalGeoCoordY = new List<decimal>();
+        externalGeoCoordX = [];
+        externalGeoCoordY = [];
 
         linkedElementIndex = -1;
 
@@ -562,12 +562,12 @@ public class PatternElement : ShapeSettings
 
     public PointD getMidPoint()
     {
-        return new (midpoint.x, midpoint.y);
+        return new PointD(midpoint.x, midpoint.y);
     }
 
     public void setMidPoint(PointD point)
     {
-        midpoint = (double.IsNaN(point.x) || double.IsNaN(point.y))  ? new PointD(double.NaN, double.NaN) : new (point.x, point.y);
+        midpoint = (double.IsNaN(point.x) || double.IsNaN(point.y))  ? new PointD(double.NaN, double.NaN) : new PointD(point.x, point.y);
     }
 
     private string name;
@@ -594,12 +594,11 @@ public class PatternElement : ShapeSettings
 
     private void pSetString(properties_s p, string val)
     {
-        switch (p)
+        name = p switch
         {
-            case properties_s.name:
-                name = val;
-                break;
-        }
+            properties_s.name => val,
+            _ => name
+        };
     }
 
     private int xPosSteps, yPosSteps;
@@ -2915,7 +2914,7 @@ public class PatternElement : ShapeSettings
         minArrayRotation, arrayRotationInc, arrayRotation,
         externalGeoCoordX, externalGeoCoordY,
         minHorTipLength, horTipLengthInc,
-        minVerTipLength, verTipLengthInc,
+        minVerTipLength, verTipLengthInc
     }
 
     public decimal getDecimal(properties_decimal p, int _subShapeRef = -1)
@@ -3981,15 +3980,12 @@ public class PatternElement : ShapeSettings
 
         int limit = v_xSteps * v_ySteps * v_rSteps * v_arrayRSteps * v_array_X_Steps * v_array_Y_Steps * v_array_XSpace_Steps * v_array_YSpace_Steps;
 
-        switch (getInt(properties_i.shapeIndex))
+        return getInt(properties_i.shapeIndex) switch
         {
-            case (int)CentralProperties.shapeNames.complex:
-                return pCalcMaxVariants_external(limit);
-            case (int)CentralProperties.shapeNames.bounding:
-                return pCalcMaxVariants_bounding(limit);
-            default:
-                return pCalcMaxVariants_regular(limit);
-        }
+            (int)CentralProperties.shapeNames.complex => pCalcMaxVariants_external(limit),
+            (int)CentralProperties.shapeNames.bounding => pCalcMaxVariants_bounding(limit),
+            _ => pCalcMaxVariants_regular(limit)
+        };
     }
 
     private static int pCalcMaxVariants_external(int limit)
@@ -4746,21 +4742,18 @@ public class PatternElement : ShapeSettings
         // If orthogonal, we can try and set up a primitive. Failsafe to complex if no match found.
         if (ortho)
         {
-            switch (pointsLength)
+            ok = pointsLength switch
             {
-                case 4: // rectangle.
-                    ok = isText ? pText(points) : pRectangle(points);
-                    break;
-                case 6: // L
-                    ok = pLShape(points);
-                    break;
-                case 8: // T or U.
-                    ok = pMightBeTorU(points);
-                    break;
-                case 12: // X or S.
-                    ok = pMightBeXorS(points);
-                    break;
-            }
+                4 => // rectangle.
+                    isText ? pText(points) : pRectangle(points),
+                6 => // L
+                    pLShape(points),
+                8 => // T or U.
+                    pMightBeTorU(points),
+                12 => // X or S.
+                    pMightBeXorS(points),
+                _ => ok
+            };
         }
 
         if (ok)
@@ -4776,8 +4769,8 @@ public class PatternElement : ShapeSettings
         points = GeoWrangler.close(points);
         
         // Run decomposition
-        decomposedPolys = new ();
-        nonOrthoGeometry = new ();
+        decomposedPolys = [];
+        nonOrthoGeometry = [];
         if (abortParse)
         {
             reset();
@@ -4818,10 +4811,7 @@ public class PatternElement : ShapeSettings
         }
         else
         {
-            decompOut = new()
-            {
-                points
-            };
+            decompOut = [points];
         }
 
         if (abortParse)
@@ -4829,7 +4819,7 @@ public class PatternElement : ShapeSettings
             reset();
             return;
         }
-        decomposedPolys = new(decompOut);
+        decomposedPolys = new PathsD(decompOut);
         if (abortParse)
         {
             reset();
@@ -4859,11 +4849,10 @@ public class PatternElement : ShapeSettings
                 }
                 externalGeoCoordX.Add(Convert.ToDecimal(points[p].x));
                 externalGeoCoordY.Add(Convert.ToDecimal(points[p].y));
-                tmpNO[p] = new (points[p].x, points[p].y);
+                tmpNO[p] = new PointD(points[p].x, points[p].y);
             }
             tmpNO = GeoWrangler.close(tmpNO);
             nonOrthoGeometry.Add(tmpNO);
-            decomposedPolys.RemoveAt(0);
         }
         else
         {
@@ -4879,8 +4868,9 @@ public class PatternElement : ShapeSettings
                 reset();
                 return;
             }
-            decomposedPolys.RemoveAt(0);
         }
+
+        decomposedPolys.RemoveAt(0);
     }
 
     private bool pText(PathD points)
@@ -5025,15 +5015,12 @@ public class PatternElement : ShapeSettings
         // Abuse tone inversion to see whether we have two islands afterwards (the gaps for the T) or 1 (for the U).
         int polyCount = GeoWrangler.invertTone(points, preserveCollinear: false, useBounds: true).Count;
         // int polyCount = workAroundInvertTone(points, CentralProperties.scaleFactorForOperation).Count;
-        switch (polyCount)
+        return polyCount switch
         {
-            case 1:
-                return pUShape(points);
-            case 2:
-                return pTShape(points);
-            default:
-                return false;
-        }
+            1 => pUShape(points),
+            2 => pTShape(points),
+            _ => false
+        };
     }
 
     private bool pTShape(PathD points)
@@ -5187,7 +5174,7 @@ public class PatternElement : ShapeSettings
                             // U notch right
                             minRotation = -90.0m;
                             (subShapeMinHorLength, subShapeMinVerLength) = (subShapeMinVerLength, subShapeMinHorLength);
-                            dist = GeoWrangler.distanceBetweenPoints_point(points[2], new(0,0));
+                            dist = GeoWrangler.distanceBetweenPoints_point(points[2], new PointD(0,0));
                             minXPos = -Convert.ToDecimal(dist.y);
                             minYPos = -Convert.ToDecimal(dist.x);
                             dist = GeoWrangler.distanceBetweenPoints_point(points[3], points[5]);
@@ -5230,7 +5217,7 @@ public class PatternElement : ShapeSettings
                     // U notch left
                     minRotation = 90.0m;
                     (subShapeMinHorLength, subShapeMinVerLength) = (subShapeMinVerLength, subShapeMinHorLength);
-                    dist = GeoWrangler.distanceBetweenPoints_point(points[0], new(0,0));
+                    dist = GeoWrangler.distanceBetweenPoints_point(points[0], new PointD(0,0));
                     minXPos = Convert.ToDecimal(dist.y);
                     minYPos = Convert.ToDecimal(dist.x);
                     dist = GeoWrangler.distanceBetweenPoints_point(points[1], points[3]);
@@ -5262,15 +5249,12 @@ public class PatternElement : ShapeSettings
     {
         // Abuse tone inversion to see whether we have 4 islands afterwards (the gaps for the X) or 2 (for the S).
         int polyCount = GeoWrangler.invertTone(points, preserveCollinear:false, useBounds: true).Count;
-        switch (polyCount)
+        return polyCount switch
         {
-            case 2:
-                return pSShape(points);
-            case 4:
-                return pXShape(points);
-            default:
-                return false;
-        }
+            2 => pSShape(points),
+            4 => pXShape(points),
+            _ => false
+        };
     }
     private bool pXShape(PathD points)
     {

@@ -341,7 +341,7 @@ public partial class MainForm
         {
             try
             {
-                foreach (var t in num_externalGeoCoordsX)
+                foreach (NumericStepper t in num_externalGeoCoordsX)
                 {
                     if (t != null)
                     {

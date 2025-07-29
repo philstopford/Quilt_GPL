@@ -48,7 +48,7 @@ public class PreviewShape
 
     private void pMove(int poly, int pt, double x, double y)
     {
-        previewPoints[poly][pt] = new (previewPoints[poly][pt].x + x, previewPoints[poly][pt].y + y);
+        previewPoints[poly][pt] = new PointD(previewPoints[poly][pt].x + x, previewPoints[poly][pt].y + y);
     }
 
     public void move(double x, double y, int startPolyIndex = -1, int endPolyIndex = int.MaxValue, int startPtIndex = -1, int endPtIndex = int.MaxValue)
@@ -77,7 +77,7 @@ public class PreviewShape
                 for (int pt = ptStart; pt < ptEnd; pt++)
 #endif
                     {
-                        previewPoints[poly][pt] = new (previewPoints[poly][pt].x + x, previewPoints[poly][pt].y + y);
+                        previewPoints[poly][pt] = new PointD(previewPoints[poly][pt].x + x, previewPoints[poly][pt].y + y);
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -119,7 +119,7 @@ public class PreviewShape
 
     private void pAddPoints(PathD poly)
     {
-        previewPoints.Add(new(poly));
+        previewPoints.Add(new PathD(poly));
         sourceIndices.Add(elementIndex);
     }
 
@@ -130,7 +130,7 @@ public class PreviewShape
 
     private void pSetPoints(PathsD newPoints)
     {
-        previewPoints = new(newPoints);
+        previewPoints = new PathsD(newPoints);
         for (int i = 0; i < newPoints.Count; i++)
         {
             sourceIndices.Add(elementIndex);
@@ -202,12 +202,12 @@ public class PreviewShape
     private void pInit()
     {
         // Stub to enable direct drive of preview data, primarily for the implant system.
-        previewPoints = new ();
-        sourceIndices = new List<int>();
+        previewPoints = [];
+        sourceIndices = [];
         layoutLayer = -1;
         layoutDatatype = -1;
-        drawnPoly = new List<bool>();
-        textEntity = new List<bool>();
+        drawnPoly = [];
+        textEntity = [];
         color = MyColor.Black;
         linkedElementIndex = -1;
     }
@@ -219,7 +219,7 @@ public class PreviewShape
 
     private void pInit(PreviewShape source)
     {
-        previewPoints = new(source.previewPoints);
+        previewPoints = new PathsD(source.previewPoints);
         sourceIndices = source.sourceIndices.ToList();
         layoutLayer = source.layoutLayer;
         layoutDatatype = source.layoutDatatype;
@@ -256,7 +256,7 @@ public class PreviewShape
                     y = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.yPos));
                     x += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.externalGeoCoordX, i));
                     y += Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.externalGeoCoordY, i));
-                    tempArray[i] = new (x, y);
+                    tempArray[i] = new PointD(x, y);
                 }
                 break;
             case "bounding":
@@ -267,10 +267,10 @@ public class PreviewShape
                 decimal top = patternElement.getDecimal(PatternElement.properties_decimal.boundingTop);
                 decimal bottom = patternElement.getDecimal(PatternElement.properties_decimal.boundingBottom);
 
-                tempArray[0] = new ((double)left, (double)bottom);
-                tempArray[1] = new ((double)left, (double)top);
-                tempArray[2] = new ((double)right, (double)top);
-                tempArray[3] = new ((double)right, (double)bottom);
+                tempArray[0] = new PointD((double)left, (double)bottom);
+                tempArray[1] = new PointD((double)left, (double)top);
+                tempArray[2] = new PointD((double)right, (double)top);
+                tempArray[3] = new PointD((double)right, (double)bottom);
 
 #if !QUILTSINGLETHREADED
                 Parallel.For(0, tempArray.Count, i =>
@@ -278,7 +278,7 @@ public class PreviewShape
                     for (int i = 4; i < tempArray.Length; i++)
 #endif
                     {
-                        tempArray[i] = new (tempArray[0]);
+                        tempArray[i] = new PointD(tempArray[0]);
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -368,22 +368,22 @@ public class PreviewShape
                 double yOffset = _yOffset;
 
                 // Populate array.
-                tempArray[0] = new ((double)bottom_leftX_1, (double)bottom_leftY_1);
-                tempArray[1] = new ((double)top_leftX_1, (double)top_leftY_1);
-                tempArray[2] = new ((double)top_rightX_1, (double)top_rightY_1);
-                tempArray[3] = new ((double)bottom_rightX_1, (double)bottom_rightY_1);
-                tempArray[4] = new (tempArray[0]);
+                tempArray[0] = new PointD((double)bottom_leftX_1, (double)bottom_leftY_1);
+                tempArray[1] = new PointD((double)top_leftX_1, (double)top_leftY_1);
+                tempArray[2] = new PointD((double)top_rightX_1, (double)top_rightY_1);
+                tempArray[3] = new PointD((double)bottom_rightX_1, (double)bottom_rightY_1);
+                tempArray[4] = new PointD(tempArray[0]);
 
                 // Apply our deltas
 #if !QUILTSINGLETHREADED
-                var offset = xOffset;
-                var offset1 = yOffset;
+                double offset = xOffset;
+                double offset1 = yOffset;
                 Parallel.For(0, 5, i =>
 #else
                     for (Int32 i = 0; i < 5; i++)
 #endif
                     {
-                        tempArray[i] = new (tempArray[i].x + offset + x, tempArray[i].y + offset1 + y);
+                        tempArray[i] = new PointD(tempArray[i].x + offset + x, tempArray[i].y + offset1 + y);
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -460,22 +460,22 @@ public class PreviewShape
                 yOffset = Convert.ToDouble(patternElement.getDecimal(PatternElement.properties_decimal.verOffset, 1)) + _yOffset;
 
                 // Populate array.
-                tempArray[5 + 0] = new ((double)bottom_leftX_2, (double)bottom_leftY_2);
-                tempArray[5 + 1] = new ((double)top_leftX_2, (double)top_leftY_2);
-                tempArray[5 + 2] = new ((double)top_rightX_2, (double)top_rightY_2);
-                tempArray[5 + 3] = new ((double)bottom_rightX_2, (double)bottom_rightY_2);
-                tempArray[5 + 4] = new (tempArray[5 + 0]);
+                tempArray[5 + 0] = new PointD((double)bottom_leftX_2, (double)bottom_leftY_2);
+                tempArray[5 + 1] = new PointD((double)top_leftX_2, (double)top_leftY_2);
+                tempArray[5 + 2] = new PointD((double)top_rightX_2, (double)top_rightY_2);
+                tempArray[5 + 3] = new PointD((double)bottom_rightX_2, (double)bottom_rightY_2);
+                tempArray[5 + 4] = new PointD(tempArray[5 + 0]);
 
                 // Apply our deltas
 #if !QUILTSINGLETHREADED
-                var xOffset1 = xOffset;
-                var yOffset1 = yOffset;
+                double xOffset1 = xOffset;
+                double yOffset1 = yOffset;
                 Parallel.For(0, 5, i =>
 #else
                     for (Int32 i = 0; i < 5; i++)
 #endif
                     {
-                        tempArray[5 + i] = new (tempArray[5 + i].x + (xOffset1 + x), tempArray[5 + i].y + (yOffset1 + y));
+                        tempArray[5 + i] = new PointD(tempArray[5 + i].x + (xOffset1 + x), tempArray[5 + i].y + (yOffset1 + y));
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -557,11 +557,11 @@ public class PreviewShape
                 }
 
                 // Populate array.
-                tempArray[10 + 0] = new ((double)bottom_leftX_3, (double)bottom_leftY_3);
-                tempArray[10 + 1] = new ((double)top_leftX_3, (double)top_leftY_3);
-                tempArray[10 + 2] = new ((double)top_rightX_3, (double)top_rightY_3);
-                tempArray[10 + 3] = new ((double)bottom_rightX_3, (double)bottom_rightY_3);
-                tempArray[10 + 4] = new (tempArray[10 + 0]);
+                tempArray[10 + 0] = new PointD((double)bottom_leftX_3, (double)bottom_leftY_3);
+                tempArray[10 + 1] = new PointD((double)top_leftX_3, (double)top_leftY_3);
+                tempArray[10 + 2] = new PointD((double)top_rightX_3, (double)top_rightY_3);
+                tempArray[10 + 3] = new PointD((double)bottom_rightX_3, (double)bottom_rightY_3);
+                tempArray[10 + 4] = new PointD(tempArray[10 + 0]);
 
                 // Apply our deltas
 #if !QUILTSINGLETHREADED
@@ -570,7 +570,7 @@ public class PreviewShape
                     for (Int32 i = 0; i < 5; i++)
 #endif
                     {
-                        tempArray[10 + i] = new (tempArray[10 + i].x + (xOffset + x), tempArray[10 + i].y + (yOffset + y));
+                        tempArray[10 + i] = new PointD(tempArray[10 + i].x + (xOffset + x), tempArray[10 + i].y + (yOffset + y));
                     }
 #if !QUILTSINGLETHREADED
                 );
@@ -631,10 +631,10 @@ public class PreviewShape
 
         if (patternElement.getInt(PatternElement.properties_i.refArrayPivot) == 2)
         {
-            bb = new(0.0, 0.0);
+            bb = new PointD(0.0, 0.0);
         }
         
-        return new (source.Select(t => pTransformed(t, pattern, index, bb, rotAngle, rotRef, rotRefUseArray, flipH: false, flipV: false, alignX: false, alignY: false, refPivot, doRotation)));
+        return new PathsD(source.Select(t => pTransformed(t, pattern, index, bb, rotAngle, rotRef, rotRefUseArray, flipH: false, flipV: false, alignX: false, alignY: false, refPivot, doRotation)));
     }
 
     // This deals with non-arrayed geometry
@@ -660,7 +660,7 @@ public class PreviewShape
         bool refPivot = patternElement.getInt(PatternElement.properties_i.refPivot) == 1;
         if (patternElement.getInt(PatternElement.properties_i.refPivot) == 2)
         {
-            bb = new(0.0, 0.0);
+            bb = new PointD(0.0, 0.0);
         }
         
         return pTransformed(tempArray, pattern, index, bb, rotAngle, rotRef, rotRefUseArray, flipH, flipV, alignX, alignY, refPivot, doRotation);
@@ -735,7 +735,7 @@ public class PreviewShape
                                         double arrayWidth = xCount * width + (xCount - 1) * xSpace;
                                         double arrayHeight = yCount * height + (yCount - 1) * ySpace;
 
-                                        r_pivot = new (bounds[0] + arrayWidth / 2.0f,
+                                        r_pivot = new PointD(bounds[0] + arrayWidth / 2.0f,
                                             bounds[1] + arrayHeight / 2.0f);
                                         break;
                                     case 1:
@@ -744,7 +744,7 @@ public class PreviewShape
                                         r_pivot = pattern.getPatternElement(rotRef).getMidPoint();
                                         break;
                                     case 2:
-                                        r_pivot = new (0.0, 0.0);
+                                        r_pivot = new PointD(0.0, 0.0);
                                         break;
                                 }
                             }
@@ -761,18 +761,18 @@ public class PreviewShape
                             bool boundsAfterRotation = pattern.getPatternElement(index).getInt(PatternElement.properties_i.refBoundsAfterRotation) == 1;
                             if (pattern.getPatternElement(rotRef).midPointSet())
                             {
-                                r_pivot = new (pattern.getPatternElement(rotRef).getMidPoint());
+                                r_pivot = new PointD(pattern.getPatternElement(rotRef).getMidPoint());
                             }
                             else
                             {
-                                r_pivot = new (GeoWrangler.midPoint(pGetPointArray(pattern, rotRef, doRotation: boundsAfterRotation)));
+                                r_pivot = new PointD(GeoWrangler.midPoint(pGetPointArray(pattern, rotRef, doRotation: boundsAfterRotation)));
                                 pattern.getPatternElement(rotRef).setMidPoint(r_pivot);
                             }
                             
                             // Override for the world origin case.... Still allow the above for the 'cached' midpoint evaluation.
                             if (pattern.getPatternElement(rotRef).getInt(PatternElement.properties_i.refPivot) == 2)
                             {
-                                r_pivot = new(0, 0);
+                                r_pivot = new PointD(0, 0);
                             }
                         }
 
@@ -789,20 +789,21 @@ public class PreviewShape
         }
 
         // Flip after rotation.
-        if (flipH || flipV)
+        if (!flipH && !flipV)
         {
-            bb = GeoWrangler.midPoint(transformed);
-            transformed = GeoWrangler.flip(flipH, flipV, alignX, alignY, bb, transformed);
+            return new PathD(transformed);
         }
-        
-        return new(transformed);
+        bb = GeoWrangler.midPoint(transformed);
+        transformed = GeoWrangler.flip(flipH, flipV, alignX, alignY, bb, transformed);
+
+        return new PathD(transformed);
     }
 
     private double[] pShapeBounds(Pattern pattern, int settingsIndex, bool doRotation = true)
     {
         PathD inputPoints = pGetPointArray(pattern, settingsIndex, doRotation: doRotation);
         // Apply any transformations to get the bounding box post-rotation, etc.
-        inputPoints = pTransformed(new PathsD { inputPoints }, pattern, settingsIndex, doRotation: doRotation)[0];
+        inputPoints = pTransformed([inputPoints], pattern, settingsIndex, doRotation: doRotation)[0];
         return pShapeBounds(inputPoints);
     }
 
@@ -814,17 +815,17 @@ public class PreviewShape
         double minY = inputPoints.Min(p => p.y);
         double maxY = inputPoints.Max(p => p.y);
 
-        return new [] { minX, minY, maxX, maxY };
+        return [minX, minY, maxX, maxY];
     }
 
     private void pInit(Pattern pattern, int settingsIndex)
     {
         try
         {
-            previewPoints = new ();
-            sourceIndices = new List<int>();
-            drawnPoly = new List<bool>();
-            textEntity = new List<bool>();
+            previewPoints = [];
+            sourceIndices = [];
+            drawnPoly = [];
+            textEntity = [];
             color = MyColor.Black; // overridden later.
 
             PatternElement patternElement = pattern.getPatternElement(settingsIndex);
@@ -851,22 +852,21 @@ public class PreviewShape
                 
                 outputPoints = pTransformed(outputPoints, pattern, settingsIndex, bb);
 
-                previewPoints.Add(new(inputPoints.Take(5)));
+                previewPoints.Add(new PathD(inputPoints.Take(5)));
                 drawnPoly.Add(true);
-                previewPoints.Add(new(inputPoints.Skip(5).Take(5)));
+                previewPoints.Add(new PathD(inputPoints.Skip(5).Take(5)));
                 drawnPoly.Add(true);
-                previewPoints.Add(new(inputPoints.Skip(10).Take(5)));
+                previewPoints.Add(new PathD(inputPoints.Skip(10).Take(5)));
                 drawnPoly.Add(true);
 
                 previewPoints.Add(outputPoints);
-                drawnPoly.Add(false);
             }
             else
             {
                 ShapeLibrary shape = new(CentralProperties.shapeTable, shapeType, patternElement);
                 inputPoints = GeoWrangler.close(inputPoints);
 
-                previewPoints.Add(new(inputPoints));
+                previewPoints.Add(new PathD(inputPoints));
                 drawnPoly.Add(true);
 
                 inputPoints = GeoWrangler.move(inputPoints, -patternElement.getDecimal(PatternElement.properties_decimal.xPos), -patternElement.getDecimal(PatternElement.properties_decimal.yPos));
@@ -874,9 +874,10 @@ public class PreviewShape
                 complexPoints = new ComplexShape(pattern.getPatternElements(), settingsIndex, shape);
 
                 outputPoints = complexPoints.getPoints();
-                previewPoints.Add(new (outputPoints));
-                drawnPoly.Add(false);
+                previewPoints.Add(new PathD(outputPoints));
             }
+
+            drawnPoly.Add(false);
             int arrayRef = patternElement.getInt(PatternElement.properties_i.arrayRef) - 1; // due to 'self' reference, we need to offset the value by 1
 
             // Query shape for bounds.
@@ -932,7 +933,7 @@ public class PreviewShape
             
             previewPoints = pTransformed(previewPoints, pattern, settingsIndex);
 
-            List<bool> oDP = new();
+            List<bool> oDP = [];
 
             for (int x = 0; x < xCount; x++)
             {
@@ -942,7 +943,7 @@ public class PreviewShape
                 }
             }
 
-            drawnPoly = new List<bool>(oDP);
+            drawnPoly = [..oDP];
 
             // Get our offsets configured.
             PointD offset = shapeOffsets.doOffsets(0, patternElement);
@@ -965,7 +966,7 @@ public class PreviewShape
                         double px = previewPoints[poly1][point].x + xOffset;
                         double py = previewPoints[poly1][point].y - yOffset;
 
-                        previewPoints[poly1][point] = new (px, py);
+                        previewPoints[poly1][point] = new PointD(px, py);
                     }
 #if !QUILTSINGLETHREADED
                 );

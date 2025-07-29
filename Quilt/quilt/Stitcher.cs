@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Clipper2Lib;
+using Timer = System.Timers.Timer;
 
 namespace Quilt;
 
@@ -74,7 +75,7 @@ public class Stitcher
 
     private PatternElement copyBuffer;
 
-    private System.Timers.Timer timer;
+    private Timer timer;
 
     private void pTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
@@ -116,10 +117,10 @@ public class Stitcher
         exportLock = new object();
         evalLock = new object();
 
-        patternElementNames = new ObservableCollection<string>();
-        patternElementNames_filtered = new ObservableCollection<string>();
-        patternElementNamesForMerge_filtered = new ObservableCollection<string>();
-        patternElementNames_filtered_array = new ObservableCollection<string>();
+        patternElementNames = [];
+        patternElementNames_filtered = [];
+        patternElementNamesForMerge_filtered = [];
+        patternElementNames_filtered_array = [];
         quiltContext = context;
 
         copyBuffer = null;
@@ -224,7 +225,7 @@ public class Stitcher
             // Attempt at parallelism.
             CancellationTokenSource pcs = new();
             // Try to thread it for best possible performance.
-            Parallel.For(0, patterns.Count, pco, (p) =>
+            Parallel.For(0, patterns.Count, pco, p =>
             {
                 // If we find an equivalent pattern, we need to abort.
                 if (Equals(patterns[p], pattern))
@@ -294,23 +295,23 @@ public class Stitcher
 
     private void pReset(bool empty)
     {
-        previewShapes = Array.Empty<List<PreviewShape>>();
+        previewShapes = [];
         patternElementNames.Clear();
         if (!empty)
         {
             patternElementNames.Add("First");
         }
 
-        patternElements = new List<PatternElement>();
+        patternElements = [];
         if (!empty)
         {
             patternElements.Add(new PatternElement());
         }
 
-        patterns = new List<Pattern>();
+        patterns = [];
         if (mode == 0)
         {
-            hashes = new HashSet<int>();
+            hashes = [];
         }
         if (!empty)
         {
@@ -324,7 +325,7 @@ public class Stitcher
         {
             update_filteredPatternedElementNames(0);
         }
-        previewShapes = Array.Empty<List<PreviewShape>>();
+        previewShapes = [];
 
         padding = 0;
 
@@ -639,7 +640,7 @@ public class Stitcher
                 if (changed)
                 {
                     // Clear midpoint to force a recompute
-                    patternElements[i].setMidPoint(new (double.NaN, Double.NaN));
+                    patternElements[i].setMidPoint(new PointD(double.NaN, double.NaN));
                 }
             }
 #if !QUILTSINGLETHREADED
@@ -990,7 +991,7 @@ public class Stitcher
 
             generatingPatternUI();
 
-            timer = new System.Timers.Timer {AutoReset = true, Interval = CentralProperties.timer_interval};
+            timer = new Timer {AutoReset = true, Interval = CentralProperties.timer_interval};
             // Set up timers for the UI refresh
             timer.Elapsed += updateUIProgress_from_timer;
             timer.Start();
@@ -998,7 +999,7 @@ public class Stitcher
             while (varEl != null)
             {
                 // For each variant, add a new pattern
-                Pattern newPattern = new(ref quiltContext, new List<PatternElement> { new(varEl) });
+                Pattern newPattern = new(ref quiltContext, [new PatternElement(varEl)]);
 
                 pAddPattern(newPattern);
 
@@ -1077,7 +1078,7 @@ public class Stitcher
             // Here, we walk the dependencies of the elements in each pattern.
             // The dependent dimensions are computed (e.g. linked width, height, etc.)
 #if !QUILTSINGLETHREADED
-            Parallel.For(0, patternCount/*, po*/, (pattern) =>
+            Parallel.For(0, patternCount/*, po*/, pattern =>
 #else
                 for (int pattern = 0; pattern < patternCount; pattern++)
 #endif
@@ -1089,8 +1090,8 @@ public class Stitcher
 #endif
 
             // Generate the preview shapes
-            previewShapes = Array.Empty<List<PreviewShape>>();
-            backgroundShapes = Array.Empty<PreviewShape>();
+            previewShapes = [];
+            backgroundShapes = [];
             if (patternCount == 0)
             {
                 doneQuiltUI("");
@@ -1100,17 +1101,17 @@ public class Stitcher
             updateUIProgress(0.0f);
                 
             // Get our bounding box information to inform grid placement.
-            PathD bb = new();
+            PathD bb = [];
             try
             {
                 bb = patterns[0].boundingBox().getPoints();
             }
             catch (Exception)
             {
-                bb.Add(new (0, 0));
-                bb.Add(new (0, 0));
-                bb.Add(new (0, 0));
-                bb.Add(new (0, 0));
+                bb.Add(new PointD(0, 0));
+                bb.Add(new PointD(0, 0));
+                bb.Add(new PointD(0, 0));
+                bb.Add(new PointD(0, 0));
             }
             PointD bl = new(bb[0]);
             PointD tr = new(bb[2]);
@@ -1129,10 +1130,10 @@ public class Stitcher
             counter = 0;
 
             updateUIProgress(0);
-            timer = new() { AutoReset = true, Interval = CentralProperties.timer_interval };
+            timer = new Timer { AutoReset = true, Interval = CentralProperties.timer_interval };
             timer.Elapsed += pTimerElapsed;
             timer.Start();
-            Parallel.For(0, patternCount/*, po*/, (pattern) =>
+            Parallel.For(0, patternCount/*, po*/, pattern =>
                 {
                     previewShapes[pattern] = patterns[pattern].generate_shapes().ToList();
 
@@ -1151,10 +1152,10 @@ public class Stitcher
             );
             timer.Stop();
 
-            bb[0] = new (left, bottom);
-            bb[1] = new (left, top);
-            bb[2] = new (right, top);
-            bb[3] = new (right, bottom);
+            bb[0] = new PointD(left, bottom);
+            bb[1] = new PointD(left, top);
+            bb[2] = new PointD(right, top);
+            bb[3] = new PointD(right, bottom);
             bb = GeoWrangler.close(bb);
 
             width = Math.Abs(right - left) + padding;
@@ -1170,12 +1171,12 @@ public class Stitcher
             counter = 0;
 
             timer.Start();
-            Parallel.For(0, patternCount/*, po*/, (entry) =>
+            Parallel.For(0, patternCount/*, po*/, entry =>
                 {
                     double x = width * (entry % cols);
                     int yCount = (int)Math.Floor((double)entry / cols);
                     double y = height * yCount;
-                    Parallel.For(0, previewShapes[entry].Count/*, po*/, (ps) =>
+                    Parallel.For(0, previewShapes[entry].Count/*, po*/, ps =>
                     {
                         previewShapes[entry][ps].move(x, y);
                     });
@@ -1219,11 +1220,11 @@ public class Stitcher
 
     private List<List<PreviewShape>> pConsolidate()
     {
-        List<List<PreviewShape>> consolidated = new();
+        List<List<PreviewShape>> consolidated = [];
 
         foreach (List<PreviewShape> t in previewShapes)
         {
-            List<PreviewShape> previewShapesForPattern = new();
+            List<PreviewShape> previewShapesForPattern = [];
             previewShapesForPattern.AddRange(t);
 
             int previewShapesForPatternCount = previewShapesForPattern.Count;
@@ -1262,7 +1263,7 @@ public class Stitcher
                 PathsD geo = previewShapesForPattern[element].getPoints();
                 for (int poly = 0; poly < geo.Count; poly++)
                 {
-                    previewShapesForPattern[linkedElementIndex].addPoints(new(geo[poly]), false, text: previewShapesForPattern[element].isText(poly));
+                    previewShapesForPattern[linkedElementIndex].addPoints(new PathD(geo[poly]), false, text: previewShapesForPattern[element].isText(poly));
                     // Override the source index.
                     previewShapesForPattern[linkedElementIndex].sourceIndices[^1] = previewShapesForPattern[element].sourceIndices[poly];
                 }
@@ -1307,7 +1308,7 @@ public class Stitcher
 
     private List<string> pConsolidateNames(List<List<PreviewShape>> consolidated)
     {
-        List<string> consolidated_elementNames = new();
+        List<string> consolidated_elementNames = [];
         for (int i = 0; i < consolidated[0].Count; i++)
         {
             consolidated_elementNames.Add(patternElements[consolidated[0][i].elementIndex].getString(PatternElement.properties_s.name));
@@ -1378,9 +1379,9 @@ public class Stitcher
             try
             {
                 // Do we have a LxxxDxxx type layer name that we should use instead?
-                string[] tokens = consolidated_elementNames[i].Split(new [] { 'D' });
+                string[] tokens = consolidated_elementNames[i].Split(['D']);
                 int dt = Math.Abs(Convert.ToInt32(tokens[1]));
-                string token = tokens[0].Split(new [] { 'L' })[1];
+                string token = tokens[0].Split(['L'])[1];
                 int lt = Math.Abs(Convert.ToInt32(token));
 
                 targetLayer = lt;
@@ -1396,11 +1397,11 @@ public class Stitcher
 
     private void pUpdateDrawing(List<string> consolidated_elementNames, List<List<PreviewShape>> consolidated, int scale, int updateInterval)
     {
-        double progress = 0;
+        progress = 0;
         int consolidatedCount = consolidated.Count;
         drawing_.addCells(consolidatedCount);
 
-        Parallel.For(0, consolidatedCount/*, po*/, (i) =>
+        Parallel.For(0, consolidatedCount/*, po*/, i =>
         {
             drawing_.cellList[i] = new GCCell
             {
@@ -1422,7 +1423,7 @@ public class Stitcher
 
             PointD loc = patterns[i].getPos();
 
-            Parallel.For(0, consolidated[i].Count/*, po*/, (element) =>
+            Parallel.For(0, consolidated[i].Count/*, po*/, element =>
             {
                 // layer is 1-index based for output, so need to offset element value accordingly.
                 int targetLayer = element + 1;
@@ -1447,9 +1448,9 @@ public class Stitcher
                 try
                 {
                     // Do we have a LxxxDxxx type layer name that we should use instead?
-                    string[] tokens = consolidated_elementNames[element].Split(new [] { 'D' });
+                    string[] tokens = consolidated_elementNames[element].Split(['D']);
                     int dt = Math.Abs(Convert.ToInt32(tokens[1]));
-                    string token = tokens[0].Split(new [] { 'L' })[1];
+                    string token = tokens[0].Split(['L'])[1];
                     int lt = Math.Abs(Convert.ToInt32(token));
 
                     targetLayer = lt;
@@ -1485,7 +1486,7 @@ public class Stitcher
                     ePoly = GeoWrangler.simplify(ePoly);
                     ePoly = GeoWrangler.stripCollinear(ePoly);
 
-                    drawing_.cellList[i].addPolygon(new(ePoly), targetLayer, targetDataType);
+                    drawing_.cellList[i].addPolygon(new Path64(ePoly), targetLayer, targetDataType);
 
                     if (!consolidated[i][element].isText(poly))
                     {
@@ -1497,7 +1498,7 @@ public class Stitcher
                     // We should only have one polygon here, so naively assume that.
                     // Pin text coming from the element variable for now.
                     string pinName = patternElementNames[consolidated[i][element].sourceIndices[poly]];
-                    drawing_.cellList[i].addText(targetLayer, targetDataType, new ((int)((bb.x - loc.x) * scale), (int)((bb.y - loc.y) * scale)), pinName);
+                    drawing_.cellList[i].addText(targetLayer, targetDataType, new Point64((int)((bb.x - loc.x) * scale), (int)((bb.y - loc.y) * scale)), pinName);
                 }
             });
 
@@ -1512,7 +1513,7 @@ public class Stitcher
         });
     }
 
-    private double progress = 0;
+    private double progress;
     private void updateUIProgress_from_timer(object sender, EventArgs e)
     {
         updateUIProgress(progress);
@@ -1525,15 +1526,15 @@ public class Stitcher
 
         gcell_root.addCellrefs(patterns.Count);
 
-        System.Timers.Timer timer = new() { AutoReset = true, Interval = CentralProperties.timer_interval};
+        Timer timer = new() { AutoReset = true, Interval = CentralProperties.timer_interval};
 
         timer.Start();
         timer.Elapsed += updateUIProgress_from_timer;
-        Parallel.For(0, patterns.Count/*, po*/, (i) =>
+        Parallel.For(0, patterns.Count/*, po*/, i =>
         {
             PointD loc = patterns[i].getPos();
             gcell_root.elementList[i] = new GCCellref();
-            gcell_root.elementList[i].setPos(new (loc.x * scale, loc.y * scale));
+            gcell_root.elementList[i].setPos(new Point64(loc.x * scale, loc.y * scale));
 
             gcell_root.elementList[i].setCellRef(drawing_.cellList[i]);
             gcell_root.elementList[i].setName("pattern" + i);
@@ -1681,7 +1682,7 @@ public class Stitcher
 
         string[] descriptions = new string[patterns.Count];
 #if !QUILTSINGLETHREADED
-        Parallel.For(0, descriptions.Length/*, po*/, (p) =>
+        Parallel.For(0, descriptions.Length/*, po*/, p =>
 #else
             for (int p = 0; p < patterns.Count; p++)
 #endif

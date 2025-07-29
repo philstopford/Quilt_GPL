@@ -51,8 +51,8 @@ public partial class Pattern
                 maxX = 0;
                 minY = 0;
                 maxY = 0;
-                points = new () { new(0, 0), new(0, 0), new(0, 0), new(0, 0) };
-                midPoint = new (0, 0);
+                points = [new PointD(0, 0), new PointD(0, 0), new PointD(0, 0), new PointD(0, 0)];
+                midPoint = new PointD(0, 0);
                 return;
             }
 
@@ -64,14 +64,16 @@ public partial class Pattern
                 maxX = 0;
                 minY = 0;
                 maxY = 0;
-                points = new () { new(0, 0), new(0, 0), new(0, 0), new(0, 0) };
-                midPoint = new (0, 0);
+                points = [new PointD(0, 0), new PointD(0, 0), new PointD(0, 0), new PointD(0, 0)];
+                midPoint = new PointD(0, 0);
                 return;
             }
 
-            BoundingBox test = pPoints[0].Any() ? new BoundingBox(pPoints[0]) : new BoundingBox(new PathD() { new (0, 0), new (0, 0), new (0, 0), new (0, 0) });
+            BoundingBox test = pPoints[0].Any() ? new BoundingBox(pPoints[0]) : new BoundingBox([
+                new PointD(0, 0), new PointD(0, 0), new PointD(0, 0), new PointD(0, 0)
+            ]);
 
-            points = new (test.points);
+            points = new PathD(test.points);
 
             foreach (PathD t1 in previewShapes.Select(t => t.getPoints()).SelectMany(polys => polys))
             {
@@ -81,22 +83,22 @@ public partial class Pattern
                 if (minX < points[0].x)
                 {
                     // Reposition our min X points
-                    points[0] = new (minX, points[0].y);
-                    points[1] = new (minX, points[1].y);
+                    points[0] = new PointD(minX, points[0].y);
+                    points[1] = new PointD(minX, points[1].y);
                 }
                 minY = test.points.Min(p => p.y);
                 if (minY < points[0].y)
                 {
                     // Reposition our min Y points
-                    points[0] = new (points[0].x, minY);
-                    points[3] = new (points[3].x, minY);
+                    points[0] = new PointD(points[0].x, minY);
+                    points[3] = new PointD(points[3].x, minY);
                 }
                 maxX = test.points.Max(p => p.x);
                 if (maxX > points[2].x)
                 {
                     // Reposition our max X points
-                    points[2] = new (maxX, points[2].y);
-                    points[3] = new (maxX, points[3].y);
+                    points[2] = new PointD(maxX, points[2].y);
+                    points[3] = new PointD(maxX, points[3].y);
                 }
                 maxY = test.points.Max(p => p.y);
                 if (!(maxY > points[2].y))
@@ -105,14 +107,14 @@ public partial class Pattern
                 }
 
                 // Reposition our max Y points
-                points[1] = new (points[1].x, maxY);
-                points[2] = new (points[2].x, maxY);
+                points[1] = new PointD(points[1].x, maxY);
+                points[2] = new PointD(points[2].x, maxY);
             }
             minX = points.Min(p => p.x);
             minY = points.Min(p => p.y);
             maxX = points.Max(p => p.x);
             maxY = points.Max(p => p.y);
-            midPoint = new (minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
+            midPoint = new PointD(minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
         }
 
         public PathD getPoints()
@@ -142,18 +144,18 @@ public partial class Pattern
 
         private void pBoundingBox(PathD incomingPoints)
         {
-            points = new ();
+            points = [];
             if (incomingPoints == null || incomingPoints.Count == 0)
             {
                 minX = 0;
                 maxX = 0;
                 minY = 0;
                 maxY = 0;
-                points.Add(new (0.0f, 0.0f));
-                points.Add(new (0.0f, 0.0f));
-                points.Add(new (0.0f, 0.0f));
-                points.Add(new (0.0f, 0.0f));
-                midPoint = new (0.0f, 0.0f);
+                points.Add(new PointD(0.0f, 0.0f));
+                points.Add(new PointD(0.0f, 0.0f));
+                points.Add(new PointD(0.0f, 0.0f));
+                points.Add(new PointD(0.0f, 0.0f));
+                midPoint = new PointD(0.0f, 0.0f);
             }
             else
             {
@@ -163,11 +165,11 @@ public partial class Pattern
                 minY = iPoints.Min(p => p.y);
                 maxX = iPoints.Max(p => p.x);
                 maxY = iPoints.Max(p => p.y);
-                points.Add(new (minX, minY));
-                points.Add(new (minX, maxY));
-                points.Add(new (maxX, maxY));
-                points.Add(new (maxX, minY));
-                midPoint = new (minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
+                points.Add(new PointD(minX, minY));
+                points.Add(new PointD(minX, maxY));
+                points.Add(new PointD(maxX, maxY));
+                points.Add(new PointD(maxX, minY));
+                midPoint = new PointD(minX + (maxX - minX) / 2.0f, minY + (maxY - minY) / 2.0f);
             }
         }
     }
@@ -190,7 +192,7 @@ public partial class Pattern
 
     private void pInit(List<PatternElement> p)
     {
-        patternElements = new List<PatternElement>();
+        patternElements = [];
         foreach (PatternElement t in p)
         {
             patternElements.Add(new PatternElement(t));
@@ -221,13 +223,13 @@ public partial class Pattern
 
     private PointD pGetPos()
     {
-        return new (x, y);
+        return new PointD(x, y);
     }
 
     private PathD pBBDims(int index)
     {
         PreviewShape pShape1 = new(this, index);
-        BoundingBox bb = new(new List<PreviewShape> { pShape1 });
+        BoundingBox bb = new([pShape1]);
 
         return bb.getPoints();
     }
@@ -238,15 +240,12 @@ public partial class Pattern
     {
         double ret = 0;
         PathD bb = pBBDims(index);
-        switch (prop)
+        ret = prop switch
         {
-            case bbDims.width:
-                ret = bb.Max(p => p.x) - bb.Min(p => p.x);
-                break;
-            case bbDims.height:
-                ret = bb.Max(p => p.y) - bb.Min(p => p.y);
-                break;
-        }
+            bbDims.width => bb.Max(p => p.x) - bb.Min(p => p.x),
+            bbDims.height => bb.Max(p => p.y) - bb.Min(p => p.y),
+            _ => ret
+        };
 
         return ret;
     }
@@ -372,7 +371,7 @@ public partial class Pattern
 
             bool alignX = pGetPatternElement(xRef).getInt(PatternElement.properties_i.alignX) == 1;
             bool alignY = pGetPatternElement(xRef).getInt(PatternElement.properties_i.alignY) == 1;
-            x_ = Convert.ToDecimal(GeoWrangler.flip(true, false, alignX, alignY, pivot, new() { new (Convert.ToDouble(x_), 0) })[0].x);
+            x_ = Convert.ToDecimal(GeoWrangler.flip(true, false, alignX, alignY, pivot, [new PointD(Convert.ToDouble(x_), 0)])[0].x);
         }
 
         if (!doX)
@@ -510,7 +509,7 @@ public partial class Pattern
 
             bool alignX = pGetPatternElement(yRef).getInt(PatternElement.properties_i.alignX) == 1;
             bool alignY = pGetPatternElement(yRef).getInt(PatternElement.properties_i.alignY) == 1;
-            y_ = Convert.ToDecimal(GeoWrangler.flip(false, true, alignX, alignY, pivot, new () { new (0, Convert.ToDouble(y_)) })[0].y);
+            y_ = Convert.ToDecimal(GeoWrangler.flip(false, true, alignX, alignY, pivot, [new PointD(0, Convert.ToDouble(y_))])[0].y);
         }
 
         if (!doY)
@@ -674,9 +673,9 @@ public partial class Pattern
     private List<PreviewShape> pGenerate_shapes()
     {
         bbEvaluationNeeded = false;
-        bbShapes = new List<int>();
+        bbShapes = [];
 
-        previewShapes = new List<PreviewShape>();
+        previewShapes = [];
 
         pArrangeElements();
 
@@ -764,7 +763,7 @@ public partial class Pattern
     {
         string[] element_descriptions = new string[patternElements.Count];
 #if !QUILTSINGLETHREADED
-        Parallel.For(0, patternElements.Count, (p) =>
+        Parallel.For(0, patternElements.Count, p =>
 #else
             for (int p = 0; p < patternElements.Count; p++)
 #endif

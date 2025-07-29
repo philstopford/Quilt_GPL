@@ -2,6 +2,7 @@
 using Eto.Veldrid.Gtk;
 using System;
 using System.IO;
+using Eto.GtkSharp;
 using Veldrid;
 
 namespace Quilt.Gtk;
@@ -29,9 +30,9 @@ public static class MainClass
                 }
             }
 
-            foreach (var t in args)
+            foreach (string t in args)
             {
-                string[] tokens = t.Split(new[] { '.' });
+                string[] tokens = t.Split(['.']);
                 string extension = tokens[^1];
                 if (extension.ToUpper() == "QUILT" || extension.ToUpper() == "XML")
                 {
@@ -63,7 +64,7 @@ public static class MainClass
             }
         }
 
-        var platform = new Eto.GtkSharp.Platform();
+        Platform platform = new();
         platform.Add<VeldridSurface.IOpenGL>(() => new GtkVeldridSurfaceHandler());
 
         QuiltContext quiltContext = new(xmlFile, backend);

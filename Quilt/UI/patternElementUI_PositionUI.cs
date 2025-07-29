@@ -114,7 +114,7 @@ public partial class MainForm
         tl.Rows.Add(tr1);
         
         tr1.Cells.Add(new TableCell { Control = null });
-        btn_posXRef = new ()
+        btn_posXRef = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -223,7 +223,7 @@ public partial class MainForm
         tl.Rows.Add(tr1);
         
         tr1.Cells.Add(new TableCell { Control = null });
-        btn_posYRef = new ()
+        btn_posYRef = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -331,7 +331,7 @@ public partial class MainForm
         tl.Rows.Add(tr1);
         
         tr1.Cells.Add(new TableCell { Control = null });
-        btn_rotRef = new ()
+        btn_rotRef = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -376,14 +376,14 @@ public partial class MainForm
         Panel pnl_rotPivot = new();
         TableLayout tl_rotPivot = new();
         pnl_rotPivot.Content = tl_rotPivot;
-        tl_rotPivot.Rows.Add(new());
-        Label lbl_usePivot = new Label {Text = "Pivot"};
+        tl_rotPivot.Rows.Add(new TableRow());
+        Label lbl_usePivot = new() {Text = "Pivot"};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = lbl_usePivot });
-        rB_rotPivot_self = new() {Text = "Self", Checked = true};
+        rB_rotPivot_self = new RadioButton {Text = "Self", Checked = true};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = rB_rotPivot_self });
-        rB_rotPivot_ref = new(rB_rotPivot_self) {Text = "Reference", Checked = false};
+        rB_rotPivot_ref = new RadioButton(rB_rotPivot_self) {Text = "Reference", Checked = false};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = rB_rotPivot_ref });
-        rB_rotPivot_worldOrigin = new(rB_rotPivot_self) {Text = "World Origin", Checked = false};
+        rB_rotPivot_worldOrigin = new RadioButton(rB_rotPivot_self) {Text = "World Origin", Checked = false};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = rB_rotPivot_worldOrigin });
 
         ptl.Rows[^1].Cells.Add(new TableCell { Control = pnl_rotPivot });
@@ -445,7 +445,7 @@ public partial class MainForm
         tl.Rows.Add(tr1);
         
         tr1.Cells.Add(new TableCell { Control = null });
-        btn_arrayRef = new ()
+        btn_arrayRef = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -764,14 +764,14 @@ public partial class MainForm
         Panel pnl_rotPivot = new();
         TableLayout tl_rotPivot = new();
         pnl_rotPivot.Content = tl_rotPivot;
-        tl_rotPivot.Rows.Add(new());
-        Label lbl_usePivot = new Label {Text = "Pivot"};
+        tl_rotPivot.Rows.Add(new TableRow());
+        Label lbl_usePivot = new() {Text = "Pivot"};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = lbl_usePivot });
-        rB_arrayRotPivot_self = new() {Text = "Self", Checked = true};
+        rB_arrayRotPivot_self = new RadioButton {Text = "Self", Checked = true};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = rB_arrayRotPivot_self });
-        rB_arrayRotPivot_ref = new(rB_arrayRotPivot_self) {Text = "Reference", Checked = false};
+        rB_arrayRotPivot_ref = new RadioButton(rB_arrayRotPivot_self) {Text = "Reference", Checked = false};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = rB_arrayRotPivot_ref });
-        rB_arrayRotPivot_worldOrigin = new(rB_arrayRotPivot_self) {Text = "World Origin", Checked = false};
+        rB_arrayRotPivot_worldOrigin = new RadioButton(rB_arrayRotPivot_self) {Text = "World Origin", Checked = false};
         tl_rotPivot.Rows[^1].Cells.Add(new TableCell { Control = rB_arrayRotPivot_worldOrigin });
 
         tl.Rows[^1].Cells.Add(new TableCell { Control = pnl_rotPivot });
@@ -791,7 +791,7 @@ public partial class MainForm
         tl.Rows.Add(tr1);
         
         tr1.Cells.Add(new TableCell { Control = null });
-        btn_arrayRotRef = new ()
+        btn_arrayRotRef = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false
@@ -829,7 +829,7 @@ public partial class MainForm
         tl.Rows.Add(tr1);
         
         tr1.Cells.Add(new TableCell { Control = null });
-        btn_mergeRef = new ()
+        btn_mergeRef = new Button
         {
             Text = "Find", ToolTip = "Select reference for this property",
             Enabled = false

@@ -23,67 +23,67 @@ public partial class MainForm : Form
 {
     public class UIStringLists
     {
-        public ObservableCollection<string> patternElementNames { get; set; }
-        public ObservableCollection<string> patternElementNames_filtered { get; set; }
+        public ObservableCollection<string> patternElementNames { get; init; }
+        public ObservableCollection<string> patternElementNames_filtered { get; init; }
 
-        public ObservableCollection<string> patternElementNamesForMerge_filtered { get; set; }
+        public ObservableCollection<string> patternElementNamesForMerge_filtered { get; init; }
             
-        public ObservableCollection<string> patternElementNames_filtered_array { get; set; }
-        public ObservableCollection<string> xPosRefSubShapeList { get; set; }
-        public ObservableCollection<string> yPosRefSubShapeList { get; set; }
+        public ObservableCollection<string> patternElementNames_filtered_array { get; init; }
+        public ObservableCollection<string> xPosRefSubShapeList { get; init; }
+        public ObservableCollection<string> yPosRefSubShapeList { get; init; }
 
-        public ObservableCollection<string> minHLRefSubShapeList { get; set; }
-        public ObservableCollection<string> minHLRefSubShape2List { get; set; }
-        public ObservableCollection<string> minHLRefSubShape3List { get; set; }
-        public ObservableCollection<string> minVLRefSubShapeList { get; set; }
-        public ObservableCollection<string> minVLRefSubShape2List { get; set; }
-        public ObservableCollection<string> minVLRefSubShape3List { get; set; }
-        public ObservableCollection<string> minHORefSubShapeList { get; set; }
-        public ObservableCollection<string> minHORefSubShape2List { get; set; }
-        public ObservableCollection<string> minHORefSubShape3List { get; set; }
-        public ObservableCollection<string> minVORefSubShapeList { get; set; }
-        public ObservableCollection<string> minVORefSubShape2List { get; set; }
-        public ObservableCollection<string> minVORefSubShape3List { get; set; }
+        public ObservableCollection<string> minHLRefSubShapeList { get; init; }
+        public ObservableCollection<string> minHLRefSubShape2List { get; init; }
+        public ObservableCollection<string> minHLRefSubShape3List { get; init; }
+        public ObservableCollection<string> minVLRefSubShapeList { get; init; }
+        public ObservableCollection<string> minVLRefSubShape2List { get; init; }
+        public ObservableCollection<string> minVLRefSubShape3List { get; init; }
+        public ObservableCollection<string> minHORefSubShapeList { get; init; }
+        public ObservableCollection<string> minHORefSubShape2List { get; init; }
+        public ObservableCollection<string> minHORefSubShape3List { get; init; }
+        public ObservableCollection<string> minVORefSubShapeList { get; init; }
+        public ObservableCollection<string> minVORefSubShape2List { get; init; }
+        public ObservableCollection<string> minVORefSubShape3List { get; init; }
 
-        public ObservableCollection<string> minHLStepsRefSubShapeList { get; set; }
-        public ObservableCollection<string> minHLStepsRefSubShape2List { get; set; }
-        public ObservableCollection<string> minHLStepsRefSubShape3List { get; set; }
-        public ObservableCollection<string> minVLStepsRefSubShapeList { get; set; }
-        public ObservableCollection<string> minVLStepsRefSubShape2List { get; set; }
-        public ObservableCollection<string> minVLStepsRefSubShape3List { get; set; }
-        public ObservableCollection<string> minHOStepsRefSubShapeList { get; set; }
-        public ObservableCollection<string> minHOStepsRefSubShape2List { get; set; }
-        public ObservableCollection<string> minHOStepsRefSubShape3List { get; set; }
-        public ObservableCollection<string> minVOStepsRefSubShapeList { get; set; }
-        public ObservableCollection<string> minVOStepsRefSubShape2List { get; set; }
-        public ObservableCollection<string> minVOStepsRefSubShape3List { get; set; }
-        public ObservableCollection<string> minHLIncRefSubShapeList { get; set; }
-        public ObservableCollection<string> minHLIncRefSubShape2List { get; set; }
-        public ObservableCollection<string> minHLIncRefSubShape3List { get; set; }
-        public ObservableCollection<string> minVLIncRefSubShapeList { get; set; }
-        public ObservableCollection<string> minVLIncRefSubShape2List { get; set; }
-        public ObservableCollection<string> minVLIncRefSubShape3List { get; set; }
-        public ObservableCollection<string> minHOIncRefSubShapeList { get; set; }
-        public ObservableCollection<string> minHOIncRefSubShape2List { get; set; }
-        public ObservableCollection<string> minHOIncRefSubShape3List { get; set; }
-        public ObservableCollection<string> minVOIncRefSubShapeList { get; set; }
-        public ObservableCollection<string> minVOIncRefSubShape2List { get; set; }
-        public ObservableCollection<string> minVOIncRefSubShape3List { get; set; }
+        public ObservableCollection<string> minHLStepsRefSubShapeList { get; init; }
+        public ObservableCollection<string> minHLStepsRefSubShape2List { get; init; }
+        public ObservableCollection<string> minHLStepsRefSubShape3List { get; init; }
+        public ObservableCollection<string> minVLStepsRefSubShapeList { get; init; }
+        public ObservableCollection<string> minVLStepsRefSubShape2List { get; init; }
+        public ObservableCollection<string> minVLStepsRefSubShape3List { get; init; }
+        public ObservableCollection<string> minHOStepsRefSubShapeList { get; init; }
+        public ObservableCollection<string> minHOStepsRefSubShape2List { get; init; }
+        public ObservableCollection<string> minHOStepsRefSubShape3List { get; init; }
+        public ObservableCollection<string> minVOStepsRefSubShapeList { get; init; }
+        public ObservableCollection<string> minVOStepsRefSubShape2List { get; init; }
+        public ObservableCollection<string> minVOStepsRefSubShape3List { get; init; }
+        public ObservableCollection<string> minHLIncRefSubShapeList { get; init; }
+        public ObservableCollection<string> minHLIncRefSubShape2List { get; init; }
+        public ObservableCollection<string> minHLIncRefSubShape3List { get; init; }
+        public ObservableCollection<string> minVLIncRefSubShapeList { get; init; }
+        public ObservableCollection<string> minVLIncRefSubShape2List { get; init; }
+        public ObservableCollection<string> minVLIncRefSubShape3List { get; init; }
+        public ObservableCollection<string> minHOIncRefSubShapeList { get; init; }
+        public ObservableCollection<string> minHOIncRefSubShape2List { get; init; }
+        public ObservableCollection<string> minHOIncRefSubShape3List { get; init; }
+        public ObservableCollection<string> minVOIncRefSubShapeList { get; init; }
+        public ObservableCollection<string> minVOIncRefSubShape2List { get; init; }
+        public ObservableCollection<string> minVOIncRefSubShape3List { get; init; }
 
-        public ObservableCollection<string> tipRefSubShapeList { get; set; }
-        public ObservableCollection<string> tipRefSubShape2List { get; set; }
-        public ObservableCollection<string> tipRefSubShape3List { get; set; }
+        public ObservableCollection<string> tipRefSubShapeList { get; init; }
+        public ObservableCollection<string> tipRefSubShape2List { get; init; }
+        public ObservableCollection<string> tipRefSubShape3List { get; init; }
 
-        public List<string> shapes { get; set; }
-        public List<string> subShapePos { get; set; }
-        public List<string> subShapeHorPos { get; set; }
-        public List<string> subShapeVerPos { get; set; }
+        public List<string> shapes { get; init; }
+        public List<string> subShapePos { get; init; }
+        public List<string> subShapeHorPos { get; init; }
+        public List<string> subShapeVerPos { get; init; }
 
-        public ObservableCollection<string> geoCoreStructureList_exp { get; set; }
+        public ObservableCollection<string> geoCoreStructureList_exp { get; init; }
 
-        public ObservableCollection<string> subShapeList { get; set; }
+        public ObservableCollection<string> subShapeList { get; init; }
         
-        public List<string> tipLocs { get; set; }
+        public List<string> tipLocs { get; init; }
         public List<string> openGLMode { get; set; }
     }
 
@@ -695,8 +695,8 @@ public partial class MainForm : Form
         int patternElement = listBox_entries.SelectedIndex;
         try
         {
-            lb_selLinkedElement.Enabled = (commonVars.stitcher.getPatternElement(0, patternElement)
-                .getInt(PatternElement.properties_i.linkedElementIndex) != -1);
+            lb_selLinkedElement.Enabled = commonVars.stitcher.getPatternElement(0, patternElement)
+                .getInt(PatternElement.properties_i.linkedElementIndex) != -1;
         }
         catch (Exception)
         {
@@ -705,8 +705,8 @@ public partial class MainForm : Form
 
         try
         {
-            lb_selXPosElement.Enabled = (commonVars.stitcher.getPatternElement(0, patternElement)
-                .getInt(PatternElement.properties_i.xPosRef) != 0);
+            lb_selXPosElement.Enabled = commonVars.stitcher.getPatternElement(0, patternElement)
+                .getInt(PatternElement.properties_i.xPosRef) != 0;
         }
         catch (Exception)
         {
@@ -715,8 +715,8 @@ public partial class MainForm : Form
 
         try
         {
-            lb_selYPosElement.Enabled = (commonVars.stitcher.getPatternElement(0, patternElement)
-                .getInt(PatternElement.properties_i.yPosRef) != 0);
+            lb_selYPosElement.Enabled = commonVars.stitcher.getPatternElement(0, patternElement)
+                .getInt(PatternElement.properties_i.yPosRef) != 0;
         }
         catch (Exception)
         {
@@ -726,8 +726,8 @@ public partial class MainForm : Form
         try
         {
             // Self and 'World Origin'
-            lb_selRotElement.Enabled = (commonVars.stitcher.getPatternElement(0, patternElement)
-                .getInt(PatternElement.properties_i.rotationRef) > 1);
+            lb_selRotElement.Enabled = commonVars.stitcher.getPatternElement(0, patternElement)
+                .getInt(PatternElement.properties_i.rotationRef) > 1;
         }
         catch (Exception)
         {
@@ -736,8 +736,8 @@ public partial class MainForm : Form
 
         try
         {
-            lb_selArrayElement.Enabled = (commonVars.stitcher.getPatternElement(0, patternElement)
-                .getInt(PatternElement.properties_i.arrayRef) != 0);
+            lb_selArrayElement.Enabled = commonVars.stitcher.getPatternElement(0, patternElement)
+                .getInt(PatternElement.properties_i.arrayRef) != 0;
         }
         catch (Exception)
         {
@@ -747,8 +747,8 @@ public partial class MainForm : Form
         try
         {
             // Self and 'World Origin'
-            lb_selArrayRotElement.Enabled = (commonVars.stitcher.getPatternElement(0, patternElement)
-                .getInt(PatternElement.properties_i.arrayRotationRef) > 1);
+            lb_selArrayRotElement.Enabled = commonVars.stitcher.getPatternElement(0, patternElement)
+                .getInt(PatternElement.properties_i.arrayRotationRef) > 1;
         }
         catch (Exception)
         {
@@ -836,7 +836,7 @@ public partial class MainForm : Form
 
         GraphicsDeviceOptions options = new(
             false,
-            Veldrid.PixelFormat.R32_Float,
+            Veldrid.PixelFormat.R32Float,
             false,
             ResourceBindingModel.Improved);
 
@@ -844,7 +844,7 @@ public partial class MainForm : Form
         
         viewPort = new VeldridDriver(ref ovpSettings, ref vSurface)
         {
-            Surface = vSurface,
+            Surface = vSurface
         };
 
         vSurface.VeldridInitialized += (_, _) =>

@@ -482,16 +482,12 @@ public partial class MainForm
             }
             else
             {
-                switch (shapeString)
+                groupBox_properties.Content = shapeString switch
                 {
-                    case "bounding":
-                        groupBox_properties.Content = groupBox_bounding_table;
-                        break;
-                    case "complex":
-                        groupBox_properties.Content = new Expander()
-                            {Content = groupBox_layout_table, Header = "Edges", Expanded = false};
-                        break;
-                }
+                    "bounding" => groupBox_bounding_table,
+                    "complex" => new Expander() { Content = groupBox_layout_table, Header = "Edges", Expanded = false },
+                    _ => groupBox_properties.Content
+                };
 
                 commonVars.subshapes.Clear();
                 commonVars.subshapes.Add("1");

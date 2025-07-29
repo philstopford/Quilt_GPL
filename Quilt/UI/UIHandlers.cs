@@ -20,7 +20,7 @@ public partial class MainForm
 
     private void pNewHandler(object sender, EventArgs e)
     {
-        var result = MessageBox.Show("Are you sure?", "New", MessageBoxButtons.YesNo, type: MessageBoxType.Question);
+        DialogResult result = MessageBox.Show("Are you sure?", "New", MessageBoxButtons.YesNo, type: MessageBoxType.Question);
         if (result == DialogResult.Yes)
         {
             pNew();
@@ -93,7 +93,7 @@ public partial class MainForm
 
     private void pLoadLayoutFromFile()
     {
-        string[] tokens = layout_filename.Split(new[] { '.' });
+        string[] tokens = layout_filename.Split(['.']);
         string ext = tokens[^1].ToUpper();
         string filename = string.Join(',', tokens.SkipLast(1));
 
@@ -102,12 +102,12 @@ public partial class MainForm
             UIFreeze = true;
             commonVars.gCH.reset();
 
-            if (ext == "GDS" || ext == "GZ" && tokens[^2].ToUpper() == "GDS")
+            if (ext == "GDS" || ext == "GZ" && tokens[^2].Equals("GDS", StringComparison.CurrentCultureIgnoreCase))
             {
                 commonVars.gCH.updateGeoCoreHandler(layout_filename, GeoCore.fileType.gds);
             }
 
-            if (ext is "OAS" or "OASIS" || ext == "GZ" && (tokens[^2].ToUpper() == "OAS" || tokens[^2].ToUpper() == "OASIS"))
+            if (ext is "OAS" or "OASIS" || ext == "GZ" && (tokens[^2].Equals("OAS", StringComparison.CurrentCultureIgnoreCase) || tokens[^2].Equals("OASIS", StringComparison.CurrentCultureIgnoreCase)))
             {
                 commonVars.gCH.updateGeoCoreHandler(layout_filename, GeoCore.fileType.oasis);
             }
@@ -210,7 +210,7 @@ public partial class MainForm
 
     private void pProcessLayoutWithWorker(object sender, EventArgs e)
     {
-        pl.processLayout(ref abortLoad, quiltContext.angularTolerance, quiltContext.verticalRectDecomp);
+        bool result = pl.processLayout(ref abortLoad, quiltContext.angularTolerance, quiltContext.verticalRectDecomp);
     }
 
     private GeoCore pGetGeoCore()
@@ -294,8 +294,8 @@ public partial class MainForm
         // Check that we have a valid file somewhere in the dropped resources
         foreach (Uri t in e.Data.Uris)
         {
-            string[] tokens = t.LocalPath.Split(new[] { '.' });
-            if (tokens[^1].ToUpper() != "QUILT" && tokens[^1].ToUpper() != "XML")
+            string[] tokens = t.LocalPath.Split(['.']);
+            if (!tokens[^1].Equals("QUILT", StringComparison.CurrentCultureIgnoreCase) && !tokens[^1].Equals("XML", StringComparison.CurrentCultureIgnoreCase))
             {
                 continue;
             }
@@ -325,8 +325,8 @@ public partial class MainForm
             }
 
             // Actually a supported file?
-            string[] tokens = d.Uris[i].LocalPath.Split(new[] { '.' });
-            if (tokens[^1].ToUpper() != "QUILT" && tokens[^1].ToUpper() != "XML")
+            string[] tokens = d.Uris[i].LocalPath.Split(['.']);
+            if (!tokens[^1].Equals("QUILT", StringComparison.CurrentCultureIgnoreCase) && !tokens[^1].Equals("XML", StringComparison.CurrentCultureIgnoreCase))
             {
                 continue;
             }
@@ -468,7 +468,7 @@ public partial class MainForm
 
     private void pRemovePatternElement()
     {
-        var result = MessageBox.Show("Are you sure?", "Remove element", MessageBoxButtons.YesNo, type: MessageBoxType.Question);
+        DialogResult result = MessageBox.Show("Are you sure?", "Remove element", MessageBoxButtons.YesNo, type: MessageBoxType.Question);
         if (result != DialogResult.Yes)
         {
             return;
@@ -525,7 +525,7 @@ public partial class MainForm
 
         string filename = sfd.FileName;
         sfd.Dispose();
-        string[] tokens = filename.Split(new[] { '.' });
+        string[] tokens = filename.Split(['.']);
         string ext = tokens[^1].ToUpper();
 
         int type = -1;
@@ -533,15 +533,15 @@ public partial class MainForm
         switch (ext)
         {
             case "GDS":
-            case "GZ" when tokens[^2].ToUpper() == "GDS":
+            case "GZ" when tokens[^2].Equals("GDS", StringComparison.CurrentCultureIgnoreCase):
             case "GDSII":
-            case "GZ" when tokens[^2].ToUpper() == "GDSII":
+            case "GZ" when tokens[^2].Equals("GDSII", StringComparison.CurrentCultureIgnoreCase):
                 type = (int)GeoCore.fileType.gds;
                 break;
             case "OAS":
-            case "GZ" when tokens[^2].ToUpper() == "OAS":
+            case "GZ" when tokens[^2].Equals("OAS", StringComparison.CurrentCultureIgnoreCase):
             case "OASIS":
-            case "GZ" when tokens[^2].ToUpper() == "OASIS":
+            case "GZ" when tokens[^2].Equals("OASIS", StringComparison.CurrentCultureIgnoreCase):
                 type = (int)GeoCore.fileType.oasis;
                 break;
         }
@@ -793,20 +793,16 @@ public partial class MainForm
         ovpSettings.aA(quiltContext.AA);
         CommonVars.setOpenGLProp(CommonVars.properties_gl.aa);
 
-        Debug.Assert(checkBox_OGLFill.Checked != null, "checkBox_OGLFill.Checked != null");
         quiltContext.filledPolygons = (bool)checkBox_OGLFill.Checked!;
         ovpSettings.drawFilled(quiltContext.filledPolygons);
         CommonVars.setOpenGLProp(CommonVars.properties_gl.fill);
 
-        Debug.Assert(checkBox_OGLPoints.Checked != null, "checkBox_OGLPoints.Checked != null");
         quiltContext.drawPoints = (bool)checkBox_OGLPoints.Checked!;
         ovpSettings.drawPoints(quiltContext.drawPoints);
         CommonVars.setOpenGLProp(CommonVars.properties_gl.points);
 
-        Debug.Assert(checkBox_drawExtents.Checked != null, "checkBox_drawExtents.Checked != null");
         quiltContext.drawExtents = (bool)checkBox_drawExtents.Checked!;
 
-        Debug.Assert(checkBox_verticalRectDecomp.Checked != null, "checkBox_verticalRectDecomp.Checked != null");
         quiltContext.verticalRectDecomp = (bool)checkBox_verticalRectDecomp.Checked!;
 
         quiltContext.openGLZoomFactor = Convert.ToInt32(num_zoomSpeed.Value);
@@ -820,7 +816,6 @@ public partial class MainForm
 
         quiltContext.angularTolerance = num_angularTolerance.Value;
 
-        Debug.Assert(checkBox_expandUI.Checked != null, "checkBox_expandUI.Checked != null");
         quiltContext.expandUI = (bool)checkBox_expandUI.Checked!;
         
         viewPort.updateViewport();
@@ -905,7 +900,6 @@ public partial class MainForm
 
     private void pShowInput()
     {
-        Debug.Assert(checkBox_showInput.Checked != null, "checkBox_showInput.Checked != null");
         if ((bool)checkBox_showInput.Checked!)
         {
             commonVars.stitcher.setShowInput(1);

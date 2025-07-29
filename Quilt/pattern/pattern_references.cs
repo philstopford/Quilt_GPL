@@ -11,7 +11,7 @@ public partial class Pattern
 
     private int pCyclicalCheck_int(int cRef, PatternElement.properties_i prop, int subshape = -1)
     {
-        List<int> cRefs = new() {cRef};
+        List<int> cRefs = [cRef];
 
         bool cyclical = false;
         int collisionIndex = -1;
